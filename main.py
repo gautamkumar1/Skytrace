@@ -1,14 +1,13 @@
-"""CLI entry point: run a due-diligence case (ingest PDFs, orchestrator + agents, save findings)."""
+"""CLI entry point: run a due-diligence case (ingest PDFs, orchestrator + agents, write findings)."""
 from __future__ import annotations
 
-import logging
 from pathlib import Path
 
 import click
 from dotenv import load_dotenv
+import structlog
 
 from src.abstractions.ledger import LedgerEventType
-from src.agents.mock_agent import MockTechnicalAgent
 from src.agents.orchestrator import Orchestrator
 from src.agents.technical_airworthiness import TechnicalAirworthinessAgent
 from src.backends import (
@@ -16,7 +15,9 @@ from src.backends import (
     LocalStorageBackend,
     PostgresDatabaseBackend,
     PostgresLedgerBackend,
+    QLDBLedgerBackend,
     S3StorageBackend,
+    SnowflakeDatabaseBackend,
 )
 from src.config import load_settings
 from src.ingestion.pipeline import ingest_documents
@@ -35,10 +36,29 @@ def _wire_storage(settings):
     return LocalStorageBackend(root="./data/storage")
 
 
+def _wire_database(settings):
+    if getattr(settings, "database_backend", "postgres") == "snowflake":
+        return SnowflakeDatabaseBackend(
+            account=settings.snowflake_account,
+            user=settings.snowflake_user,
+            password=settings.snowflake_password,
+            database=settings.snowflake_database,
+            schema=settings.snowflake_schema,
+            warehouse=settings.snowflake_warehouse,
+            role=settings.snowflake_role or None,
+        )
+    return PostgresDatabaseBackend(settings.database_url)
+
+
 def _wire_ledger(settings):
     if settings.ledger_backend == "file":
         Path(settings.ledger_file_path).parent.mkdir(parents=True, exist_ok=True)
         return FileLedgerBackend(settings.ledger_file_path)
+    if settings.ledger_backend == "qldb":
+        return QLDBLedgerBackend(
+            ledger_name=getattr(settings, "qldb_ledger_name", "aviation-audit"),
+            region=settings.aws_region,
+        )
     return PostgresLedgerBackend(settings.database_url)
 
 
@@ -73,12 +93,13 @@ def _print_report(report):
     click.echo("\n".join(lines))
 
 
-def _insert_placeholder_engine_data(database, case_id, registration, aircraft_type, engine_type):
-    for metric_name, metric_value, unit, status in [
-        ("EGT_MARGIN_C", 18.0, "°C", "ok"),
-        ("CSN", 14200, None, "ok"),
-        ("LLP_MIN_REMAINING", 5800, "cycles", "advisory"),
-    ]:
+def _insert_engine_data_from_docs(database, doc_dicts, case_id, registration, aircraft_type, engine_type):
+    """Extract engine metrics from ingested document text and insert into DB. No synthetic data."""
+    from src.ingestion.engine_extractor import extract_engine_metrics_from_docs
+    extracted = extract_engine_metrics_from_docs(
+        doc_dicts, case_id, registration, aircraft_type, engine_type
+    )
+    for metric_name, metric_value, unit, status in extracted:
         database.insert_engine_data(
             case_id=case_id,
             registration=registration,
@@ -92,44 +113,44 @@ def _insert_placeholder_engine_data(database, case_id, registration, aircraft_ty
 
 
 @click.command()
-@click.option("--case", "case_id", required=True, help="Case ID (e.g. demo_001)")
-@click.option("--reg", "registration", required=True, help="Aircraft registration (e.g. EI-SYN)")
-@click.option("--type", "aircraft_type", required=True, help="Aircraft type (e.g. A320-214)")
-@click.option("--engine", "engine_type", required=True, help="Engine type (e.g. CFM56-5B4/2P)")
+@click.option("--case", "case_id", required=True, help="Case ID")
+@click.option("--reg", "registration", required=True, help="Aircraft registration")
+@click.option("--type", "aircraft_type", required=True, help="Aircraft type")
+@click.option("--engine", "engine_type", required=True, help="Engine type")
 @click.option("--docs", "docs_dir", type=click.Path(exists=True, file_okay=False), required=True, help="Directory of PDFs")
 def run(case_id: str, registration: str, aircraft_type: str, engine_type: str, docs_dir: str) -> None:
-    """Run technical due diligence: ingest PDFs, orchestrator + agent(s), write findings to DB."""
+    """Run technical due diligence: ingest PDFs, run orchestrator and Technical Agent, write findings to DB."""
     settings = load_settings()
     settings.validate_at_startup()
 
-    log_level = getattr(logging, settings.log_level.upper(), logging.INFO)
-    logging.basicConfig(level=log_level, format="%(levelname)s %(name)s %(message)s")
-    logger = logging.getLogger(__name__)
-
-    if settings.use_mock_agent:
-        logger.warning("ANTHROPIC_API_KEY not set — using MockTechnicalAgent (demo findings only)")
+    from src.log_config import configure_structlog
+    configure_structlog(log_level=getattr(settings, "log_level", "INFO"), json_logs=getattr(settings, "json_logs", False))
+    logger = structlog.get_logger(__name__)
 
     storage = _wire_storage(settings)
-    database = PostgresDatabaseBackend(settings.database_url)
+    database = _wire_database(settings)
     database.ensure_schema()
     ledger = _wire_ledger(settings)
 
-    logger.info("case=%s event=case_opened", case_id)
+    logger.info("case_opened", case_id=case_id)
     database.insert_case(case_id, registration, aircraft_type, engine_type)
 
     docs = ingest_documents(case_id, docs_dir, storage, database, ledger)
     if not docs:
-        logger.warning("No PDFs ingested from %s", docs_dir)
+        logger.warning("no_pdfs_ingested", docs_dir=docs_dir)
         doc_dicts = []
     else:
         doc_dicts = [d.model_dump() for d in docs]
-    _insert_placeholder_engine_data(database, case_id, registration, aircraft_type, engine_type)
+        _insert_engine_data_from_docs(database, doc_dicts, case_id, registration, aircraft_type, engine_type)
 
-    if settings.use_mock_agent:
-        agent = MockTechnicalAgent()
+    if getattr(settings, "use_agent_registry", False):
+        from src.agents.registry import discover_agents
+        agents = discover_agents()
+        if not agents:
+            agents = [TechnicalAirworthinessAgent(api_key=settings.anthropic_api_key)]
     else:
-        agent = TechnicalAirworthinessAgent(api_key=settings.anthropic_api_key)
-    orchestrator = Orchestrator(agents=[agent])
+        agents = [TechnicalAirworthinessAgent(api_key=settings.anthropic_api_key)]
+    orchestrator = Orchestrator(agents=agents)
     report = orchestrator.run_case(
         case_id=case_id,
         aircraft_reg=registration,
@@ -159,7 +180,7 @@ def run(case_id: str, registration: str, aircraft_type: str, engine_type: str, d
             entity_id=f.finding_id,
         )
 
-    logger.info("case=%s event=findings_written count=%s", case_id, len(report.findings))
+    logger.info("findings_written", case_id=case_id, count=len(report.findings))
     _print_report(report)
     click.echo("\nDashboard: python -m dashboard.app (or docker compose up)")
 

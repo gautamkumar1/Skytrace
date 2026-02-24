@@ -1,47 +1,56 @@
-# Aircraft Leasing AI POC
+# Aircraft Leasing AI — Technical Due Diligence
 
-**What this project is:** A proof-of-concept for **AI-assisted aircraft technical due diligence** in leasing. It ingests PDFs (e.g. AD lists, engine status, ARC), runs an **Orchestrator** with a **Technical Airworthiness** agent (Claude or mock) to produce findings (severity, evidence, confidence), and stores cases, documents, and findings in PostgreSQL with an optional **immutable ledger**. A **Plotly Dash** dashboard provides Engine Health and Fleet Overview. Storage and database are behind abstractions for cloud portability.
+AI-assisted aircraft technical due diligence: ingest PDFs (AD lists, engine status, ARC), run a **Technical Airworthiness** agent (Claude) via an **Orchestrator**, store cases, documents, and findings in PostgreSQL or Snowflake with an immutable ledger (Postgres, file, or AWS QLDB). Plotly Dash dashboard for Engine Health and Fleet Overview.
 
 ---
 
-## Quick start
+## Requirements
 
-### 1. Virtualenv and install
+- Python 3.12+
+- PostgreSQL or Snowflake (for database)
+- Anthropic API key (Claude)
+- Optional: AWS (S3 for documents, QLDB for ledger)
+
+---
+
+## Setup
+
+### 1. Install
 
 ```bash
 cd aircraft-leasing-poc
 python3 -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+source .venv/bin/activate
 pip install -r requirements.txt
 export PYTHONPATH=.
 ```
 
-Or use the setup script (runs unit tests after install):
-
-```bash
-bash scripts/setup_venv.sh
-```
-
 ### 2. Configure
 
-- Copy `.env.example` to `.env`
-- Set `DATABASE_URL` to your PostgreSQL connection string (required). If your password contains `@` or `#`, URL-encode them as `%40` or `%23` (e.g. `postgresql://user:pass%402026@host:5432/db`).
-- **Optional:** Set `ANTHROPIC_API_KEY` for the real Claude agent. If unset, the app uses **MockTechnicalAgent** (demo findings, no API calls) so you can run and test without keys.
-- Optional: `LEDGER_BACKEND=file` and `LEDGER_FILE_PATH=./data/ledger.jsonl` for file-based ledger
-- Optional: AWS keys + `S3_BUCKET` for S3 storage; otherwise local `./data/storage` is used
+Copy `.env.example` to `.env` and set:
+
+- **`ANTHROPIC_API_KEY`** — Required. Claude API key for the Technical Airworthiness agent.
+- **`DATABASE_URL`** — Required when `DATABASE_BACKEND=postgres`. PostgreSQL connection string. If the password contains `@` or `#`, use `%40` or `%23`.
+- **`DATABASE_BACKEND`** — `postgres` (default) or `snowflake`. If `snowflake`, set `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_USER`, `SNOWFLAKE_PASSWORD`, `SNOWFLAKE_DATABASE`, `SNOWFLAKE_SCHEMA`, `SNOWFLAKE_WAREHOUSE`.
+- **`LEDGER_BACKEND`** — `postgres`, `file`, or `qldb`. For `qldb`, create the ledger and table `audit_ledger` in AWS.
+- **AWS** — Set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `S3_BUCKET` for S3 document storage; set for QLDB if using `LEDGER_BACKEND=qldb`.
 
 ### 3. Run a case
 
-From project root:
+Place PDFs in a directory, then:
 
 ```bash
-mkdir -p sample_docs
-# Add PDFs to sample_docs/ if you have any (optional for mock agent)
 export PYTHONPATH=.
-python main.py --case demo_001 --reg EI-SYN --type A320-214 --engine CFM56-5B4/2P --docs ./sample_docs/
+python main.py --case <case_id> --reg <registration> --type <aircraft_type> --engine <engine_type> --docs <path_to_pdfs>
 ```
 
-This creates the case, ingests any PDFs in `./sample_docs/`, runs the orchestrator (mock or Claude), writes findings and placeholder engine metrics to the DB and ledger, and prints a formatted case report.
+Example:
+
+```bash
+python main.py --case case_001 --reg EI-SYN --type A320-214 --engine CFM56-5B4/2P --docs ./docs/
+```
+
+The pipeline ingests PDFs, extracts engine metrics from document text, runs the orchestrator and Technical Agent, writes findings and engine data to the database and ledger, and prints a case report.
 
 ### 4. Dashboard
 
@@ -50,40 +59,24 @@ export PYTHONPATH=.
 python -m dashboard.app
 ```
 
-Open http://localhost:8050 — **Engine Health** (per-case metrics + AI findings) and **Fleet Overview** (summary table).
+Open http://localhost:8050 for Engine Health (per-case metrics and findings) and Fleet Overview. Use Approve/Flag/Reject on findings to record feedback (stored in DB and ledger).
 
-### 5. Docker (optional)
+### 5. Docker
 
 ```bash
 docker compose -f docker-compose.yaml up --build
 ```
 
-- Postgres: `localhost:5432`, DB `aviation_poc`, user/pass `postgres/postgres`
-- App (dashboard): http://localhost:8050  
-- To run a case inside Docker (mount a folder with PDFs):
-
-  ```bash
-  docker compose -f docker-compose.yaml run --rm -v "$(pwd)/sample_docs:/app/sample_docs" app \
-    python main.py --case demo_001 --reg EI-SYN --type A320-214 --engine CFM56-5B4/2P --docs /app/sample_docs
-  ```
+Ensure `.env` contains `ANTHROPIC_API_KEY` and `DATABASE_URL` (or Snowflake vars). The app and dashboard use these. To run a case inside the container, mount a directory of PDFs and run the same `main.py` command.
 
 ---
 
-## Testing
+## Tests
 
-- **Unit tests (no DB, no API):**
-  ```bash
-  export PYTHONPATH=.
-  python -m pytest tests/unit/ -v
-  ```
-
-- **All tests (integration tests require `DATABASE_URL` pointing to Postgres):**
-  ```bash
-  export PYTHONPATH=.
-  python -m pytest tests/ -v
-  ```
-
-Integration tests are skipped if `DATABASE_URL` is not set or does not contain `postgres`.
+```bash
+export PYTHONPATH=.
+python -m pytest tests/unit/ -v
+```
 
 ---
 
@@ -91,16 +84,15 @@ Integration tests are skipped if `DATABASE_URL` is not set or does not contain `
 
 | Area | Purpose |
 |------|--------|
-| `src/agents/` | Base agent, Technical Airworthiness (Claude), Mock agent, Orchestrator |
-| `src/ingestion/` | PDF ingestion pipeline |
-| `src/schemas/` | Pydantic models (CaseReport, FindingOut, IngestedDocument, etc.) |
+| `src/agents/` | Base agent, Technical Airworthiness (Claude), Orchestrator, registry |
+| `src/ingestion/` | PDF ingestion (pdfplumber + pypdf), engine metrics extraction |
+| `src/schemas/` | Pydantic models |
 | `src/abstractions/` | Storage, database, ledger ABCs |
-| `src/backends/` | Local/S3 storage; PostgreSQL DB; file/Postgres ledger |
-| `src/config.py` | Env-based settings |
+| `src/backends/` | Postgres, Snowflake, S3, local storage, Postgres/file/QLDB ledger |
 | `main.py` | CLI entry point |
-| `dashboard/` | Plotly Dash app (Engine Health + Fleet Overview) |
-| `tests/unit/`, `tests/integration/` | Unit and integration tests |
-| `Dockerfile`, `docker-compose.yaml` | Container and local Postgres stack |
+| `dashboard/` | Plotly Dash (Engine Health, Fleet Overview, finding feedback) |
+| `tests/unit/` | Unit tests |
+| `Dockerfile`, `docker-compose.yaml` | Container and Postgres stack |
 
 ---
 
@@ -108,9 +100,10 @@ Integration tests are skipped if `DATABASE_URL` is not set or does not contain `
 
 | Env var | Purpose |
 |--------|--------|
-| `DATABASE_URL` | PostgreSQL connection string (required). |
-| `ANTHROPIC_API_KEY` | Claude API key. If unset, MockTechnicalAgent is used. |
-| `LEDGER_BACKEND` | `postgres` or `file`. |
-| `LEDGER_FILE_PATH` | Path for file ledger when `LEDGER_BACKEND=file`. |
-| `AWS_*` / `S3_BUCKET` | If set, S3 is used for document storage. |
-| `DASHBOARD_HOST`, `DASHBOARD_PORT` | Dashboard bind address and port (default 0.0.0.0:8050). |
+| `ANTHROPIC_API_KEY` | Required. Claude API key. |
+| `DATABASE_BACKEND` | `postgres` or `snowflake`. |
+| `DATABASE_URL` | Required when `DATABASE_BACKEND=postgres`. |
+| `SNOWFLAKE_*` | Required when `DATABASE_BACKEND=snowflake`. |
+| `LEDGER_BACKEND` | `postgres`, `file`, or `qldb`. |
+| `AWS_*`, `S3_BUCKET` | S3 document storage; required for QLDB. |
+| `DASHBOARD_HOST`, `DASHBOARD_PORT` | Dashboard bind (default 0.0.0.0:8050). |

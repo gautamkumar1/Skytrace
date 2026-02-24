@@ -71,6 +71,18 @@ CREATE TABLE IF NOT EXISTS engine_data (
 );
 
 CREATE INDEX IF NOT EXISTS idx_engine_data_case_id ON engine_data(case_id);
+
+CREATE TABLE IF NOT EXISTS finding_feedback (
+    id VARCHAR(64) PRIMARY KEY,
+    finding_id VARCHAR(128) NOT NULL,
+    case_id VARCHAR(128) NOT NULL,
+    actor VARCHAR(100) NOT NULL,
+    feedback VARCHAR(20) NOT NULL,
+    comment VARCHAR(1000),
+    ledger_id VARCHAR(200),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_finding_feedback_finding_id ON finding_feedback(finding_id);
 """
 
 
@@ -249,6 +261,33 @@ class PostgresDatabaseBackend(DatabaseBackend):
                     "unit": unit,
                     "status": status,
                     "metadata_json": metadata_json or "{}",
+                },
+            )
+
+    def insert_finding_feedback(
+        self,
+        feedback_id: str,
+        finding_id: str,
+        case_id: str,
+        actor: str,
+        feedback: str,
+        comment: str | None = None,
+        ledger_id: str | None = None,
+    ) -> None:
+        with self._session() as s:
+            s.execute(
+                text("""
+                INSERT INTO finding_feedback (id, finding_id, case_id, actor, feedback, comment, ledger_id)
+                VALUES (:id, :finding_id, :case_id, :actor, :feedback, :comment, :ledger_id)
+                """),
+                {
+                    "id": feedback_id,
+                    "finding_id": finding_id,
+                    "case_id": case_id,
+                    "actor": actor,
+                    "feedback": feedback,
+                    "comment": comment,
+                    "ledger_id": ledger_id,
                 },
             )
 

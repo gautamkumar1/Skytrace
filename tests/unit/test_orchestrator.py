@@ -1,7 +1,6 @@
-"""Unit tests for Orchestrator and CaseReport."""
+"""Unit tests for Orchestrator and CaseReport (no external API)."""
 import pytest
-from src.agents.orchestrator import Orchestrator, _derive_overall_status
-from src.agents.mock_agent import MockTechnicalAgent
+from src.agents.orchestrator import _derive_overall_status
 from src.schemas.models import CaseReport, FindingOut, FindingSeverity
 
 
@@ -12,26 +11,6 @@ def test_derive_overall_status():
     assert _derive_overall_status([f_clear]) == "CLEAR"
     assert _derive_overall_status([f_flag, f_clear]) == "FLAG"
     assert _derive_overall_status([f_clear, f_flag]) == "FLAG"
-
-
-def test_orchestrator_with_mock_agent():
-    agent = MockTechnicalAgent()
-    orch = Orchestrator(agents=[agent])
-    report = orch.run_case(
-        case_id="test_001",
-        aircraft_reg="EI-TEST",
-        documents=[],
-        aircraft_type="A320",
-        engine_type="CFM56-5B",
-    )
-    assert isinstance(report, CaseReport)
-    assert report.case_id == "test_001"
-    assert report.aircraft_reg == "EI-TEST"
-    assert report.overall_status == "FLAG"
-    assert len(report.findings) == 4
-    assert report.iterations == 1
-    assert report.flag_findings
-    assert report.generated_at
 
 
 def test_case_report_stop_findings():

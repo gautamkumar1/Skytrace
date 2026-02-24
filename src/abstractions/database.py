@@ -92,6 +92,19 @@ class DatabaseBackend(ABC):
         """Fleet-level summary query (all cases)."""
         ...
 
+    def insert_finding_feedback(
+        self,
+        feedback_id: str,
+        finding_id: str,
+        case_id: str,
+        actor: str,
+        feedback: str,
+        comment: str | None = None,
+        ledger_id: str | None = None,
+    ) -> None:
+        """Store human feedback on a finding (thumbs up/down). Optional override."""
+        pass
+
     @abstractmethod
     def get_connection(self) -> Any:
         """Return a connection or session for raw use if needed. Caller must close."""

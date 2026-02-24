@@ -36,6 +36,7 @@ def engine_layout(case_options: list[dict], default_case: str | None) -> html.Di
                         [
                             html.H5("AI Findings — this case", className="mt-2"),
                             html.Div(id="engine-findings-cards", children=[]),
+                            html.Div(id="feedback-status", className="mt-2"),
                         ],
                         width=12,
                     ),

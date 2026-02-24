@@ -9,8 +9,9 @@ psycopg2-binary>=2.9,<3
 # Storage - S3 (behind ABC)
 boto3>=1.34,<2
 
-# PDF
+# PDF (pypdf + pdfplumber for tables)
 pypdf>=4.0,<5
+pdfplumber>=0.10,<1
 
 # AI
 anthropic>=0.39,<1
@@ -25,6 +26,13 @@ pandas>=2.0,<3
 python-dotenv>=1.0,<2
 click>=8.1,<9
 jinja2>=3.1,<4
+
+# Logging
+structlog>=24.0,<25
+
+# Snowflake / QLDB (optional backends)
+snowflake-connector-python>=3.8,<4
+pyqldb>=3.0,<4
 
 # Testing
 pytest>=7.0,<9

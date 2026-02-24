@@ -1,1 +1,1 @@
-# Integration tests (may require DATABASE_URL and optional ANTHROPIC_API_KEY)
+# Integration tests (require DATABASE_URL and ANTHROPIC_API_KEY)

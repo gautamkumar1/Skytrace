@@ -15,16 +15,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from src.config import load_settings
-from src.backends import PostgresDatabaseBackend
+from main import _wire_database, _wire_ledger
 
 settings = load_settings()
-# Only validate DB and ledger paths; do not require API key
 if settings.ledger_backend == "file":
     from pathlib import Path
     Path(settings.ledger_file_path).parent.mkdir(parents=True, exist_ok=True)
 
-database = PostgresDatabaseBackend(settings.database_url)
+database = _wire_database(settings)
 database.ensure_schema()
+ledger = _wire_ledger(settings)
 
 # Build initial tab content (engine tab default)
 fleet = database.fleet_summary()
@@ -56,12 +56,13 @@ app.layout = dbc.Container(
             ],
         ),
         html.Div(id="tab-content", className="mt-3", children=initial_engine),
+        dcc.Store(id="current-finding-ids", data=[]),
         dcc.Interval(id="refresh", interval=30_000, n_intervals=0),
     ],
     fluid=True,
 )
 
-register_callbacks(app, database)
+register_callbacks(app, database, ledger)
 
 if __name__ == "__main__":
     debug = os.getenv("DASH_DEBUG", "false").lower() == "true"

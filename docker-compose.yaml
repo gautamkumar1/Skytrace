@@ -13,16 +13,16 @@ services:
     build: .
     ports:
       - "8050:8050"
+    env_file: .env
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/aviation_poc
       LEDGER_BACKEND: postgres
       DASHBOARD_HOST: 0.0.0.0
       DASHBOARD_PORT: "8050"
       LOG_LEVEL: INFO
-      ANTHROPIC_API_KEY: ""
-      AWS_ACCESS_KEY_ID: ""
-      AWS_SECRET_ACCESS_KEY: ""
     depends_on:
       - postgres
 volumes:
   postgres_data: {}
+
+

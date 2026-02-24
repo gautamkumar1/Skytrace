@@ -11,8 +11,8 @@ def test_finding_severity_values():
 
 
 def test_case_input_valid():
-    c = CaseInput(case_id="demo_001", registration="EI-SYN", aircraft_type="A320-214", engine_type="CFM56-5B4/2P")
-    assert c.case_id == "demo_001"
+    c = CaseInput(case_id="case_001", registration="EI-SYN", aircraft_type="A320-214", engine_type="CFM56-5B4/2P")
+    assert c.case_id == "case_001"
     assert c.registration == "EI-SYN"
 
 
@@ -24,10 +24,10 @@ def test_case_input_empty_case_id_rejected():
 def test_ingested_document_minimal():
     doc = IngestedDocument(
         doc_id="abc123",
-        case_id="demo_001",
+        case_id="case_001",
         filename="test.pdf",
         content_hash="a" * 64,
-        storage_key="cases/demo_001/docs/abc123_test.pdf",
+        storage_key="cases/case_001/docs/abc123_test.pdf",
         page_count=1,
     )
     assert doc.doc_id == "abc123"
