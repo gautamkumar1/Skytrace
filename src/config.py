@@ -28,8 +28,13 @@ class Settings(BaseSettings):
     snowflake_schema: str = "POC"
     snowflake_warehouse: str = "COMPUTE_WH"
     snowflake_role: str = ""
+    snowflake_region: str = ""  # optional; if you get 404 on login, set e.g. us-east-1
+    snowflake_totp_passcode: str = ""  # optional; if your user has MFA/TOTP, set current 6-digit code (or use a user without MFA)
+    snowflake_private_key_path: str = ""  # optional; path to RSA private key (.p8/.pem) for key-pair auth (no password/MFA needed)
+    snowflake_private_key_passphrase: str = ""  # optional; passphrase for encrypted private key
 
     # AWS S3 (optional: use local storage if not set)
+    force_local_storage: str = ""  # set to "true" or "1" to use local storage even when AWS keys are set (avoids NoSuchBucket)
     aws_access_key_id: str = ""
     aws_secret_access_key: str = ""
     aws_region: str = "us-east-1"
@@ -40,8 +45,14 @@ class Settings(BaseSettings):
     ledger_file_path: str = "./data/ledger.jsonl"
     qldb_ledger_name: str = "aviation-audit"
 
-    # Anthropic Claude (required for Technical Airworthiness agent)
+    # Agent: openai | anthropic (which LLM to use for Technical Airworthiness)
+    agent_provider: str = "anthropic"
+
+    # Anthropic Claude (required when agent_provider=anthropic)
     anthropic_api_key: str = ""
+
+    # OpenAI (required when agent_provider=openai)
+    openai_api_key: str = ""
 
     # App
     log_level: str = "INFO"
@@ -57,17 +68,31 @@ class Settings(BaseSettings):
 
     @property
     def use_s3(self) -> bool:
+        if (self.force_local_storage or "").strip().lower() in ("true", "1", "yes", "on"):
+            return False
         return bool(self.aws_access_key_id and self.aws_secret_access_key)
 
     def validate_at_startup(self) -> None:
         """Call once at app startup. Raises if required config invalid."""
-        if not (self.anthropic_api_key and self.anthropic_api_key.strip()):
-            raise ValueError("ANTHROPIC_API_KEY is required. Set it in .env.")
+        provider = (self.agent_provider or "anthropic").strip().lower()
+        if provider == "openai":
+            if not (self.openai_api_key and self.openai_api_key.strip()):
+                raise ValueError("OPENAI_API_KEY is required when AGENT_PROVIDER=openai. Set it in .env.")
+        else:
+            if not (self.anthropic_api_key and self.anthropic_api_key.strip()):
+                raise ValueError("ANTHROPIC_API_KEY is required when AGENT_PROVIDER=anthropic. Set it in .env.")
         if self.database_backend == "postgres" and not (self.database_url and self.database_url.strip()):
             raise ValueError("DATABASE_URL is required when database_backend=postgres")
         if self.database_backend == "snowflake":
-            if not (self.snowflake_account and self.snowflake_user and self.snowflake_password):
-                raise ValueError("SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER, SNOWFLAKE_PASSWORD are required when database_backend=snowflake")
+            has_key_pair = bool(self.snowflake_private_key_path and self.snowflake_private_key_path.strip())
+            if not (self.snowflake_account and self.snowflake_user):
+                raise ValueError("SNOWFLAKE_ACCOUNT and SNOWFLAKE_USER are required when database_backend=snowflake")
+            if not has_key_pair and not (self.snowflake_password and self.snowflake_password.strip()):
+                raise ValueError("SNOWFLAKE_PASSWORD is required when database_backend=snowflake (or set SNOWFLAKE_PRIVATE_KEY_PATH for key-pair auth)")
+            if has_key_pair:
+                key_path = Path(self.snowflake_private_key_path.strip())
+                if not key_path.is_file():
+                    raise ValueError("SNOWFLAKE_PRIVATE_KEY_PATH must point to an existing private key file")
         if self.ledger_backend == "qldb" and not (self.aws_access_key_id and self.aws_secret_access_key):
             raise ValueError("AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are required when LEDGER_BACKEND=qldb")
         if self.ledger_backend == "file":

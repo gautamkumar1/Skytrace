@@ -10,6 +10,7 @@ import structlog
 from src.abstractions.ledger import LedgerEventType
 from src.agents.orchestrator import Orchestrator
 from src.agents.technical_airworthiness import TechnicalAirworthinessAgent
+from src.agents.technical_airworthiness_openai import TechnicalAirworthinessOpenAIAgent
 from src.backends import (
     FileLedgerBackend,
     LocalStorageBackend,
@@ -38,14 +39,27 @@ def _wire_storage(settings):
 
 def _wire_database(settings):
     if getattr(settings, "database_backend", "postgres") == "snowflake":
+        account = settings.snowflake_account
+        region = getattr(settings, "snowflake_region", "") or ""
+        if region and region.strip():
+            account = f"{account.strip()}.{region.strip()}"
+        passcode = getattr(settings, "snowflake_totp_passcode", "") or ""
+        passcode = passcode.strip() or None
+        private_key_path = getattr(settings, "snowflake_private_key_path", "") or ""
+        private_key_path = private_key_path.strip() or None
+        private_key_passphrase = getattr(settings, "snowflake_private_key_passphrase", "") or ""
+        private_key_passphrase = private_key_passphrase.strip() or None
         return SnowflakeDatabaseBackend(
-            account=settings.snowflake_account,
+            account=account,
             user=settings.snowflake_user,
-            password=settings.snowflake_password,
+            password=settings.snowflake_password or "",
             database=settings.snowflake_database,
             schema=settings.snowflake_schema,
             warehouse=settings.snowflake_warehouse,
             role=settings.snowflake_role or None,
+            passcode=passcode,
+            private_key_path=private_key_path,
+            private_key_passphrase=private_key_passphrase,
         )
     return PostgresDatabaseBackend(settings.database_url)
 
@@ -143,13 +157,22 @@ def run(case_id: str, registration: str, aircraft_type: str, engine_type: str, d
         doc_dicts = [d.model_dump() for d in docs]
         _insert_engine_data_from_docs(database, doc_dicts, case_id, registration, aircraft_type, engine_type)
 
+    provider = getattr(settings, "agent_provider", "anthropic") or "anthropic"
+    provider = str(provider).strip().lower()
+
     if getattr(settings, "use_agent_registry", False):
         from src.agents.registry import discover_agents
         agents = discover_agents()
         if not agents:
-            agents = [TechnicalAirworthinessAgent(api_key=settings.anthropic_api_key)]
+            if provider == "openai":
+                agents = [TechnicalAirworthinessOpenAIAgent(api_key=settings.openai_api_key)]
+            else:
+                agents = [TechnicalAirworthinessAgent(api_key=settings.anthropic_api_key)]
     else:
-        agents = [TechnicalAirworthinessAgent(api_key=settings.anthropic_api_key)]
+        if provider == "openai":
+            agents = [TechnicalAirworthinessOpenAIAgent(api_key=settings.openai_api_key)]
+        else:
+            agents = [TechnicalAirworthinessAgent(api_key=settings.anthropic_api_key)]
     orchestrator = Orchestrator(agents=agents)
     report = orchestrator.run_case(
         case_id=case_id,

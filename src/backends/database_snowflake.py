@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS finding_feedback (
 
 
 class SnowflakeDatabaseBackend(DatabaseBackend):
-    """Snowflake implementation. Requires account, user, password, database, schema, warehouse."""
+    """Snowflake implementation. Auth: password (optional passcode for MFA) or key-pair (private_key_path)."""
 
     def __init__(
         self,
@@ -89,6 +89,9 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
         schema: str = "POC",
         warehouse: str = "COMPUTE_WH",
         role: str | None = None,
+        passcode: str | None = None,
+        private_key_path: str | None = None,
+        private_key_passphrase: str | None = None,
     ) -> None:
         self._account = account
         self._user = user
@@ -97,25 +100,51 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
         self._schema = schema
         self._warehouse = warehouse
         self._role = role
+        self._passcode = (passcode or "").strip() or None
+        self._private_key_path = (private_key_path or "").strip() or None
+        self._private_key_passphrase = (private_key_passphrase or "").strip() or None
 
     def _conn(self):
-        return snowflake.connector.connect(
+        use_key_pair = bool(self._private_key_path)
+        kwargs = dict(
             account=self._account,
             user=self._user,
-            password=self._password,
             database=self._database,
             schema=self._schema,
             warehouse=self._warehouse,
-            role=self._role,
         )
+        if self._role:
+            kwargs["role"] = self._role
+        if use_key_pair:
+            kwargs["authenticator"] = "SNOWFLAKE_JWT"
+            kwargs["private_key_file"] = self._private_key_path
+            if self._private_key_passphrase:
+                kwargs["private_key_file_pwd"] = self._private_key_passphrase
+        else:
+            kwargs["password"] = self._password
+            if self._passcode:
+                kwargs["passcode"] = self._passcode
+        return snowflake.connector.connect(**kwargs)
+
+    @staticmethod
+    def _quote_id(name: str) -> str:
+        """Quote Snowflake identifier so names with spaces or mixed case work."""
+        return '"' + str(name).replace('"', '""') + '"'
+
+    def _qual(self, table: str) -> str:
+        """Fully qualified table name (database.schema.table) so session context doesn't matter."""
+        return f"{self._quote_id(self._database)}.{self._quote_id(self._schema)}.{table}"
 
     def ensure_schema(self) -> None:
         conn = self._conn()
         try:
+            cur = conn.cursor()
+            cur.execute(f"USE DATABASE {self._quote_id(self._database)}")
+            cur.execute(f"USE SCHEMA {self._quote_id(self._schema)}")
             for stmt in SCHEMA_SQL.strip().split(";"):
                 stmt = stmt.strip()
                 if stmt:
-                    conn.cursor().execute(stmt)
+                    cur.execute(stmt)
             conn.commit()
             logger.info("Snowflake schema ensured.")
         finally:
@@ -125,8 +154,8 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
         conn = self._conn()
         try:
             conn.cursor(DictCursor).execute(
-                """
-                MERGE INTO cases t USING (SELECT %(case_id)s AS case_id, %(registration)s AS registration, %(aircraft_type)s AS aircraft_type, %(engine_type)s AS engine_type) s
+                f"""
+                MERGE INTO {self._qual("cases")} t USING (SELECT %(case_id)s AS case_id, %(registration)s AS registration, %(aircraft_type)s AS aircraft_type, %(engine_type)s AS engine_type) s
                 ON t.case_id = s.case_id
                 WHEN MATCHED THEN UPDATE SET t.registration = s.registration, t.aircraft_type = s.aircraft_type, t.engine_type = s.engine_type
                 WHEN NOT MATCHED THEN INSERT (case_id, registration, aircraft_type, engine_type) VALUES (s.case_id, s.registration, s.aircraft_type, s.engine_type)
@@ -150,8 +179,8 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
         conn = self._conn()
         try:
             conn.cursor(DictCursor).execute(
-                """
-                MERGE INTO documents t USING (SELECT %(id)s AS id, %(case_id)s AS case_id, %(filename)s AS filename, %(content_hash)s AS content_hash, %(storage_key)s AS storage_key, %(page_count)s AS page_count, PARSE_JSON(%(metadata_json)s) AS metadata_json) s
+                f"""
+                MERGE INTO {self._qual("documents")} t USING (SELECT %(id)s AS id, %(case_id)s AS case_id, %(filename)s AS filename, %(content_hash)s AS content_hash, %(storage_key)s AS storage_key, %(page_count)s AS page_count, PARSE_JSON(%(metadata_json)s) AS metadata_json) s
                 ON t.id = s.id
                 WHEN MATCHED THEN UPDATE SET t.filename = s.filename, t.content_hash = s.content_hash, t.storage_key = s.storage_key, t.page_count = s.page_count, t.metadata_json = s.metadata_json
                 WHEN NOT MATCHED THEN INSERT (id, case_id, filename, content_hash, storage_key, page_count, metadata_json) VALUES (s.id, s.case_id, s.filename, s.content_hash, s.storage_key, s.page_count, s.metadata_json)
@@ -188,8 +217,8 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
         conn = self._conn()
         try:
             conn.cursor(DictCursor).execute(
-                """
-                MERGE INTO findings t USING (SELECT %(id)s AS id, %(case_id)s AS case_id, %(agent_name)s AS agent_name, %(severity)s AS severity, %(category)s AS category, %(title)s AS title, %(evidence)s AS evidence, %(confidence)s AS confidence, %(source_doc_id)s AS source_doc_id, %(source_page)s AS source_page, %(iteration)s AS iteration, PARSE_JSON(%(metadata_json)s) AS metadata_json) s
+                f"""
+                MERGE INTO {self._qual("findings")} t USING (SELECT %(id)s AS id, %(case_id)s AS case_id, %(agent_name)s AS agent_name, %(severity)s AS severity, %(category)s AS category, %(title)s AS title, %(evidence)s AS evidence, %(confidence)s AS confidence, %(source_doc_id)s AS source_doc_id, %(source_page)s AS source_page, %(iteration)s AS iteration, PARSE_JSON(%(metadata_json)s) AS metadata_json) s
                 ON t.id = s.id
                 WHEN MATCHED THEN UPDATE SET t.agent_name = s.agent_name, t.severity = s.severity, t.category = s.category, t.title = s.title, t.evidence = s.evidence, t.confidence = s.confidence, t.source_doc_id = s.source_doc_id, t.source_page = s.source_page, t.iteration = s.iteration, t.metadata_json = s.metadata_json
                 WHEN NOT MATCHED THEN INSERT (id, case_id, agent_name, severity, category, title, evidence, confidence, source_doc_id, source_page, iteration, metadata_json) VALUES (s.id, s.case_id, s.agent_name, s.severity, s.category, s.title, s.evidence, s.confidence, s.source_doc_id, s.source_page, s.iteration, s.metadata_json)
@@ -230,8 +259,8 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
         conn = self._conn()
         try:
             conn.cursor(DictCursor).execute(
-                """
-                INSERT INTO engine_data (case_id, registration, aircraft_type, engine_type, metric_name, metric_value, metric_value_numeric, unit, status, metadata_json)
+                f"""
+                INSERT INTO {self._qual("engine_data")} (case_id, registration, aircraft_type, engine_type, metric_name, metric_value, metric_value_numeric, unit, status, metadata_json)
                 VALUES (%(case_id)s, %(registration)s, %(aircraft_type)s, %(engine_type)s, %(metric_name)s, %(metric_value)s, %(metric_value_numeric)s, %(unit)s, %(status)s, PARSE_JSON(%(metadata_json)s))
                 """,
                 {
@@ -264,8 +293,8 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
         conn = self._conn()
         try:
             conn.cursor(DictCursor).execute(
-                """
-                INSERT INTO finding_feedback (id, finding_id, case_id, actor, feedback, comment, ledger_id)
+                f"""
+                INSERT INTO {self._qual("finding_feedback")} (id, finding_id, case_id, actor, feedback, comment, ledger_id)
                 VALUES (%(id)s, %(finding_id)s, %(case_id)s, %(actor)s, %(feedback)s, %(comment)s, %(ledger_id)s)
                 """,
                 {"id": feedback_id, "finding_id": finding_id, "case_id": case_id, "actor": actor, "feedback": feedback, "comment": comment, "ledger_id": ledger_id},
@@ -278,7 +307,7 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
         conn = self._conn()
         try:
             cur = conn.cursor(DictCursor)
-            cur.execute("SELECT case_id, registration, aircraft_type, engine_type, created_at FROM cases WHERE case_id = %(id)s", {"id": case_id})
+            cur.execute(f"SELECT case_id, registration, aircraft_type, engine_type, created_at FROM {self._qual('cases')} WHERE case_id = %(id)s", {"id": case_id})
             row = cur.fetchone()
         finally:
             conn.close()
@@ -290,7 +319,7 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
         conn = self._conn()
         try:
             cur = conn.cursor(DictCursor)
-            cur.execute("SELECT id, case_id, filename, content_hash, storage_key, page_count, metadata_json, created_at FROM documents WHERE case_id = %(id)s ORDER BY created_at", {"id": case_id})
+            cur.execute(f"SELECT id, case_id, filename, content_hash, storage_key, page_count, metadata_json, created_at FROM {self._qual('documents')} WHERE case_id = %(id)s ORDER BY created_at", {"id": case_id})
             rows = cur.fetchall()
         finally:
             conn.close()
@@ -301,7 +330,7 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
         try:
             cur = conn.cursor(DictCursor)
             cur.execute(
-                "SELECT id, case_id, agent_name, severity, category, title, evidence, confidence, source_doc_id, source_page, iteration, metadata_json, created_at FROM findings WHERE case_id = %(id)s ORDER BY created_at",
+                f"SELECT id, case_id, agent_name, severity, category, title, evidence, confidence, source_doc_id, source_page, iteration, metadata_json, created_at FROM {self._qual('findings')} WHERE case_id = %(id)s ORDER BY created_at",
                 {"id": case_id},
             )
             rows = cur.fetchall()
@@ -314,7 +343,7 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
         try:
             cur = conn.cursor(DictCursor)
             cur.execute(
-                "SELECT id, case_id, registration, aircraft_type, engine_type, metric_name, metric_value, metric_value_numeric, unit, status, metadata_json, created_at FROM engine_data WHERE case_id = %(id)s ORDER BY metric_name",
+                f"SELECT id, case_id, registration, aircraft_type, engine_type, metric_name, metric_value, metric_value_numeric, unit, status, metadata_json, created_at FROM {self._qual('engine_data')} WHERE case_id = %(id)s ORDER BY metric_name",
                 {"id": case_id},
             )
             rows = cur.fetchall()
@@ -329,15 +358,15 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
         conn = self._conn()
         try:
             cur = conn.cursor(DictCursor)
-            cur.execute("""
+            cur.execute(f"""
                 SELECT c.case_id, c.registration, c.aircraft_type, c.engine_type,
                     COUNT(DISTINCT d.id) AS doc_count,
                     COUNT(DISTINCT f.id) AS finding_count,
                     COUNT(DISTINCT e.id) AS engine_metric_count
-                FROM cases c
-                LEFT JOIN documents d ON d.case_id = c.case_id
-                LEFT JOIN findings f ON f.case_id = c.case_id
-                LEFT JOIN engine_data e ON e.case_id = c.case_id
+                FROM {self._qual("cases")} c
+                LEFT JOIN {self._qual("documents")} d ON d.case_id = c.case_id
+                LEFT JOIN {self._qual("findings")} f ON f.case_id = c.case_id
+                LEFT JOIN {self._qual("engine_data")} e ON e.case_id = c.case_id
                 GROUP BY c.case_id, c.registration, c.aircraft_type, c.engine_type
                 ORDER BY c.case_id
             """)

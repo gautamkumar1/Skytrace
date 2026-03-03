@@ -75,7 +75,7 @@ class PostgresLedgerBackend(LedgerBackend):
             conn.execute(
                 text("""
                 INSERT INTO ledger_events (id, event_type, entity_id, payload, previous_hash, block_hash)
-                VALUES (:id, :event_type, :entity_id, :payload::jsonb, :previous_hash, :block_hash)
+                VALUES (:id, :event_type, :entity_id, CAST(:payload AS jsonb), :previous_hash, :block_hash)
                 """),
                 {
                     "id": event_id,
