@@ -68,34 +68,34 @@ export default function CaseDetailPage() {
 
             {/* Case Info Card */}
             <motion.div
-                className="case-info"
+                className="flex items-center gap-5 bg-white border border-slate-900/[0.06] rounded-xl p-5 mb-8 shadow-sm"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
             >
-                <div className="case-info__icon">
+                <div className="w-12 h-12 rounded-xl bg-[#2563a8]/10 text-[#2563a8] flex items-center justify-center shrink-0">
                     <Plane size={26} />
                 </div>
-                <div className="case-info__details">
-                    <div className="case-info__field">
-                        <span className="case-info__label">Case ID</span>
-                        <span className="case-info__value font-mono text-sm">{data.case_id}</span>
+                <div className="flex-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-y-4 gap-x-6">
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Case ID</span>
+                        <span className="text-sm font-bold text-[#0c1d36] font-mono">{data.case_id}</span>
                     </div>
-                    <div className="case-info__field">
-                        <span className="case-info__label">Registration</span>
-                        <span className="case-info__value">{data.registration}</span>
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Registration</span>
+                        <span className="text-sm font-bold text-[#0c1d36]">{data.registration}</span>
                     </div>
-                    <div className="case-info__field">
-                        <span className="case-info__label">Aircraft Type</span>
-                        <span className="case-info__value">{data.aircraft_type}</span>
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Aircraft Type</span>
+                        <span className="text-sm font-bold text-[#0c1d36]">{data.aircraft_type}</span>
                     </div>
-                    <div className="case-info__field">
-                        <span className="case-info__label">Engine Type</span>
-                        <span className="case-info__value">{data.engine_type}</span>
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Engine Type</span>
+                        <span className="text-sm font-bold text-[#0c1d36]">{data.engine_type}</span>
                     </div>
-                    <div className="case-info__field">
-                        <span className="case-info__label">Created</span>
-                        <span className="case-info__value flex items-center gap-1.5">
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Created</span>
+                        <span className="text-sm font-bold text-[#0c1d36] flex items-center gap-1.5">
                             <Calendar size={13} className="text-slate-400" />
                             {formatDate(data.created_at)}
                         </span>
@@ -104,16 +104,23 @@ export default function CaseDetailPage() {
             </motion.div>
 
             {/* Tabs */}
-            <div className="tabs">
+            <div className="flex gap-2 border-b border-slate-200 mb-6">
                 {tabs.map((tab) => (
                     <button
                         key={tab.key}
-                        className={`tabs__tab ${activeTab === tab.key ? "tabs__tab--active" : ""}`}
+                        className={`flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition-all border-b-2 -mb-px cursor-pointer
+                            ${activeTab === tab.key
+                                ? "border-[#2563a8] text-[#2563a8] bg-sky-50/50"
+                                : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                            }`}
                         onClick={() => setActiveTab(tab.key)}
                     >
                         {tab.icon}
                         {tab.label}
-                        <span className="tabs__tab-count">{tab.count}</span>
+                        <span className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold
+                            ${activeTab === tab.key ? "bg-[#2563a8] text-white" : "bg-slate-100 text-slate-500"}`}>
+                            {tab.count}
+                        </span>
                     </button>
                 ))}
             </div>
@@ -126,11 +133,11 @@ export default function CaseDetailPage() {
                 transition={{ duration: 0.3 }}
             >
                 {activeTab === "findings" && (
-                    <div className="page-section">
-                        <div className="page-section__header">
-                            <h3 className="page-section__title">
+                    <div className="mb-8">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="m-0 flex items-center gap-2 text-[15px] font-bold text-[#0c1d36]">
                                 AI Findings
-                                <span className="page-section__count">{data.findings.length}</span>
+                                <span className="rounded-full bg-[#f0f3f7] px-2 py-0.5 text-[11px] font-semibold text-slate-500">{data.findings.length}</span>
                             </h3>
                         </div>
                         {data.findings.length === 0 ? (
@@ -140,7 +147,7 @@ export default function CaseDetailPage() {
                                 description="No AI findings have been generated for this case."
                             />
                         ) : (
-                            <div className="grid-findings">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-2">
                                 {data.findings.map((finding, i) => (
                                     <FindingCard key={finding.id} finding={finding} index={i} />
                                 ))}
@@ -150,11 +157,11 @@ export default function CaseDetailPage() {
                 )}
 
                 {activeTab === "engine" && (
-                    <div className="page-section">
-                        <div className="page-section__header">
-                            <h3 className="page-section__title">
+                    <div className="mb-8">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="m-0 flex items-center gap-2 text-[15px] font-bold text-[#0c1d36]">
                                 Engine Metrics
-                                <span className="page-section__count">{data.engine_data.length}</span>
+                                <span className="rounded-full bg-[#f0f3f7] px-2 py-0.5 text-[11px] font-semibold text-slate-500">{data.engine_data.length}</span>
                             </h3>
                         </div>
                         {data.engine_data.length === 0 ? (
@@ -164,7 +171,7 @@ export default function CaseDetailPage() {
                                 description="No engine metrics have been extracted for this case."
                             />
                         ) : (
-                            <div className="grid-metrics">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
                                 {data.engine_data.map((metric, i) => (
                                     <motion.div
                                         key={metric.id}
@@ -181,11 +188,11 @@ export default function CaseDetailPage() {
                 )}
 
                 {activeTab === "documents" && (
-                    <div className="page-section">
-                        <div className="page-section__header">
-                            <h3 className="page-section__title">
+                    <div className="mb-8">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="m-0 flex items-center gap-2 text-[15px] font-bold text-[#0c1d36]">
                                 Ingested Documents
-                                <span className="page-section__count">{data.documents.length}</span>
+                                <span className="rounded-full bg-[#f0f3f7] px-2 py-0.5 text-[11px] font-semibold text-slate-500">{data.documents.length}</span>
                             </h3>
                         </div>
                         {data.documents.length === 0 ? (
@@ -195,7 +202,7 @@ export default function CaseDetailPage() {
                                 description="No documents have been ingested for this case."
                             />
                         ) : (
-                            <div className="grid-documents">
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
                                 {data.documents.map((doc, i) => (
                                     <motion.div
                                         key={doc.id}

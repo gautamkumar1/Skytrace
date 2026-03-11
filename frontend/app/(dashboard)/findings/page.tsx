@@ -53,7 +53,7 @@ export default function FindingsPage() {
 
             {/* Filters */}
             <motion.div
-                className="flex flex-wrap items-center gap-3 mb-6"
+                className="flex flex-wrap items-center gap-3 mb-6 mt-10 px-2"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
@@ -82,8 +82,8 @@ export default function FindingsPage() {
                             whileHover={{ scale: 1.04 }}
                             whileTap={{ scale: 0.96 }}
                             className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${severityFilter === sev
-                                    ? "bg-blue-50 border-blue-300 text-blue-700"
-                                    : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"
+                                ? "bg-blue-50 border-blue-300 text-blue-700"
+                                : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"
                                 }`}
                         >
                             {sev}
@@ -110,7 +110,7 @@ export default function FindingsPage() {
                     }
                 />
             ) : (
-                <div className="grid-findings">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-2">
                     {filtered.map((finding, i) => (
                         <FindingCard key={finding.id} finding={finding} index={i} />
                     ))}

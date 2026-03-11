@@ -12,16 +12,16 @@ export default function SeverityBadge({
 }: SeverityBadgeProps) {
     const colors = severityColor(severity);
     const sizeClasses = {
-        sm: "severity-badge--sm",
-        md: "severity-badge--md",
-        lg: "severity-badge--lg",
+        sm: "text-[10.5px] px-2 py-0.5",
+        md: "text-[11px] px-2.5 py-[3px]",
+        lg: "text-[13px] px-[14px] py-[5px]",
     };
 
     return (
         <span
-            className={`severity-badge ${colors.bg} ${colors.text} ${colors.border} ${sizeClasses[size]}`}
+            className={`inline-flex items-center gap-[5px] rounded-full font-semibold tracking-[0.03em] border border-solid ${colors.bg} ${colors.text} ${colors.border} ${sizeClasses[size]}`}
         >
-            <span className={`severity-badge__dot ${colors.dot}`} />
+            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${colors.dot}`} />
             {severity}
         </span>
     );

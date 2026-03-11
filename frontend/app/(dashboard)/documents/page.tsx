@@ -45,7 +45,7 @@ export default function DocumentsPage() {
             <Header title="Documents" subtitle="Ingested PDF documents for each case" />
 
             <motion.div
-                className="flex flex-wrap items-center gap-3 mb-6"
+                className="flex flex-wrap items-center gap-3 mb-6 mt-10 px-2"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
@@ -81,18 +81,18 @@ export default function DocumentsPage() {
                 />
             ) : (
                 <motion.div
-                    className="page-section"
+                    className="mb-8 px-2"
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35 }}
                 >
-                    <div className="page-section__header">
-                        <h3 className="page-section__title">
+                    <div className="flex items-center justify-between mb-3.5">
+                        <h3 className="m-0 flex items-center gap-2 text-[15px] font-bold text-[#0c1d36]">
                             Ingested Files
-                            <span className="page-section__count">{documents.length}</span>
+                            <span className="rounded-full bg-[#f0f3f7] px-2 py-0.5 text-[11px] font-semibold text-slate-500">{documents.length}</span>
                         </h3>
                     </div>
-                    <div className="grid-documents">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5 px-2">
                         {documents.map((doc, i) => (
                             <motion.div
                                 key={doc.id}

@@ -32,18 +32,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
             {!loading && (
                 <motion.div
-                    className="app-shell"
+                    className="flex min-h-screen"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.4 }}
                 >
                     <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
                     <motion.main
-                        className="app-shell__main"
-                        animate={{ marginLeft: collapsed ? 68 : 256 }}
+                        className="flex-1 min-h-screen flex flex-col bg-slate-50"
+                        animate={{ marginLeft: collapsed ? 68 : 225 }}
                         transition={{ duration: 0.25, ease: "easeInOut" }}
                     >
-                        <div className="app-shell__content">{children}</div>
+                        <div className="flex-1 w-full h-full overflow-hidden pt-0 animate-[fadeIn_0.35s_ease-out]">
+                            {children}
+                        </div>
                     </motion.main>
                 </motion.div>
             )}

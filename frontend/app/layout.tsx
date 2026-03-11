@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import AppShell from "@/components/layout/AppShell";
 
 const manrope = Manrope({
   variable: "--font-geist-sans",
@@ -16,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aviation AI — Technical Due Diligence Dashboard",
+  title: "OriginTrace.ai — AI-Powered Aircraft Due Diligence",
   description:
     "AI-powered aircraft technical due diligence platform. Monitor fleet health, review AI findings, and manage engine performance data.",
 };
@@ -29,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${manrope.variable} ${jetbrainsMono.variable}`}>
-        <AppShell>{children}</AppShell>
+        {children}
       </body>
     </html>
   );

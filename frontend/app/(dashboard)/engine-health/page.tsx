@@ -49,7 +49,7 @@ export default function EngineHealthPage() {
             <Header title="Engine Health" subtitle="Monitor engine performance metrics by case" />
 
             <motion.div
-                className="flex items-center gap-3 mb-6"
+                className="flex items-center gap-3 mb-6 mt-10 px-2"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
@@ -84,19 +84,19 @@ export default function EngineHealthPage() {
                 <>
                     {criticalMetrics.length > 0 && (
                         <motion.div
-                            className="page-section"
+                            className="mb-8"
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.35 }}
                         >
-                            <div className="page-section__header">
-                                <h3 className="page-section__title">
+                            <div className="flex items-center justify-between mb-3.5">
+                                <h3 className="m-0 flex items-center gap-2 text-[15px] font-bold text-[#0c1d36]">
                                     <AlertTriangle size={16} className="text-rose-500" />
                                     <span className="text-rose-700">Critical / Warning</span>
-                                    <span className="page-section__count">{criticalMetrics.length}</span>
+                                    <span className="rounded-full bg-[#f0f3f7] px-2 py-0.5 text-[11px] font-semibold text-slate-500">{criticalMetrics.length}</span>
                                 </h3>
                             </div>
-                            <div className="grid-metrics">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
                                 {criticalMetrics.map((m, i) => (
                                     <motion.div
                                         key={m.id}
@@ -113,19 +113,19 @@ export default function EngineHealthPage() {
 
                     {advisoryMetrics.length > 0 && (
                         <motion.div
-                            className="page-section"
+                            className="mb-8"
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1, duration: 0.35 }}
                         >
-                            <div className="page-section__header">
-                                <h3 className="page-section__title">
+                            <div className="flex items-center justify-between mb-3.5">
+                                <h3 className="m-0 flex items-center gap-2 text-[15px] font-bold text-[#0c1d36]">
                                     <AlertTriangle size={16} className="text-amber-500" />
                                     <span className="text-amber-700">Advisory / Caution</span>
-                                    <span className="page-section__count">{advisoryMetrics.length}</span>
+                                    <span className="rounded-full bg-[#f0f3f7] px-2 py-0.5 text-[11px] font-semibold text-slate-500">{advisoryMetrics.length}</span>
                                 </h3>
                             </div>
-                            <div className="grid-metrics">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
                                 {advisoryMetrics.map((m, i) => (
                                     <motion.div
                                         key={m.id}
@@ -142,19 +142,19 @@ export default function EngineHealthPage() {
 
                     {okMetrics.length > 0 && (
                         <motion.div
-                            className="page-section"
+                            className="mb-8"
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2, duration: 0.35 }}
                         >
-                            <div className="page-section__header">
-                                <h3 className="page-section__title">
+                            <div className="flex items-center justify-between mb-3.5">
+                                <h3 className="m-0 flex items-center gap-2 text-[15px] font-bold text-[#0c1d36]">
                                     <CheckCircle2 size={16} className="text-emerald-500" />
                                     <span className="text-emerald-700">Normal</span>
-                                    <span className="page-section__count">{okMetrics.length}</span>
+                                    <span className="rounded-full bg-[#f0f3f7] px-2 py-0.5 text-[11px] font-semibold text-slate-500">{okMetrics.length}</span>
                                 </h3>
                             </div>
-                            <div className="grid-metrics">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
                                 {okMetrics.map((m, i) => (
                                     <motion.div
                                         key={m.id}

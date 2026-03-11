@@ -13,23 +13,21 @@ export default function DocumentCard({ doc }: DocumentCardProps) {
     const ext = doc.filename.split(".").pop()?.toUpperCase() || "FILE";
 
     return (
-        <div className="document-card" id={`doc-${doc.id}`}>
-            <div className="document-card__icon">
+        <div className="flex items-center gap-3.5 bg-white border border-slate-900/[0.06] rounded-xl p-[14px_18px] shadow-sm transition-all duration-250 animate-[slideUp_0.3s_ease-out] hover:border-slate-900/[0.18] hover:shadow-md" id={`doc-${doc.id}`}>
+            <div className="flex flex-col items-center gap-[3px] text-[#1e4d8a] shrink-0">
                 <FileText size={24} />
-                <span className="document-card__ext">{ext}</span>
+                <span className="text-[9px] font-bold text-slate-400 tracking-[0.05em] uppercase">{ext}</span>
             </div>
-            <div className="document-card__info">
-                <h4 className="document-card__filename" title={doc.filename}>
+            <div className="flex-1 min-w-0">
+                <h4 className="text-[13.5px] font-semibold text-[#0c1d36] m-[0_0_3px] whitespace-nowrap overflow-hidden text-overflow-ellipsis" title={doc.filename}>
                     {doc.filename}
                 </h4>
-                <div className="document-card__meta">
+                <div className="flex items-center gap-1.5 text-[11.5px] text-slate-400 mb-0.5">
                     <span>{doc.page_count} pages</span>
-                    <span>•</span>
+                    <span className="text-slate-200">·</span>
                     <span>{formatDate(doc.created_at)}</span>
                 </div>
-                <span className="document-card__hash" title={doc.content_hash}>
-                    SHA-256: {doc.content_hash.substring(0, 12)}…
-                </span>
+                
             </div>
         </div>
     );

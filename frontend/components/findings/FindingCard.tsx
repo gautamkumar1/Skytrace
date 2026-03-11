@@ -41,27 +41,26 @@ export default function FindingCard({ finding, index = 0 }: FindingCardProps) {
 
     return (
         <motion.div
-            className="finding-card"
+            className="bg-white border border-slate-900/[0.06] rounded-xl p-[20px_24px] shadow-sm transition-all duration-250 animate-[slideUp_0.3s_ease-out] hover:border-slate-900/[0.18] hover:shadow-md"
             id={`finding-${finding.id}`}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.06, duration: 0.35, ease: "easeOut" }}
-            whileHover={{ boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}
         >
-            <div className="finding-card__header">
-                <div className="finding-card__header-left">
+            <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-2.5">
                     <SeverityBadge severity={finding.severity} size="sm" />
-                    <span className="finding-card__category">{finding.category}</span>
+                    <span className="text-[12.5px] font-semibold text-slate-500">{finding.category}</span>
                 </div>
-                <span className="finding-card__confidence">
+                <span className="text-xs font-medium text-slate-400">
                     {formatConfidence(finding.confidence)} confidence
                 </span>
             </div>
 
-            <h4 className="finding-card__title">{finding.title}</h4>
-            <p className="finding-card__evidence">{finding.evidence}</p>
+            <h4 className="m-[0_0_6px] text-[15px] font-semibold leading-[1.45] text-[#0c1d36]">{finding.title}</h4>
+            <p className="m-[0_0_12px] text-[13px] leading-[1.6] text-slate-500">{finding.evidence}</p>
 
-            <div className="finding-card__meta">
+            <div className="flex flex-wrap gap-2.5 pb-3 mb-3 border-b border-slate-900/[0.06] text-[11.5px] text-slate-400">
                 <span>Agent: {finding.agent_name}</span>
                 {finding.source_doc_id && <span>Source: {finding.source_doc_id}</span>}
                 {finding.source_page && <span>Page: {finding.source_page}</span>}
@@ -70,11 +69,11 @@ export default function FindingCard({ finding, index = 0 }: FindingCardProps) {
             </div>
 
             {/* Feedback Section */}
-            <div className="finding-card__feedback">
+            <div className="flex flex-col gap-2">
                 <AnimatePresence mode="wait">
                     {feedbackState ? (
                         <motion.div
-                            className="finding-card__feedback-done"
+                            className="flex items-center gap-[7px] p-[8px_12px] rounded-md bg-emerald-50 text-[13px] font-medium text-emerald-600"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.25 }}
@@ -89,9 +88,9 @@ export default function FindingCard({ finding, index = 0 }: FindingCardProps) {
                             initial={{ opacity: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                         >
-                            <div className="finding-card__feedback-actions">
+                            <div className="flex flex-wrap gap-1.5">
                                 <motion.button
-                                    className="finding-card__feedback-btn finding-card__feedback-btn--approve"
+                                    className="inline-flex items-center gap-[5px] p-[6px_14px] rounded-md border border-slate-900/10 bg-white text-xs font-semibold text-emerald-600 transition-all duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-wait hover:not-disabled:bg-emerald-50 hover:not-disabled:border-emerald-600"
                                     onClick={() => submitFeedback("approve")}
                                     disabled={submitting}
                                     whileHover={{ scale: 1.03 }}
@@ -101,7 +100,7 @@ export default function FindingCard({ finding, index = 0 }: FindingCardProps) {
                                     <span>Approve</span>
                                 </motion.button>
                                 <motion.button
-                                    className="finding-card__feedback-btn finding-card__feedback-btn--flag"
+                                    className="inline-flex items-center gap-[5px] p-[6px_14px] rounded-md border border-slate-900/10 bg-white text-xs font-semibold text-amber-500 transition-all duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-wait hover:not-disabled:bg-amber-50 hover:not-disabled:border-amber-500"
                                     onClick={() => submitFeedback("flag")}
                                     disabled={submitting}
                                     whileHover={{ scale: 1.03 }}
@@ -111,7 +110,7 @@ export default function FindingCard({ finding, index = 0 }: FindingCardProps) {
                                     <span>Flag</span>
                                 </motion.button>
                                 <motion.button
-                                    className="finding-card__feedback-btn finding-card__feedback-btn--reject"
+                                    className="inline-flex items-center gap-[5px] p-[6px_14px] rounded-md border border-slate-900/10 bg-white text-xs font-semibold text-rose-500 transition-all duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-wait hover:not-disabled:bg-rose-50 hover:not-disabled:border-rose-500"
                                     onClick={() => submitFeedback("reject")}
                                     disabled={submitting}
                                     whileHover={{ scale: 1.03 }}
@@ -121,7 +120,7 @@ export default function FindingCard({ finding, index = 0 }: FindingCardProps) {
                                     <span>Reject</span>
                                 </motion.button>
                                 <motion.button
-                                    className="finding-card__feedback-btn finding-card__feedback-btn--comment"
+                                    className="inline-flex items-center gap-[5px] p-[6px_14px] rounded-md border border-slate-900/10 bg-white text-xs font-semibold text-slate-400 transition-all duration-150 cursor-pointer hover:bg-[#f0f3f7] hover:text-slate-500"
                                     onClick={() => setShowComment(!showComment)}
                                     whileHover={{ scale: 1.03 }}
                                     whileTap={{ scale: 0.97 }}
@@ -133,7 +132,7 @@ export default function FindingCard({ finding, index = 0 }: FindingCardProps) {
                                 {showComment && (
                                     <motion.input
                                         type="text"
-                                        className="finding-card__comment-input mt-2"
+                                        className="w-full mt-2 p-[8px_12px] rounded-md border border-slate-900/10 bg-[#f0f3f7] text-[13px] text-[#1a2233] outline-none transition-colors duration-150 placeholder:text-slate-400 focus:bg-white focus:border-[#2563a8]"
                                         placeholder="Add a comment (optional)..."
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}

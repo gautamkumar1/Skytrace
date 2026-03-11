@@ -31,7 +31,7 @@ Copy `.env.example` to `.env` and set:
 
 - **`ANTHROPIC_API_KEY`** — Required. Claude API key for the Technical Airworthiness agent.
 - **`DATABASE_URL`** — Required when `DATABASE_BACKEND=postgres`. PostgreSQL connection string. If the password contains `@` or `#`, use `%40` or `%23`.
-- **`DATABASE_BACKEND`** — `postgres` (default) or `snowflake`. If `snowflake`, set `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_USER`, `SNOWFLAKE_PASSWORD`, `SNOWFLAKE_DATABASE`, `SNOWFLAKE_SCHEMA`, `SNOWFLAKE_WAREHOUSE`.
+- **`DATABASE_BACKEND`** — `postgres` (default) or `snowflake`. If `snowflake`, set `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_USER`, and either `SNOWFLAKE_PASSWORD` or `SNOWFLAKE_PRIVATE_KEY_PATH` (key-pair auth; no MFA needed).
 - **`LEDGER_BACKEND`** — `postgres`, `file`, or `qldb`. For `qldb`, create the ledger and table `audit_ledger` in AWS.
 - **AWS** — Set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `S3_BUCKET` for S3 document storage; set for QLDB if using `LEDGER_BACKEND=qldb`.
 
@@ -103,7 +103,7 @@ python -m pytest tests/unit/ -v
 | `ANTHROPIC_API_KEY` | Required. Claude API key. |
 | `DATABASE_BACKEND` | `postgres` or `snowflake`. |
 | `DATABASE_URL` | Required when `DATABASE_BACKEND=postgres`. |
-| `SNOWFLAKE_*` | Required when `DATABASE_BACKEND=snowflake`. |
+| `SNOWFLAKE_*` | Required when `DATABASE_BACKEND=snowflake`. Use `SNOWFLAKE_PRIVATE_KEY_PATH` (and optional `SNOWFLAKE_PRIVATE_KEY_PASSPHRASE`) for key-pair auth instead of password. |
 | `LEDGER_BACKEND` | `postgres`, `file`, or `qldb`. |
 | `AWS_*`, `S3_BUCKET` | S3 document storage; required for QLDB. |
 | `DASHBOARD_HOST`, `DASHBOARD_PORT` | Dashboard bind (default 0.0.0.0:8050). |
