@@ -43,6 +43,9 @@ class FindingOut(BaseModel):
     source_doc_id: str | None = None
     source_page: str | None = None
     iteration: int = Field(0, ge=0)
+    reasoning: str = ""
+    correlation_group: str | None = None
+    aviation_reference: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 

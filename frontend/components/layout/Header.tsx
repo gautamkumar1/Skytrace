@@ -16,9 +16,10 @@ interface SearchResult {
 interface HeaderProps {
     title: string;
     subtitle?: string;
+    children?: React.ReactNode;
 }
 
-export default function Header({ title, subtitle }: HeaderProps) {
+export default function Header({ title, subtitle, children }: HeaderProps) {
     const router = useRouter();
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<SearchResult[]>([]);
@@ -123,15 +124,16 @@ export default function Header({ title, subtitle }: HeaderProps) {
     }
 
     return (
-        <header className="flex items-center justify-between px-8 h-[64px] border-b border-slate-200 bg-white/85 backdrop-blur-md sticky top-0 z-40 -mt-6 -mx-8 mb-2.5 mx-0.5">
-            <div className="flex flex-col gap-[1px]">
-                <h1 className="text-lg font-bold text-slate-900 m-0 tracking-tight">{title}</h1>
-                {subtitle && <p className="text-[13px] text-slate-500 m-0 font-normal">{subtitle}</p>}
+        <header className="flex items-center justify-between px-10 h-[72px] bg-white/70 backdrop-blur-xl sticky top-0 z-40 border-b border-blue-100/50 -mt-6 -mx-8 mb-6">
+            <div className="flex flex-col">
+                <h1 className="text-[17px] font-semibold text-slate-900 tracking-tight leading-none mb-1">{title}</h1>
+                {subtitle && <p className="text-[12px] text-slate-400 font-medium">{subtitle}</p>}
             </div>
-            <div className="flex items-center gap-3">
-                <div className="relative" ref={wrapperRef}>
+            <div className="flex items-center gap-5">
+                {children}
+                <div className="relative group" ref={wrapperRef}>
                     <div className="relative flex items-center">
-                        <Search size={16} className="absolute left-2.5 text-slate-400 pointer-events-none" />
+                        <Search size={15} className={`absolute left-4 transition-colors ${open ? "text-blue-600" : "text-slate-400 group-hover:text-blue-500"}`} />
                         <input
                             ref={inputRef}
                             type="text"
@@ -144,17 +146,18 @@ export default function Header({ title, subtitle }: HeaderProps) {
                                 if (results.length > 0) setOpen(true);
                             }}
                             onKeyDown={handleKeyDown}
-                            placeholder="Search cases, findings..."
-                            className="bg-slate-50 border border-slate-200 rounded-md text-slate-900 py-[7px] px-[34px] text-[13px] w-[280px] outline-none transition-all focus:border-[#2980b9] focus:ring-2 focus:ring-[#2980b9]/10 placeholder:text-slate-400"
+                            placeholder="Search by Registration, Case ID, or Finding type..."
+                            className="bg-blue-50/40 border border-blue-100 rounded-xl text-slate-900 py-3 px-12 text-[13px] w-[360px] outline-none transition-all focus:bg-white focus:border-blue-300 focus:ring-4 focus:ring-blue-600/5 focus:w-[420px] placeholder:text-slate-400 font-medium shadow-sm"
                             id="global-search"
                             autoComplete="off"
                         />
+
                         {loading && (
-                            <Loader2 size={14} className="absolute right-2.5 text-[#2980b9] animate-spin" />
+                            <Loader2 size={14} className="absolute right-2.5 text-blue-600 animate-spin" />
                         )}
                         {query && !loading && (
                             <button
-                                className="absolute right-2 text-slate-400 hover:text-slate-800 bg-transparent border-0 p-1 cursor-pointer rounded-sm flex items-center justify-center transition-all hover:bg-slate-100"
+                                className="absolute right-2 text-slate-300 hover:text-blue-600 bg-transparent border-0 p-1 cursor-pointer rounded-sm flex items-center justify-center transition-all hover:bg-blue-50"
                                 onClick={() => {
                                     setQuery("");
                                     setResults([]);
@@ -170,37 +173,37 @@ export default function Header({ title, subtitle }: HeaderProps) {
 
                     {/* Dropdown */}
                     {open && (
-                        <div className="absolute top-[calc(100%+8px)] right-0 w-[340px] bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-50 origin-top-right animate-in fade-in zoom-in-95 duration-150">
+                        <div className="absolute top-[calc(100%+8px)] right-0 w-[340px] bg-white border border-blue-100 rounded-xl shadow-2xl overflow-hidden z-50 origin-top-right animate-in fade-in zoom-in-95 duration-150">
                             {results.length === 0 && !loading ? (
-                                <div className="p-8 text-center text-slate-400 text-[13px] flex flex-col items-center gap-2">
-                                    <Search size={18} />
+                                <div className="p-8 text-center text-slate-400 text-[13px] flex flex-col items-center gap-2 font-medium">
+                                    <Search size={18} className="text-blue-100" />
                                     <span>No results for &ldquo;{query}&rdquo;</span>
                                 </div>
                             ) : (
                                 <>
-                                    <div className="px-3.5 py-2.5 text-[11px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 border-b border-slate-200">
+                                    <div className="px-3.5 py-2.5 text-[11px] font-semibold text-slate-400 uppercase tracking-widest bg-blue-50/50 border-b border-blue-50">
                                         {results.length} result{results.length !== 1 ? "s" : ""}
                                     </div>
-                                    <div className="max-h-[380px] overflow-y-auto overflow-x-hidden">
+                                    <div className="max-h-[380px] overflow-y-auto overflow-x-hidden modern-scrollbar">
                                         {results.map((result, i) => (
                                             <button
                                                 key={`${result.type}-${result.id}`}
-                                                className={`w-full flex items-start gap-3 px-3.5 py-3 bg-transparent border-0 border-b border-slate-200 last:border-b-0 cursor-pointer text-left transition-all hover:bg-slate-50 ${i === activeIndex ? "bg-slate-50" : ""}`}
+                                                className={`w-full flex items-start gap-3 px-3.5 py-3 bg-transparent border-0 border-b border-blue-50 last:border-b-0 cursor-pointer text-left transition-all hover:bg-blue-50 ${i === activeIndex ? "bg-blue-50" : ""}`}
                                                 onClick={() => navigateTo(result)}
                                                 onMouseEnter={() => setActiveIndex(i)}
                                             >
-                                                <div className="text-slate-400 flex items-center justify-center w-7 h-7 bg-slate-100 rounded-md shrink-0">
+                                                <div className="text-blue-400 flex items-center justify-center w-7 h-7 bg-blue-50 rounded-md shrink-0 border border-blue-100">
                                                     {getTypeIcon(result.type)}
                                                 </div>
                                                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                                                    <span className="text-[13px] font-semibold text-slate-800 truncate">
+                                                    <span className="text-[13px] font-semibold text-slate-700 truncate">
                                                         {result.title}
                                                     </span>
-                                                    <span className="text-[11px] text-slate-500 truncate">
+                                                    <span className="text-[11px] text-slate-400 truncate font-medium">
                                                         {result.subtitle}
                                                     </span>
                                                 </div>
-                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest shrink-0">
+                                                <span className="text-[10px] font-semibold text-blue-400 uppercase tracking-widest shrink-0 mt-0.5">
                                                     {getTypeLabel(result.type)}
                                                 </span>
                                             </button>

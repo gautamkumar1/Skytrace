@@ -9,7 +9,11 @@ export async function GET(
     _request: Request,
     { params }: { params: Promise<{ caseId: string }> }
 ) {
-    const { caseId } = await params;
+    const { caseId: encodedCaseId } = await params;
+    const caseId = encodedCaseId ? decodeURIComponent(encodedCaseId) : "";
+    if (!caseId) {
+        return NextResponse.json({ error: "Case not found" }, { status: 404 });
+    }
     try {
         const caseRow = await queryOne<Case>(
             `SELECT case_id, registration, aircraft_type, engine_type,
@@ -23,14 +27,19 @@ export async function GET(
         }
 
         const [findings, documents, engineData] = await Promise.all([
-            query<Finding>(
-                `SELECT id, case_id, agent_name, severity, category, title, evidence,
-                confidence, source_doc_id, source_page, iteration,
-                metadata_json, created_at AS created_at
-         FROM ${qual("findings")} WHERE case_id = $1
-         ORDER BY created_at`,
+            query<Finding & { user_feedback?: string; feedback_comment?: string }>(
+                `SELECT f.*, ff.feedback as user_feedback, ff.fb_comment as feedback_comment
+                 FROM ${qual("findings")} f
+                 LEFT JOIN (
+                    SELECT finding_id, feedback, "COMMENT" as fb_comment,
+                           ROW_NUMBER() OVER (PARTITION BY finding_id ORDER BY created_at DESC) as rn
+                    FROM ${qual("finding_feedback")}
+                 ) ff ON f.id = ff.finding_id AND ff.rn = 1
+                 WHERE f.case_id = $1
+                 ORDER BY f.created_at`,
                 [caseId]
             ),
+
             query<Document>(
                 `SELECT id, case_id, filename, content_hash, storage_key, page_count,
                 metadata_json, created_at AS created_at

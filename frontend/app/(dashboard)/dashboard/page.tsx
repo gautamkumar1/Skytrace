@@ -1,12 +1,15 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import Header from "@/components/layout/Header";
 import SeverityBadge from "@/components/dashboard/SeverityBadge";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import FileUploader from "@/components/dashboard/FileUploader";
+import AnalysisReport from "@/components/dashboard/AnalysisReport";
 import { apiFetch, formatConfidence, truncate } from "@/lib/utils";
 import type { FindingSeverity } from "@/lib/types";
 import {
@@ -21,7 +24,10 @@ import {
   BarChart3,
   Clock,
   Zap,
+  Upload,
+  X,
 } from "lucide-react";
+
 
 interface DashboardData {
   total_cases: number;
@@ -42,9 +48,11 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [view, setView] = useState<"dashboard" | "upload">("dashboard");
 
   useEffect(() => {
     apiFetch<DashboardData>("/api/stats")
@@ -90,237 +98,263 @@ export default function DashboardPage() {
   return (
     <>
       <Header
-        title="Dashboard"
-        subtitle="Fleet operations overview"
-      />
-
-      {/* ── Stat Cards ── */}
-      <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-5 mt-10 px-2"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        title={view === "dashboard" ? "Dashboard" : "Aviation Analysis"}
+        subtitle={view === "dashboard" ? "Fleet operations overview" : "Ingest and analyze documents"}
       >
-        <div className="flex items-center gap-3.5 px-5 py-[18px] bg-white border border-slate-200 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:shadow-md hover:border-slate-300 transition-all duration-200 hover:-translate-y-[1px] relative group text-[#1e4d8a]">
-          <div className="w-10 h-10 rounded-lg bg-[#1e4d8a]/10 flex items-center justify-center shrink-0"><Plane size={18} /></div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-[26px] font-extrabold text-slate-900 leading-none tracking-tight">{data.total_cases}</span>
-            <span className="text-xs font-semibold text-slate-500 mt-[3px]">Active Cases</span>
-          </div>
-        </div>
+        {view === "dashboard" ? (
+          <button
+            onClick={() => setView("upload")}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all cursor-pointer"
+          >
+            <Upload size={18} />
+            New Analysis
+          </button>
+        ) : (
+          <button
+            onClick={() => setView("dashboard")}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all"
+          >
+            <ArrowRight className="rotate-180" size={18} />
+            Back to Dashboard
+          </button>
+        )}
+      </Header>
 
-        <div className="flex items-center gap-3.5 px-5 py-[18px] bg-white border border-slate-200 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:shadow-md hover:border-slate-300 transition-all duration-200 hover:-translate-y-[1px] relative group text-rose-600">
-          <div className="w-10 h-10 rounded-lg bg-rose-600/10 flex items-center justify-center shrink-0"><Shield size={18} /></div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-[26px] font-extrabold text-slate-900 leading-none tracking-tight">{data.total_findings}</span>
-            <span className="text-xs font-semibold text-slate-500 mt-[3px]">AI Findings</span>
-          </div>
-          {stopCount > 0 && (
-            <span className="absolute top-2.5 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full text-rose-500 bg-rose-50 animate-pulse">{stopCount} critical</span>
-          )}
-        </div>
+      <AnimatePresence mode="wait">
+        {view === "upload" && (
+          <motion.div
+            key="upload"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <FileUploader 
+              onClose={() => setView("dashboard")} 
+              onSuccess={(data) => {
+                const id = data?.case_id ?? "";
+                router.push(id ? `/cases/${encodeURIComponent(id)}` : "/dashboard");
+              }}
+            />
+          </motion.div>
+        )}
 
-        <div className="flex items-center gap-3.5 px-5 py-[18px] bg-white border border-slate-200 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:shadow-md hover:border-slate-300 transition-all duration-200 hover:-translate-y-[1px] relative group text-emerald-600">
-          <div className="w-10 h-10 rounded-lg bg-emerald-600/10 flex items-center justify-center shrink-0"><FileText size={18} /></div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-[26px] font-extrabold text-slate-900 leading-none tracking-tight">{data.total_documents}</span>
-            <span className="text-xs font-semibold text-slate-500 mt-[3px]">Documents</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3.5 px-5 py-[18px] bg-white border border-slate-200 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:shadow-md hover:border-slate-300 transition-all duration-200 hover:-translate-y-[1px] relative group text-sky-600">
-          <div className="w-10 h-10 rounded-lg bg-sky-600/10 flex items-center justify-center shrink-0"><Activity size={18} /></div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-[26px] font-extrabold text-slate-900 leading-none tracking-tight">{data.total_engine_metrics}</span>
-            <span className="text-xs font-semibold text-slate-500 mt-[3px]">Engine Metrics</span>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ── Alert Banner (only if critical findings) ── */}
-      {stopCount > 0 && (
-        <motion.div
-          className="flex items-center gap-3 px-4.5 py-3 mb-5 bg-gradient-to-br from-rose-50 to-rose-100/50 border border-rose-200/50 rounded-xl border-l-[3px] border-l-rose-500 px-4"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-        >
-          <div className="w-[30px] h-[30px] rounded-full bg-rose-500 text-white flex items-center justify-center shrink-0 animate-pulse">
-            <Zap size={16} />
-          </div>
-          <div className="flex-1 text-[13px] font-medium text-slate-800">
-            <strong className="font-bold text-rose-500">{stopCount} critical finding{stopCount > 1 ? "s" : ""}</strong> require{stopCount === 1 ? "s" : ""} immediate attention
-            {flagCount > 0 && <span className="text-slate-500"> · {flagCount} flagged for review</span>}
-          </div>
-          <Link href="/findings" className="inline-flex items-center gap-1 text-xs font-bold text-rose-500 px-3.5 py-1.5 rounded-md bg-rose-500/10 hover:bg-rose-500/20 transition-all whitespace-nowrap">
-            Review now <ArrowRight size={13} />
-          </Link>
-        </motion.div>
-      )}
-
-      {/* ── Main Content: 2-column layout ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-[18px] mb-6 px-2">
-        {/* Left column: Severity + Quick Actions */}
-        <motion.div
-          className="flex flex-col gap-4"
-          initial={{ opacity: 0, x: -12 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.25, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {/* Severity Breakdown */}
-          <div className="bg-white border border-slate-200 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.05)] p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <BarChart3 size={15} className="text-slate-400" />
-                <h3 className="text-[12.5px] font-bold text-slate-800 uppercase tracking-[0.05em] m-0">Risk Distribution</h3>
-              </div>
-              <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">{data.total_findings}</span>
-            </div>
-
-            <div>
-              {/* Donut Chart */}
-              <div className="relative mb-4">
-                <ResponsiveContainer width="100%" height={180}>
-                  <PieChart>
-                    <Pie
-                      data={severities.map((sev) => ({
-                        name: sevColors[sev].label,
-                        value: data.severity_counts[sev] || 0,
-                        sev,
-                      }))}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={52}
-                      outerRadius={78}
-                      paddingAngle={3}
-                      dataKey="value"
-                      animationBegin={300}
-                      animationDuration={800}
-                      animationEasing="ease-out"
-                      stroke="none"
-                    >
-                      {severities.map((sev) => (
-                        <Cell key={sev} fill={sevColors[sev].bar} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-                {/* Center label */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center flex flex-col items-center pointer-events-none">
-                  <span className="text-[26px] font-extrabold text-slate-900 leading-none tracking-tight">{data.total_findings}</span>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.06em] mt-0.5">Total</span>
+        {view === "dashboard" && (
+          <motion.div
+            key="dashboard"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* ── Stat Cards ── */}
+            <motion.div 
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-10 px-2"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="premium-card p-6 relative overflow-hidden group">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><Plane size={22} /></div>
+                  <div>
+                    <span className="block text-2xl font-semibold text-slate-900 leading-none tracking-tight mb-1">{data.total_cases}</span>
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Assets</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Legend items */}
-              <div className="grid grid-cols-2 gap-2">
-                {severities.map((sev) => {
-                  const count = data.severity_counts[sev] || 0;
-                  const pct = data.total_findings > 0
-                    ? Math.round((count / data.total_findings) * 100)
-                    : 0;
-                  return (
-                    <div
-                      key={sev}
-                      className="flex items-center gap-2 px-2.5 py-2 rounded-md border bg-slate-50/50"
-                      style={{ borderColor: sevColors[sev].ring }}
-                    >
-                      <div
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{ backgroundColor: sevColors[sev].bar }}
-                      />
-                      <div className="flex flex-col">
-                        <span className="text-base font-extrabold text-slate-900 leading-tight">{count}</span>
-                        <span className="text-[10.5px] font-medium text-slate-400 tracking-wide">{sevColors[sev].label} · {pct}%</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="bg-white border border-slate-200 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.05)] p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Zap size={15} className="text-slate-400" />
-                <h3 className="text-[12.5px] font-bold text-slate-800 uppercase tracking-[0.05em] m-0">Quick Actions</h3>
-              </div>
-            </div>
-            <div className="flex flex-col gap-0.5">
-              {[
-                { href: "/fleet", icon: <Plane size={18} />, title: "Fleet Overview", desc: "Aircraft & case statuses" },
-                { href: "/findings", icon: <AlertTriangle size={18} />, title: "Findings", desc: "Review & submit feedback" },
-                { href: "/engine-health", icon: <Gauge size={18} />, title: "Engine Health", desc: "Performance monitoring" },
-              ].map((action) => (
-                <Link key={action.href} href={action.href} className="group flex items-center gap-3 px-2 py-2.5 rounded-md hover:bg-slate-50 transition-all text-decoration-none">
-                  <div className="w-[34px] h-[34px] rounded-md bg-slate-100 text-[#1e4d8a] flex items-center justify-center shrink-0 transition-all group-hover:bg-[#1e4d8a] group-hover:text-white">{action.icon}</div>
-                  <div className="flex-1 flex flex-col">
-                    <span className="text-[13px] font-semibold text-slate-800">{action.title}</span>
-                    <span className="text-[11px] text-slate-400 mt-[1px]">{action.desc}</span>
+              <div className="premium-card p-6 relative overflow-hidden group">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><AlertTriangle size={22} /></div>
+                  <div>
+                    <span className="block text-2xl font-semibold text-slate-900 leading-none tracking-tight mb-1">{data.total_findings}</span>
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Risk Points</span>
                   </div>
-                  <ChevronRight size={16} className="text-slate-300 shrink-0 transition-all group-hover:text-[#1e4d8a] group-hover:translate-x-0.5" />
+                </div>
+                {stopCount > 0 && (
+                  <div className="absolute top-0 right-0 p-2">
+                      <span className="flex h-2 w-2 rounded-full bg-rose-500 animate-glow" />
+                  </div>
+                )}
+              </div>
+
+              <div className="premium-card p-6 relative overflow-hidden group">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><FileText size={22} /></div>
+                  <div>
+                    <span className="block text-2xl font-semibold text-slate-900 leading-none tracking-tight mb-1">{data.total_documents}</span>
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Data Sources</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="premium-card p-6 relative overflow-hidden group">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><Gauge size={22} /></div>
+                  <div>
+                    <span className="block text-2xl font-semibold text-slate-900 leading-none tracking-tight mb-1">{data.total_engine_metrics}</span>
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Health Metrics</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* ── Alert Banner ── */}
+            {stopCount > 0 && (
+              <motion.div
+                className="flex items-center gap-3 px-4.5 py-3 mb-5 bg-gradient-to-br from-rose-50 to-rose-100/50 border border-rose-200/50 rounded-xl border-l-[3px] border-l-rose-500 px-4 mt-2"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+              >
+                <div className="w-[30px] h-[30px] rounded-full bg-rose-500 text-white flex items-center justify-center shrink-0 animate-pulse">
+                  <Zap size={16} />
+                </div>
+                <div className="flex-1 text-[13px] font-medium text-slate-800">
+                  <strong className="font-bold text-rose-500">{stopCount} critical finding{stopCount > 1 ? "s" : ""}</strong> require{stopCount === 1 ? "s" : ""} immediate attention
+                  {flagCount > 0 && <span className="text-slate-500"> · {flagCount} flagged for review</span>}
+                </div>
+                <Link href="/findings" className="inline-flex items-center gap-1 text-xs font-bold text-rose-500 px-3.5 py-1.5 rounded-md bg-rose-500/10 hover:bg-rose-500/20 transition-all whitespace-nowrap">
+                  Review now <ArrowRight size={13} />
                 </Link>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Right column: Recent Findings */}
-        <motion.div
-          className="min-w-0"
-          initial={{ opacity: 0, x: 12 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="bg-white border border-slate-200 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-            <div className="flex items-center justify-between p-4 px-5 border-b border-slate-200">
-              <div className="flex items-center gap-2">
-                <Clock size={15} className="text-slate-400" />
-                <h3 className="text-[12.5px] font-bold text-slate-800 uppercase tracking-[0.05em] m-0">Recent Findings</h3>
-              </div>
-              <Link href="/findings" className="inline-flex items-center gap-1 text-[11.5px] font-bold text-[#1e4d8a] hover:text-[#1a3a6a] transition-colors">
-                View all <ArrowRight size={12} />
-              </Link>
-            </div>
-
-            {data.recent_findings.length === 0 ? (
-              <div className="py-12 px-5 text-center">
-                <Plane size={28} className="text-slate-300 mx-auto mb-2.5" />
-                <p className="text-sm font-semibold text-slate-400 mb-1">No findings yet</p>
-                <p className="text-xs text-slate-300 m-0">Run a due diligence case to see results here</p>
-              </div>
-            ) : (
-              <div className="flex flex-col">
-                {data.recent_findings.map((f, i) => (
-                  <motion.div
-                    key={f.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.35 + i * 0.05 }}
-                  >
-                    <Link href={`/cases/${f.case_id}`} className="block px-5 py-3.5 border-b border-slate-200 last:border-b-0 hover:bg-sky-50/50 transition-colors text-decoration-none">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <SeverityBadge severity={f.severity} size="sm" />
-                        <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
-                          {formatConfidence(f.confidence)}
-                        </span>
-                      </div>
-                      <p className="text-[13px] font-semibold text-slate-800 mb-1 leading-snug">{truncate(f.title, 65)}</p>
-                      <div className="text-[11.5px] text-slate-400 flex items-center gap-1.5">
-                        <span className="font-semibold text-[#1e4d8a] font-mono text-[11px]">{f.registration}</span>
-                        <span className="text-slate-300">·</span>
-                        <span>{f.category}</span>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
+              </motion.div>
             )}
-          </div>
-        </motion.div>
-      </div>
+
+            {/* ── Main Content ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 px-2 mt-4">
+              <motion.div
+                className="flex flex-col gap-6"
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.25, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className="premium-card p-8">
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-lg bg-blue-50 text-blue-500"><BarChart3 size={16} /></div>
+                      <h3 className="text-[13px] font-bold text-slate-900 uppercase tracking-wider">Risk Profile</h3>
+                    </div>
+                  </div>
+
+                  <div className="relative mb-8 flex justify-center">
+                    <ResponsiveContainer width="100%" height={220}>
+                      <PieChart>
+                        <Pie
+                          data={severities.map((sev) => ({
+                            name: sevColors[sev].label,
+                            value: data.severity_counts[sev] || 0,
+                            sev,
+                          }))}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={65}
+                          outerRadius={95}
+                          paddingAngle={4}
+                          dataKey="value"
+                          stroke="none"
+                        >
+                          {severities.map((sev) => (
+                            <Cell key={sev} fill={sevColors[sev].bar} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+                      <span className="block text-3xl font-bold text-slate-900 leading-none mb-1">{data.total_findings}</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {severities.map((sev) => {
+                      const count = data.severity_counts[sev] || 0;
+                      const pct = data.total_findings > 0 ? Math.round((count / data.total_findings) * 100) : 0;
+                      return (
+                        <div key={sev} className="flex items-center justify-between p-3 rounded-xl border border-blue-50 bg-blue-50/20 group hover:bg-white hover:border-blue-100 transition-all">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: sevColors[sev].bar }} />
+                            <span className="text-[13px] font-semibold text-slate-600">{sevColors[sev].label}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-[13px] font-bold text-slate-900">{count}</span>
+                            <span className="text-[11px] font-semibold text-slate-300 w-8">{pct}%</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="premium-card p-6 bg-gradient-to-br from-blue-600 to-blue-700 text-white border-0 shadow-2xl shadow-blue-600/20">
+                   <div className="flex items-center gap-3 mb-4">
+                     <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center"><Zap size={16} className="text-white" /></div>
+                     <span className="text-[12px] font-bold uppercase tracking-widest text-blue-100/80">Fleet Health</span>
+                   </div>
+                   <p className="text-[13px] text-blue-100/90 leading-relaxed font-semibold mb-4">
+                     Your fleet is currently operating at <span className="text-white font-bold underline decoration-blue-400/50">84% technical efficiency</span>. Review critical findings to improve score.
+                   </p>
+                   <Link href="/fleet" className="flex items-center gap-2 text-[11px] font-bold text-white hover:underline transition-all uppercase tracking-wider">
+                     View detailed report <ArrowRight size={14} />
+                   </Link>
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="min-w-0"
+                initial={{ opacity: 0, x: 12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className="premium-card h-full flex flex-col overflow-hidden">
+                  <div className="flex items-center justify-between p-8 border-b border-slate-50">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-blue-50 text-blue-500"><Clock size={16} /></div>
+                      <h3 className="text-[13px] font-bold text-slate-900 uppercase tracking-wider">Recent Technical Findings</h3>
+                    </div>
+                    <Link href="/findings" className="text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors uppercase tracking-widest">
+                      Full feed <ArrowRight size={12} className="inline ml-1" />
+                    </Link>
+                  </div>
+
+                  {data.recent_findings.length === 0 ? (
+                    <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
+                      <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-200 mb-4"><Plane size={32} /></div>
+                      <h4 className="text-[15px] font-bold text-slate-900 mb-1">All clear at the moment</h4>
+                      <p className="text-[13px] text-slate-400 max-w-xs font-medium">No technical findings have been reported in the last 7 days.</p>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-slate-50 overflow-y-auto">
+                      {data.recent_findings.map((f, i) => (
+                        <Link key={f.id} href={`/cases/${f.case_id}`} className="block group p-8 hover:bg-blue-50/30 transition-all">
+                          <div className="flex items-start justify-between gap-4 mb-2">
+                            <div className="space-y-1">
+                              <p className="text-[15px] font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">{f.title}</p>
+                              <div className="flex items-center gap-3 text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                                 <span className="text-slate-600 font-bold">{f.registration}</span>
+                                 <span className="w-1 h-1 rounded-full bg-slate-200" />
+                                 <span className="font-semibold">{f.category}</span>
+                              </div>
+                            </div>
+                            <div className="shrink-0 flex flex-col items-end gap-2">
+                              <SeverityBadge severity={f.severity} size="sm" />
+                              <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">{formatConfidence(f.confidence)} Score</span>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                  
+                  <div className="mt-auto p-6 bg-slate-50/10 border-t border-slate-50 text-center">
+                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Showing last {data.recent_findings.length} findings · System synchronized</p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

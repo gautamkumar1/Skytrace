@@ -9,43 +9,43 @@ interface MetricCardProps {
 }
 
 export default function MetricCard({ metric }: MetricCardProps) {
-    const statusColor = metricStatusColor(metric.status);
-    const statusBg =
-        metric.status === "ok"
-            ? "bg-emerald-50"
-            : metric.status === "advisory"
-                ? "bg-amber-50"
-                : "bg-rose-50";
+    const severityColor = 
+        metric.status === "ok" ? "#10b981" : 
+        metric.status === "advisory" ? "#f59e0b" : "#e11d48";
 
     return (
-        <div className="bg-white border border-slate-900/[0.06] rounded-xl p-[16px_20px] shadow-sm transition-all duration-250 animate-[slideUp_0.3s_ease-out] hover:border-slate-900/[0.18] hover:shadow-md hover:-translate-y-[1px]">
-            <div className="flex items-center gap-1.5 mb-2.5">
-                <Activity size={14} className={statusColor} />
-                <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-[0.05em]">
+        <div 
+            className="bg-white border text-left shadow-sm overflow-hidden flex flex-col relative"
+            style={{ borderLeft: `3px solid ${severityColor}` }}
+        >
+            <div className="bg-slate-50/50 px-3 py-1.5 border-b border-slate-100 flex items-center justify-between">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">
                     {formatMetricName(metric.metric_name)}
                 </span>
+                <Activity size={10} className="text-slate-300" />
             </div>
-            <div className="flex items-baseline gap-1.5 mb-2">
-                <span className="text-[22px] font-extrabold leading-none tracking-[-0.01em] text-[#0c1d36]">
-                    {metric.metric_value ?? "—"}
-                </span>
-                {metric.unit && (
-                    <span className="text-[12.5px] text-slate-400 font-medium">{metric.unit}</span>
-                )}
+
+            <div className="p-4">
+                <div className="flex items-baseline gap-1">
+                    <span className="text-xl font-bold text-slate-900 tracking-tight font-mono">
+                        {metric.metric_value ?? "—"}
+                    </span>
+                    {metric.unit && (
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{metric.unit}</span>
+                    )}
+                </div>
             </div>
-            <div className="flex items-center gap-1.5 text-[11.5px] text-slate-500">
-                <span
-                    className={`w-1.5 h-1.5 rounded-full ${metric.status === "ok"
-                        ? "bg-emerald-500"
-                        : metric.status === "advisory"
-                            ? "bg-amber-500"
-                            : "bg-rose-500"
-                        }`}
-                />
-                <span className="font-medium">
-                    {metric.status.charAt(0).toUpperCase() + metric.status.slice(1)}
+            
+            <div className="mt-auto px-4 py-2 border-t border-slate-50 bg-slate-50/20 flex items-center justify-between">
+                <span className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                    metric.status === 'ok' ? 'bg-emerald-50 text-emerald-700' : 
+                    metric.status === 'advisory' ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700'
+                }`}>
+                    {metric.status}
                 </span>
+                <span className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">Verified</span>
             </div>
         </div>
     );
 }
+

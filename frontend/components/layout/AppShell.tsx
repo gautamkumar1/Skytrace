@@ -39,9 +39,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 >
                     <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
                     <motion.main
-                        className="flex-1 min-h-screen flex flex-col bg-slate-50"
-                        animate={{ marginLeft: collapsed ? 68 : 225 }}
-                        transition={{ duration: 0.25, ease: "easeInOut" }}
+                        className="flex-1 min-h-screen flex flex-col bg-white"
+                        animate={{ marginLeft: collapsed ? 72 : 240 }}
+                        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
                     >
                         <div className="flex-1 w-full h-full overflow-hidden pt-0 animate-[fadeIn_0.35s_ease-out]">
                             {children}

@@ -67,6 +67,27 @@ class DatabaseBackend(ABC):
         """Insert engine health metric row."""
         ...
 
+    def insert_llp_part(
+        self,
+        id: str,
+        case_id: str,
+        registration: str,
+        aircraft_type: str,
+        part_number: str,
+        part_name: str,
+        serial_number: str,
+        position: str,
+        life_unit: str,
+        current_used: float,
+        life_limit: float,
+        btb_status: str = "pending_review",
+        next_inspection_date: str | None = None,
+        last_btb_verified_at: str | None = None,
+        notes: str | None = None,
+    ) -> None:
+        """Insert or replace one Life Limited Part row (e.g. from document extraction). Optional; default no-op."""
+        ...
+
     @abstractmethod
     def get_case(self, case_id: str) -> dict[str, Any] | None:
         """Get case by id."""

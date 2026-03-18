@@ -83,6 +83,25 @@ CREATE TABLE IF NOT EXISTS finding_feedback (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_finding_feedback_finding_id ON finding_feedback(finding_id);
+
+CREATE TABLE IF NOT EXISTS llp_parts (
+    id VARCHAR(64) PRIMARY KEY,
+    case_id VARCHAR(128) NOT NULL REFERENCES cases(case_id) ON DELETE CASCADE,
+    registration VARCHAR(32) NOT NULL,
+    aircraft_type VARCHAR(64) NOT NULL,
+    part_number VARCHAR(64) NOT NULL,
+    part_name VARCHAR(256),
+    serial_number VARCHAR(64) NOT NULL,
+    position VARCHAR(32),
+    life_unit VARCHAR(8) NOT NULL,
+    current_used NUMERIC(12,2) NOT NULL DEFAULT 0,
+    life_limit NUMERIC(12,2) NOT NULL,
+    btb_status VARCHAR(32) NOT NULL DEFAULT 'pending_review',
+    next_inspection_date DATE,
+    last_btb_verified_at DATE,
+    notes VARCHAR(2000)
+);
+CREATE INDEX IF NOT EXISTS idx_llp_parts_case_id ON llp_parts(case_id);
 """
 
 
@@ -288,6 +307,61 @@ class PostgresDatabaseBackend(DatabaseBackend):
                     "feedback": feedback,
                     "comment": comment,
                     "ledger_id": ledger_id,
+                },
+            )
+
+    def insert_llp_part(
+        self,
+        id: str,
+        case_id: str,
+        registration: str,
+        aircraft_type: str,
+        part_number: str,
+        part_name: str,
+        serial_number: str,
+        position: str,
+        life_unit: str,
+        current_used: float,
+        life_limit: float,
+        btb_status: str = "pending_review",
+        next_inspection_date: str | None = None,
+        last_btb_verified_at: str | None = None,
+        notes: str | None = None,
+    ) -> None:
+        with self._session() as s:
+            s.execute(
+                text("""
+                INSERT INTO llp_parts (id, case_id, registration, aircraft_type, part_number, part_name,
+                    serial_number, position, life_unit, current_used, life_limit, btb_status,
+                    next_inspection_date, last_btb_verified_at, notes)
+                VALUES (:id, :case_id, :registration, :aircraft_type, :part_number, :part_name,
+                    :serial_number, :position, :life_unit, :current_used, :life_limit, :btb_status,
+                    :next_inspection_date, :last_btb_verified_at, :notes)
+                ON CONFLICT (id) DO UPDATE SET
+                    case_id = EXCLUDED.case_id, registration = EXCLUDED.registration,
+                    aircraft_type = EXCLUDED.aircraft_type, part_number = EXCLUDED.part_number,
+                    part_name = EXCLUDED.part_name, serial_number = EXCLUDED.serial_number,
+                    position = EXCLUDED.position, life_unit = EXCLUDED.life_unit,
+                    current_used = EXCLUDED.current_used, life_limit = EXCLUDED.life_limit,
+                    btb_status = EXCLUDED.btb_status, next_inspection_date = EXCLUDED.next_inspection_date,
+                    last_btb_verified_at = EXCLUDED.last_btb_verified_at, notes = EXCLUDED.notes
+                """),
+                {
+                    "id": id,
+                    "case_id": case_id,
+                    "registration": registration,
+                    "aircraft_type": aircraft_type,
+                    "part_number": part_number,
+                    "part_name": part_name or "",
+                    "serial_number": serial_number,
+                    "position": position or "",
+                    "life_unit": life_unit,
+                    "current_used": current_used,
+                    "life_limit": life_limit,
+                    "btb_status": btb_status,
+                    "next_inspection_date": next_inspection_date,
+                    "last_btb_verified_at": last_btb_verified_at,
+                    "notes": notes,
                 },
             )
 

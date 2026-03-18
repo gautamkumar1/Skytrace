@@ -10,17 +10,35 @@ logger = logging.getLogger(__name__)
 # Patterns for common engine sheet metrics (case-insensitive, numbers with optional units)
 PATTERNS = [
     (r"EGT\s*margin\s*[:\s]*([-\d.]+)\s*°?C?", "EGT_MARGIN_C", "°C", lambda v: float(v) if v else None),
+    (r"\"EGT_MARGIN_C\"\s*:\s*([-\d.]+)", "EGT_MARGIN_C", "°C", lambda v: float(v) if v else None),
     (r"EGTM\s*[:\s]*([-\d.]+)", "EGT_MARGIN_C", "°C", lambda v: float(v) if v else None),
     (r"cycles?\s*since\s*new\s*[:\s]*(\d+)", "CSN", None, lambda v: int(v) if v else None),
+    (r"\"cycles_since_new\"\s*:\s*(\d+)", "CSN", None, lambda v: int(v) if v else None),
     (r"CSN\s*[:\s]*(\d+)", "CSN", None, lambda v: int(v) if v else None),
     (r"time\s*since\s*new\s*[:\s]*(\d+)\s*(?:hrs?|hours?)?", "TSN", "hrs", lambda v: int(v) if v else None),
+    (r"\"time_since_new\"\s*:\s*(\d+)", "TSN", "hrs", lambda v: int(v) if v else None),
     (r"TSN\s*[:\s]*(\d+)", "TSN", "hrs", lambda v: int(v) if v else None),
     (r"LLP\s*min(?:imum)?\s*remaining\s*[:\s]*(\d+)", "LLP_MIN_REMAINING", "cycles", lambda v: int(v) if v else None),
+    (r"\"cycles_remaining\"\s*:\s*(\d+)", "LLP_MIN_REMAINING", "cycles", lambda v: int(v) if v else None),
     (r"min(?:imum)?\s*LLP\s*remaining\s*[:\s]*(\d+)", "LLP_MIN_REMAINING", "cycles", lambda v: int(v) if v else None),
     (r"cycles?\s*since\s*last\s*(?:shop\s*)?visit\s*[:\s]*(\d+)", "CSLSV", None, lambda v: int(v) if v else None),
+    (r"\"CSLSV\"\s*:\s*(\d+)", "CSLSV", None, lambda v: int(v) if v else None),
     (r"CSLSV\s*[:\s]*(\d+)", "CSLSV", None, lambda v: int(v) if v else None),
     (r"time\s*since\s*last\s*(?:shop\s*)?visit\s*[:\s]*(\d+)", "TSLSV", "hrs", lambda v: int(v) if v else None),
-    (r"TSLSV\s*[:\s]*(\d+)", "TSLSV", "hrs", lambda v: int(v) if v else None),
+    (r"\"TSLSV\"\s*:\s*(\d+)", "TSLSV", "hrs", lambda v: int(v) if v else None),
+    (r"TSLV\s*[:\s]*(\d+)", "TSLSV", "hrs", lambda v: int(v) if v else None),
+    # OriginTrace / Technical Log Mappings
+    (r"MSN\s*[:\s]*(\w+)", "ASSET_PRIMARY_ID", None, lambda v: str(v) if v else None),
+    (r"\"MSN\"\s*:\s*\"?(\w+)\"?", "ASSET_PRIMARY_ID", None, lambda v: str(v) if v else None),
+    (r"TSN_Hrs\s*[:\s]*([-\d.]+)", "TOTAL_TIME_SINCE_NEW", "hrs", lambda v: float(v) if v else None),
+    (r"\"TSN_Hrs\"\s*:\s*([-\d.]+)", "TOTAL_TIME_SINCE_NEW", "hrs", lambda v: float(v) if v else None),
+    (r"Release_Cert_Ref\s*[:\s]*([\w-]+)", "FORM_1_8130_3_LINKAGE", None, lambda v: str(v) if v else None),
+    (r"\"Release_Cert_Ref\"\s*:\s*\"?([\w-]+)\"?", "FORM_1_8130_3_LINKAGE", None, lambda v: str(v) if v else None),
+    # New indicators
+    (r"oil\s*pressure\s*[:\s]*([-\d.]+)\s*psi", "OIL_PRESS_PSI", "psi", lambda v: float(v) if v else None),
+    (r"oil\s*temp(?:erature)?\s*[:\s]*([-\d.]+)\s*°?C?", "OIL_TEMP_C", "°C", lambda v: float(v) if v else None),
+    (r"vib(?:ration)?\s*(?:N1|N2)?\s*[:\s]*([-\d.]+)\s*units?", "VIB_UNITS", "units", lambda v: float(v) if v else None),
+    (r"fuel\s*flow\s*[:\s]*([-\d.]+)\s*pph", "FF_PPH", "pph", lambda v: float(v) if v else None),
 ]
 
 
@@ -41,6 +59,7 @@ def extract_engine_metrics_from_text(text: str) -> list[tuple[str, str | float, 
         m = re.search(pattern, text_lower, re.IGNORECASE)
         if m:
             raw = m.group(1).strip()
+            logger.info(f"extraction_hit: pattern={pattern} name={name} raw={raw}")
             try:
                 val = coerce(raw)
             except (ValueError, TypeError):
@@ -49,6 +68,8 @@ def extract_engine_metrics_from_text(text: str) -> list[tuple[str, str | float, 
                 status = _infer_status(name, val)
                 results.append((name, val, unit, status))
                 seen.add(name)
+        else:
+            logger.debug(f"extraction_miss: pattern={pattern} name={name}")
     return results
 
 
@@ -62,6 +83,17 @@ def _infer_status(metric_name: str, value: float | int) -> str:
         if value < 1000:
             return "flag"
         if value < 3000:
+            return "advisory"
+    if metric_name == "OIL_PRESS_PSI" and isinstance(value, (int, float)):
+        if value < 30 or value > 100:
+            return "flag"
+    if metric_name == "OIL_TEMP_C" and isinstance(value, (int, float)):
+        if value > 140:
+            return "flag"
+    if metric_name == "VIB_UNITS" and isinstance(value, (int, float)):
+        if value > 3.0:
+            return "flag"
+        if value > 1.5:
             return "advisory"
     return "ok"
 
@@ -82,7 +114,9 @@ def extract_engine_metrics_from_docs(
         text = doc.get("text_preview") or doc.get("text", "")
         if not text:
             continue
-        for name, value, unit, status in extract_engine_metrics_from_text(text):
+        metrics = extract_engine_metrics_from_text(text)
+        logger.info(f"doc_extraction_complete: doc_id={doc.get('id')} metrics_count={len(metrics)}")
+        for name, value, unit, status in metrics:
             if name not in all_metrics:
                 all_metrics[name] = (value, unit, status)
     return [(name, v[0], v[1], v[2]) for name, v in all_metrics.items()]

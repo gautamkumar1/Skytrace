@@ -167,15 +167,16 @@ const getStatusColor = (status: PartStatus) => {
   }
 };
 
-export function A320Model({ status, onPartClick, activePart, ...props }: A320ModelProps & React.JSX.IntrinsicElements['group']) {
-  const { nodes } = useGLTF('/A320.glb') as unknown as GLTFResult
+export function A320Model({ status, onPartClick, activePart, ...props }: A320ModelProps) {
+  const { nodes: a320Nodes } = useGLTF('/A320.glb') as unknown as GLTFResult
+  const { nodes: gearNodes } = useGLTF('/airplane.glb') as any
 
   const isFaded = (part: string) => activePart !== null && activePart !== part;
-  const getOpacity = (part: string) => (isFaded(part) ? 0.1 : 0.8);
+  const getOpacity = (part: string) => (isFaded(part) ? 0.1 : 0.7);
 
   // Wireframe materials for the "Digital Twin" aesthetic
   const materialFuselage = useMemo(() => new THREE.MeshStandardMaterial({
-    color: "#ffffff",
+    color: "#cbd5e1",
     wireframe: true,
     transparent: true,
     opacity: getOpacity("fuselage")
@@ -187,7 +188,7 @@ export function A320Model({ status, onPartClick, activePart, ...props }: A320Mod
     transparent: true,
     opacity: getOpacity("wings"),
     emissive: getStatusColor(status.wings),
-    emissiveIntensity: activePart === "wings" ? 1 : 0.2
+    emissiveIntensity: activePart === "wings" ? 1 : 0.4
   }), [status.wings, activePart]);
 
   const materialEngines = useMemo(() => new THREE.MeshStandardMaterial({
@@ -196,7 +197,7 @@ export function A320Model({ status, onPartClick, activePart, ...props }: A320Mod
     transparent: true,
     opacity: getOpacity("engines"),
     emissive: getStatusColor(status.engines),
-    emissiveIntensity: activePart === "engines" ? 1 : 0.2
+    emissiveIntensity: activePart === "engines" ? 1 : 0.4
   }), [status.engines, activePart]);
 
   const materialUndercarriage = useMemo(() => new THREE.MeshStandardMaterial({
@@ -205,8 +206,15 @@ export function A320Model({ status, onPartClick, activePart, ...props }: A320Mod
     transparent: true,
     opacity: getOpacity("undercarriage"),
     emissive: getStatusColor(status.undercarriage),
-    emissiveIntensity: activePart === "undercarriage" ? 1 : 0.2
+    emissiveIntensity: activePart === "undercarriage" ? 1 : 0.6
   }), [status.undercarriage, activePart]);
+
+  const materialTire = useMemo(() => new THREE.MeshStandardMaterial({
+    color: "#1e293b",
+    wireframe: true,
+    transparent: true,
+    opacity: getOpacity("undercarriage")
+  }), [activePart]);
 
   const materialGlass = useMemo(() => new THREE.MeshStandardMaterial({
     color: "#60a5fa",
@@ -216,139 +224,156 @@ export function A320Model({ status, onPartClick, activePart, ...props }: A320Mod
   }), [activePart]);
 
   return (
-    <group {...props} dispose={null} scale={0.4} rotation={[0, -Math.PI / 2, 0]}>
+    <group {...props} dispose={null} scale={0.25} rotation={[0, -Math.PI / 2, 0]}>
       <group onClick={(e) => { e.stopPropagation(); onPartClick("fuselage"); }}>
         <group position={[18.329, 2.599, 0.035]} rotation={[Math.PI, 0, -Math.PI]}>
-          <mesh geometry={nodes.Belly.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.Cargo1.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.Cargo1Int.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.Cargo2.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.Cargo2Int.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.Cargo3.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.Cargo3Int.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.DoorL1.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.DoorL2.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.DoorL3.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.DoorL4.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.DoorR1.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.DoorR2.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.DoorR3.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.DoorR4.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.Fuselage001.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.Nose.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.Ports.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.CockpitFrame001.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.Windows.geometry} material={materialGlass} />
-          <mesh geometry={nodes.CockpitWindows.geometry} material={materialGlass} />
+          <mesh geometry={a320Nodes.Belly.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.Cargo1.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.Cargo1Int.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.Cargo2.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.Cargo2Int.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.Cargo3.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.Cargo3Int.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.DoorL1.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.DoorL2.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.DoorL3.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.DoorL4.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.DoorR1.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.DoorR2.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.DoorR3.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.DoorR4.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.Fuselage001.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.Nose.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.Ports.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.CockpitFrame001.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.Windows.geometry} material={materialGlass} />
+          <mesh geometry={a320Nodes.CockpitWindows.geometry} material={materialGlass} />
         </group>
         <group position={[-15.195, 2.514, 0.054]} rotation={[Math.PI, 0, -Math.PI]}>
-          <mesh geometry={nodes.Rudder.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.Vstab001.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.Rudder.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.Vstab001.geometry} material={materialFuselage} />
         </group>
         <group position={[-16.383, 2.518, 0.035]} rotation={[Math.PI, 0, -Math.PI]}>
-          <mesh geometry={nodes.ElevatorL.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.ElevatorR.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.HstabFlapL.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.HstabFlapR.geometry} material={materialFuselage} />
-          <mesh geometry={nodes.Hstabs001.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.ElevatorL.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.ElevatorR.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.HstabFlapL.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.HstabFlapR.geometry} material={materialFuselage} />
+          <mesh geometry={a320Nodes.Hstabs001.geometry} material={materialFuselage} />
         </group>
       </group>
 
       {/* WINGS GROUP */}
       <group onClick={(e) => { e.stopPropagation(); onPartClick("wings"); }} position={[3.186, 1.573, 0.041]} rotation={[Math.PI, 0, -Math.PI]}>
-        <mesh geometry={nodes.AileronL.geometry} material={materialWings} />
-        <mesh geometry={nodes.AileronR.geometry} material={materialWings} />
-        <mesh geometry={nodes.FairingL1.geometry} material={materialWings} />
-        <mesh geometry={nodes.FairingL2.geometry} material={materialWings} />
-        <mesh geometry={nodes.FairingL3.geometry} material={materialWings} />
-        <mesh geometry={nodes.FairingR1.geometry} material={materialWings} />
-        <mesh geometry={nodes.FairingR2.geometry} material={materialWings} />
-        <mesh geometry={nodes.FairingR3.geometry} material={materialWings} />
-        <mesh geometry={nodes.FairingPylons.geometry} material={materialWings} />
-        <mesh geometry={nodes.FlapL1.geometry} material={materialWings} />
-        <mesh geometry={nodes.FlapL2.geometry} material={materialWings} />
-        <mesh geometry={nodes.FlapR1.geometry} material={materialWings} />
-        <mesh geometry={nodes.FlapR2.geometry} material={materialWings} />
-        <mesh geometry={nodes.Flaps1.geometry} material={materialWings} />
-        <mesh geometry={nodes.SlatL1.geometry} material={materialWings} />
-        <mesh geometry={nodes.SlatL2.geometry} material={materialWings} />
-        <mesh geometry={nodes.SlatL3.geometry} material={materialWings} />
-        <mesh geometry={nodes.SlatL4.geometry} material={materialWings} />
-        <mesh geometry={nodes.SlatL5.geometry} material={materialWings} />
-        <mesh geometry={nodes.SlatR1.geometry} material={materialWings} />
-        <mesh geometry={nodes.SlatR2.geometry} material={materialWings} />
-        <mesh geometry={nodes.SlatR3.geometry} material={materialWings} />
-        <mesh geometry={nodes.SlatR4.geometry} material={materialWings} />
-        <mesh geometry={nodes.SlatR5.geometry} material={materialWings} />
-        <mesh geometry={nodes.SpoilerL1.geometry} material={materialWings} />
-        <mesh geometry={nodes.SpoilerL2.geometry} material={materialWings} />
-        <mesh geometry={nodes.SpoilerL3.geometry} material={materialWings} />
-        <mesh geometry={nodes.SpoilerL4.geometry} material={materialWings} />
-        <mesh geometry={nodes.SpoilerL5.geometry} material={materialWings} />
-        <mesh geometry={nodes.SpoilerR1.geometry} material={materialWings} />
-        <mesh geometry={nodes.SpoilerR2.geometry} material={materialWings} />
-        <mesh geometry={nodes.SpoilerR3.geometry} material={materialWings} />
-        <mesh geometry={nodes.SpoilerR4.geometry} material={materialWings} />
-        <mesh geometry={nodes.SpoilerR5.geometry} material={materialWings} />
-        <mesh geometry={nodes.Wingbox.geometry} material={materialWings} />
-        <mesh geometry={nodes.Wings001.geometry} material={materialWings} />
-        <mesh geometry={nodes.Wingtips.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.AileronL.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.AileronR.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.FairingL1.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.FairingL2.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.FairingL3.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.FairingR1.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.FairingR2.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.FairingR3.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.FairingPylons.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.FlapL1.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.FlapL2.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.FlapR1.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.FlapR2.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.Flaps1.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SlatL1.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SlatL2.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SlatL3.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SlatL4.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SlatL5.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SlatR1.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SlatR2.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SlatR3.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SlatR4.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SlatR5.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SpoilerL1.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SpoilerL2.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SpoilerL3.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SpoilerL4.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SpoilerL5.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SpoilerR1.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SpoilerR2.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SpoilerR3.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SpoilerR4.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.SpoilerR5.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.Wingbox.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.Wings001.geometry} material={materialWings} />
+        <mesh geometry={a320Nodes.Wingtips.geometry} material={materialWings} />
       </group>
 
       {/* ENGINES GROUP */}
       <group onClick={(e) => { e.stopPropagation(); onPartClick("engines"); }}>
-        <mesh geometry={nodes.EngineL.geometry} material={materialEngines} position={[3.992, 0.511, -6.251]} rotation={[Math.PI, 0, -Math.PI]}>
-          <mesh geometry={nodes.blades.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.casing.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.conemesh.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.conemesh_1.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.cone2.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.Core.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.Cube004.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.exhaust.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.fanWheel.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.Intake.geometry} material={materialEngines} />
-          <mesh geometry={nodes.IntakeInterior.geometry} material={materialEngines} />
-          <mesh geometry={nodes.Nacelle.geometry} material={materialEngines} />
-          <mesh geometry={nodes.Nozzle.geometry} material={materialEngines} />
-          <mesh geometry={nodes.Plane.geometry} material={materialEngines} />
-          <mesh geometry={nodes.Pylon.geometry} material={materialEngines} />
-          <mesh geometry={nodes.shroud.geometry} material={materialEngines} />
+        <mesh geometry={a320Nodes.EngineL.geometry} material={materialEngines} position={[3.992, 0.511, -6.251]} rotation={[Math.PI, 0, -Math.PI]}>
+          <mesh geometry={a320Nodes.blades.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.casing.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.conemesh.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.conemesh_1.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.cone2.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.Core.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.Cube004.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.exhaust.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.fanWheel.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.Intake.geometry} material={materialEngines} />
+          <mesh geometry={a320Nodes.IntakeInterior.geometry} material={materialEngines} />
+          <mesh geometry={a320Nodes.Nacelle.geometry} material={materialEngines} />
+          <mesh geometry={a320Nodes.Nozzle.geometry} material={materialEngines} />
+          <mesh geometry={a320Nodes.Plane.geometry} material={materialEngines} />
+          <mesh geometry={a320Nodes.Pylon.geometry} material={materialEngines} />
+          <mesh geometry={a320Nodes.shroud.geometry} material={materialEngines} />
         </mesh>
-        <mesh geometry={nodes.EngineR.geometry} material={materialEngines} position={[4.137, 0.481, 6.335]} rotation={[Math.PI, 0, -Math.PI]}>
-          <mesh geometry={nodes.blades001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.casing001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.conemesh001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.conemesh001_1.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.cone2001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.Core001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.Cube000.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.exhaust001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.fanWheel001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
-          <mesh geometry={nodes.Intake001.geometry} material={materialEngines} />
-          <mesh geometry={nodes.IntakeInterior001.geometry} material={materialEngines} />
-          <mesh geometry={nodes.Nacelle001.geometry} material={materialEngines} />
-          <mesh geometry={nodes.Nozzle001.geometry} material={materialEngines} />
-          <mesh geometry={nodes.Plane001.geometry} material={materialEngines} />
-          <mesh geometry={nodes.Pylon001.geometry} material={materialEngines} />
-          <mesh geometry={nodes.shroud001.geometry} material={materialEngines} />
+        <mesh geometry={a320Nodes.EngineR.geometry} material={materialEngines} position={[4.137, 0.481, 6.335]} rotation={[Math.PI, 0, -Math.PI]}>
+          <mesh geometry={a320Nodes.blades001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.casing001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.conemesh001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.conemesh001_1.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.cone2001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.Core001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.Cube000.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.exhaust001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.fanWheel001.geometry} material={materialEngines} position={[0.326, 0.011, 0]} />
+          <mesh geometry={a320Nodes.Intake001.geometry} material={materialEngines} />
+          <mesh geometry={a320Nodes.IntakeInterior001.geometry} material={materialEngines} />
+          <mesh geometry={a320Nodes.Nacelle001.geometry} material={materialEngines} />
+          <mesh geometry={a320Nodes.Nozzle001.geometry} material={materialEngines} />
+          <mesh geometry={a320Nodes.Plane001.geometry} material={materialEngines} />
+          <mesh geometry={a320Nodes.Pylon001.geometry} material={materialEngines} />
+          <mesh geometry={a320Nodes.shroud001.geometry} material={materialEngines} />
         </mesh>
       </group>
 
       {/* UNDERCARRIAGE GROUP */}
-      <group onClick={(e) => { e.stopPropagation(); onPartClick("undercarriage"); }} position={[18.329, 2.599, 0.035]} rotation={[Math.PI, 0, -Math.PI]}>
-        <mesh geometry={nodes.GearLDoor.geometry} material={materialUndercarriage} />
-        <mesh geometry={nodes.GearNAftDoorL.geometry} material={materialUndercarriage} />
-        <mesh geometry={nodes.GearNAftDoorR.geometry} material={materialUndercarriage} />
-        <mesh geometry={nodes.GearNDoorC.geometry} material={materialUndercarriage} />
-        <mesh geometry={nodes.GearNFwdDoorL.geometry} material={materialUndercarriage} />
-        <mesh geometry={nodes.GearNFwdDoorR.geometry} material={materialUndercarriage} />
-        <mesh geometry={nodes.GearNWell.geometry} material={materialUndercarriage} />
-        <mesh geometry={nodes.GearRDoor.geometry} material={materialUndercarriage} />
+      <group onClick={(e) => { e.stopPropagation(); onPartClick("undercarriage"); }}>
+        {/* Nose Gear - Combined with Fuselage/Nose section for perfect alignment */}
+        <group position={[18.329, 2.599, 0.035]} rotation={[Math.PI, 0, -Math.PI]}>
+          <mesh geometry={a320Nodes.GearLDoor.geometry} material={materialUndercarriage} />
+          <mesh geometry={a320Nodes.GearNAftDoorL.geometry} material={materialUndercarriage} />
+          <mesh geometry={a320Nodes.GearNAftDoorR.geometry} material={materialUndercarriage} />
+          <mesh geometry={a320Nodes.GearNDoorC.geometry} material={materialUndercarriage} />
+          <mesh geometry={a320Nodes.GearNFwdDoorL.geometry} material={materialUndercarriage} />
+          <mesh geometry={a320Nodes.GearNFwdDoorR.geometry} material={materialUndercarriage} />
+          <mesh geometry={a320Nodes.GearNWell.geometry} material={materialUndercarriage} />
+          <mesh geometry={a320Nodes.GearRDoor.geometry} material={materialUndercarriage} />
+          
+          {/* Nose Gear Strut & Wheels */}
+          <group position={[7.46, -2.12, 0]} scale={0.06} rotation={[0, Math.PI, 0]}>
+            <mesh geometry={gearNodes.front_gear_1.geometry} material={materialUndercarriage} />
+            <mesh geometry={gearNodes.front_gear_2.geometry} material={materialTire} />
+          </group>
+        </group>
+        
+        {/* Main Landing Gear - Aligned with Wing Root Section */}
+        <group position={[3.186, 1.573, 0.041]} rotation={[Math.PI, 0, -Math.PI]}>
+          <group position={[4.89, -0.97, 0]} scale={[0.22, 0.75, 0.22]} rotation={[0, Math.PI, 0]}>
+            <mesh geometry={gearNodes.rear_gears_1.geometry} material={materialUndercarriage} />
+            <mesh geometry={gearNodes.rear_gears_2.geometry} material={materialTire} />
+          </group>
+        </group>
       </group>
     </group>
   )
 }
 
 useGLTF.preload('/A320.glb')
-
+useGLTF.preload('/airplane.glb')

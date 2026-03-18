@@ -5,10 +5,12 @@ import { useState } from "react";
 import {
     Shield, Plane, FileText, Gauge, Cpu, BarChart3,
     ArrowRight, CheckCircle, Upload, Brain, LineChart,
-    Menu, X, ChevronRight, Globe, Lock, Zap
+    Menu, X, ChevronRight, Globe, Lock, Zap,
+    Scale, Users
 } from "lucide-react";
 
 const NAV_LINKS = [
+    { label: "Our Approach", href: "#approach" },
     { label: "Features", href: "#features" },
     { label: "How It Works", href: "#how-it-works" },
     { label: "About", href: "#about" },
@@ -35,7 +37,7 @@ const FEATURES = [
     },
     {
         icon: Cpu,
-        title: "Digital Twin Avionics",
+        title: "Digital Twin Aircraft",
         desc: "Interactive 3D aircraft model with real-time diagnostic overlays showing part-level status from AI-analysed records.",
         color: "#0284c7",
     },
@@ -69,8 +71,8 @@ const STEPS = [
     {
         step: "03",
         icon: LineChart,
-        title: "Actionable Insights",
-        desc: "Review prioritised findings on interactive dashboards. Export reports for board presentations, redelivery negotiations, or audits.",
+        title: "Human in the loop",
+        desc: "Experts review, approve, flag, or reject findings with full audit trails. Export board-ready reports for redelivery, negotiations, or audits.",
     },
 ];
 
@@ -98,8 +100,8 @@ export default function LandingPage() {
                             <path d="M8 19.5L18 10l10 3-6 4.5 4 5.5H14l-3-2.5-3 2z" fill="#2980b9" />
                         </svg>
                         <div className="flex flex-col">
-                            <span className="text-[15px] font-bold text-[#1a2a3a] tracking-tight leading-none">OriginTrace</span>
-                            <span className="text-[9px] font-semibold text-[#2980b9] uppercase tracking-[0.15em] leading-none mt-0.5">Due Diligence</span>
+                            <span className="text-[15px] font-bold text-[#1a2a3a] tracking-tight leading-none">OriginTace.AI</span>
+                            <span className="text-[9px] font-semibold text-[#2980b9] uppercase tracking-[0.15em] leading-none mt-0.5">Know what you own</span>
                         </div>
                     </Link>
 
@@ -152,10 +154,20 @@ export default function LandingPage() {
 
                 <div className="max-w-[1200px] mx-auto px-6 relative">
                     <div className="max-w-[680px]">
-                        {/* Badge */}
-                        <div className="inline-flex items-center gap-2 bg-white border border-[#e0e8f0] rounded-full px-4 py-1.5 mb-6 shadow-sm">
-                            <span className="w-2 h-2 bg-[#059669] rounded-full animate-pulse" />
-                            <span className="text-[11px] font-semibold text-[#4a5568] tracking-wide uppercase">Now Processing 50K+ Records</span>
+                        {/* Differentiator badges: Highly regulated • Human in the loop */}
+                        <div className="flex flex-wrap gap-2 mb-6">
+                            <div className="inline-flex items-center gap-2 bg-white border border-[#e0e8f0] rounded-full px-4 py-1.5 shadow-sm">
+                                <Scale className="w-3.5 h-3.5 text-[#1a5276]" />
+                                <span className="text-[11px] font-semibold text-[#1a2a3a] tracking-wide">Highly regulated</span>
+                            </div>
+                            <div className="inline-flex items-center gap-2 bg-white border border-[#e0e8f0] rounded-full px-4 py-1.5 shadow-sm">
+                                <Users className="w-3.5 h-3.5 text-[#1a5276]" />
+                                <span className="text-[11px] font-semibold text-[#1a2a3a] tracking-wide">Human in the loop</span>
+                            </div>
+                            <div className="inline-flex items-center gap-2 bg-[#2980b9]/08 border border-[#2980b9]/20 rounded-full px-4 py-1.5">
+                                <span className="w-2 h-2 bg-[#059669] rounded-full animate-pulse" />
+                                <span className="text-[11px] font-semibold text-[#4a5568] tracking-wide uppercase">50K+ Records Processed</span>
+                            </div>
                         </div>
 
                         <h1 className="text-[40px] md:text-[52px] leading-[1.1] font-extrabold text-[#1a2a3a] tracking-tight mb-5">
@@ -163,8 +175,11 @@ export default function LandingPage() {
                             <span className="text-[#2980b9]">powered by AI.</span>
                         </h1>
 
-                        <p className="text-[17px] md:text-lg text-[#5a6b7d] leading-relaxed mb-8 max-w-[560px]">
-                            OriginTrace analyses maintenance records, engine data, and regulatory documents to surface critical findings — giving lessors, MROs, and technical teams the confidence to make informed decisions.
+                        <p className="text-[17px] md:text-lg text-[#5a6b7d] leading-relaxed mb-4 max-w-[600px]">
+                            AI is the engine. Our proprietary advantage is <strong className="text-[#1a2a3a]">how we serve this highly regulated industry</strong> in a novel, cost-effective way — with <strong className="text-[#1a2a3a]">humans always in the loop</strong>.
+                        </p>
+                        <p className="text-[15px] text-[#6b7c8d] leading-relaxed mb-8 max-w-[560px]">
+                            <strong className="text-[#1a2a3a]">OriginTrace.ai</strong> captures high-value physical asset history in permanent digital form. An immutable record layer captures every event from manufacture to today; an AI decision layer surfaces what matters. When an aircraft changes hands, the buyer gets instant, human-in-the-loop, verifiable provenance — not weeks of document archaeology.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-3">
@@ -203,6 +218,39 @@ export default function LandingPage() {
                             <span key={name} className="text-[14px] md:text-[16px] font-bold text-[#2c3e50] tracking-wide">{name}</span>
                         ))}
                     </div>
+                </div>
+            </section>
+
+            {/* ═══════════════ HIGHLY REGULATED + HUMAN IN THE LOOP ═══════════════ */}
+            <section id="approach" className="py-14 md:py-16 bg-[#f0f5fa] border-b border-[#e5eaf0]">
+                <div className="max-w-[1200px] mx-auto px-6">
+                    <p className="text-center text-[11px] font-bold text-[#2980b9] uppercase tracking-[0.2em] mb-6">What makes us different</p>
+                    <h2 className="text-[22px] md:text-[26px] font-extrabold text-[#1a2a3a] tracking-tight text-center mb-10 max-w-[640px] mx-auto">
+                        Built for a highly regulated industry — with human-in-the-loop at the core
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-[800px] mx-auto">
+                        <div className="bg-white rounded-2xl border border-[#e0e8f0] p-6 md:p-7 shadow-sm flex flex-col">
+                            <div className="w-12 h-12 rounded-xl bg-[#1a5276]/10 flex items-center justify-center mb-4">
+                                <Scale className="w-6 h-6 text-[#1a5276]" />
+                            </div>
+                            <h3 className="text-[17px] font-bold text-[#1a2a3a] mb-2 tracking-tight">Highly regulated by design</h3>
+                            <p className="text-[13px] text-[#5a6b7d] leading-[1.7]">
+                                Aviation demands traceability, compliance, and auditability. We don’t hide behind a black box — our workflows, evidence chains, and approvals are built for EASA, FAA, and lessor requirements from day one.
+                            </p>
+                        </div>
+                        <div className="bg-white rounded-2xl border border-[#e0e8f0] p-6 md:p-7 shadow-sm flex flex-col">
+                            <div className="w-12 h-12 rounded-xl bg-[#1a5276]/10 flex items-center justify-center mb-4">
+                                <Users className="w-6 h-6 text-[#1a5276]" />
+                            </div>
+                            <h3 className="text-[17px] font-bold text-[#1a2a3a] mb-2 tracking-tight">Human in the loop</h3>
+                            <p className="text-[13px] text-[#5a6b7d] leading-[1.7]">
+                                AI accelerates analysis; experts own the decisions. Approve, flag, or reject findings with full audit trails. Our platform augments your team — it never replaces judgement where it matters most.
+                            </p>
+                        </div>
+                    </div>
+                    <p className="text-center text-[13px] text-[#5a6b7d] mt-8 max-w-[560px] mx-auto leading-relaxed">
+                        <strong className="text-[#1a2a3a]">AI is the engine.</strong> Our proprietary edge is how we deliver this in a novel, cost-effective way that fits the way aviation actually works.
+                    </p>
                 </div>
             </section>
 
@@ -292,11 +340,10 @@ export default function LandingPage() {
                         <div>
                             <p className="text-[11px] font-bold text-[#2980b9] uppercase tracking-[0.2em] mb-3">Why OriginTrace</p>
                             <h2 className="text-[28px] md:text-[36px] font-extrabold text-[#1a2a3a] tracking-tight mb-5">
-                                Built by aviation professionals,<br className="hidden md:block" /> for aviation professionals
+                                Built for a highly regulated industry,<br className="hidden md:block" /> with humans in the loop
                             </h2>
                             <p className="text-[15px] text-[#5a6b7d] leading-relaxed mb-8">
-                                Traditional due diligence processes take weeks and miss critical details buried in thousands of pages.
-                                OriginTrace brings AI precision to every review — without replacing human judgement.
+                                AI powers the analysis. What we do differently is <strong className="text-[#1a2a3a]">how we serve this highly regulated space</strong> in a novel, cost-effective way: traceable workflows, expert-in-the-loop approvals, and compliance built in from the start — so you get speed without sacrificing control.
                             </p>
                             <div className="space-y-4">
                                 {[
@@ -385,7 +432,7 @@ export default function LandingPage() {
                                 <path d="M18 2L4 8v10c0 9.1 6 17 14 18 8-1 14-8.9 14-18V8L18 2z" stroke="#2980b9" strokeWidth="1.5" fill="none" />
                                 <path d="M8 19.5L18 10l10 3-6 4.5 4 5.5H14l-3-2.5-3 2z" fill="#2980b9" />
                             </svg>
-                            <span className="text-[14px] font-bold text-white/70">OriginTrace.ai</span>
+                            <span className="text-[14px] font-bold text-white/70">OriginTace.AI</span>
                         </div>
 
                         <div className="flex flex-wrap gap-6 text-[12px] text-white/40 font-medium">

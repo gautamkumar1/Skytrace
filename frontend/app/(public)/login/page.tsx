@@ -35,8 +35,8 @@ export default function LoginPage() {
                             <path d="M8 19.5L18 10l10 3-6 4.5 4 5.5H14l-3-2.5-3 2z" fill="white" opacity="0.7" />
                         </svg>
                         <div className="flex flex-col">
-                            <span className="text-[16px] font-bold text-white tracking-tight leading-none">OriginTrace</span>
-                            <span className="text-[9px] font-semibold text-white/40 uppercase tracking-[0.15em] leading-none mt-0.5">Due Diligence</span>
+                            <span className="text-[16px] font-bold text-white tracking-tight leading-none">OriginTace.AI</span>
+                            <span className="text-[9px] font-semibold text-white/40 uppercase tracking-[0.15em] leading-none mt-0.5">Know what you own</span>
                         </div>
                     </Link>
 
@@ -67,7 +67,7 @@ export default function LoginPage() {
                                 <path d="M18 2L4 8v10c0 9.1 6 17 14 18 8-1 14-8.9 14-18V8L18 2z" stroke="#1a5276" strokeWidth="1.5" fill="none" />
                                 <path d="M8 19.5L18 10l10 3-6 4.5 4 5.5H14l-3-2.5-3 2z" fill="#2980b9" />
                             </svg>
-                            <span className="text-[14px] font-bold text-[#1a2a3a]">OriginTrace</span>
+                            <span className="text-[14px] font-bold text-[#1a2a3a]">OriginTace.AI</span>
                         </Link>
                     </div>
 

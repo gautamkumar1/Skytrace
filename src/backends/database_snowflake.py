@@ -74,6 +74,24 @@ CREATE TABLE IF NOT EXISTS finding_feedback (
     ledger_id VARCHAR(200),
     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
 );
+
+CREATE TABLE IF NOT EXISTS "llp_parts" (
+    id VARCHAR(64) NOT NULL PRIMARY KEY,
+    case_id VARCHAR(128) NOT NULL,
+    registration VARCHAR(32) NOT NULL,
+    aircraft_type VARCHAR(64) NOT NULL,
+    part_number VARCHAR(64) NOT NULL,
+    part_name VARCHAR(256),
+    serial_number VARCHAR(64) NOT NULL,
+    position VARCHAR(32),
+    life_unit VARCHAR(8) NOT NULL,
+    current_used NUMBER(12,2) NOT NULL DEFAULT 0,
+    life_limit NUMBER(12,2) NOT NULL,
+    btb_status VARCHAR(32) NOT NULL DEFAULT 'pending_review',
+    next_inspection_date DATE,
+    last_btb_verified_at DATE,
+    notes VARCHAR(2000)
+);
 """
 
 
@@ -260,8 +278,9 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
         try:
             conn.cursor(DictCursor).execute(
                 f"""
-                INSERT INTO {self._qual("engine_data")} (case_id, registration, aircraft_type, engine_type, metric_name, metric_value, metric_value_numeric, unit, status, metadata_json)
-                VALUES (%(case_id)s, %(registration)s, %(aircraft_type)s, %(engine_type)s, %(metric_name)s, %(metric_value)s, %(metric_value_numeric)s, %(unit)s, %(status)s, PARSE_JSON(%(metadata_json)s))
+                INSERT INTO {self._qual("engine_data")} 
+                (case_id, registration, aircraft_type, engine_type, metric_name, metric_value, metric_value_numeric, unit, status, metadata_json)
+                SELECT %(case_id)s, %(registration)s, %(aircraft_type)s, %(engine_type)s, %(metric_name)s, %(metric_value)s, %(metric_value_numeric)s, %(unit)s, %(status)s, PARSE_JSON(%(metadata_json)s)
                 """,
                 {
                     "case_id": case_id,
@@ -298,6 +317,73 @@ class SnowflakeDatabaseBackend(DatabaseBackend):
                 VALUES (%(id)s, %(finding_id)s, %(case_id)s, %(actor)s, %(feedback)s, %(comment)s, %(ledger_id)s)
                 """,
                 {"id": feedback_id, "finding_id": finding_id, "case_id": case_id, "actor": actor, "feedback": feedback, "comment": comment, "ledger_id": ledger_id},
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+    def insert_llp_part(
+        self,
+        id: str,
+        case_id: str,
+        registration: str,
+        aircraft_type: str,
+        part_number: str,
+        part_name: str,
+        serial_number: str,
+        position: str,
+        life_unit: str,
+        current_used: float,
+        life_limit: float,
+        btb_status: str = "pending_review",
+        next_inspection_date: str | None = None,
+        last_btb_verified_at: str | None = None,
+        notes: str | None = None,
+    ) -> None:
+        q = f"{self._quote_id(self._database)}.{self._quote_id(self._schema)}.{self._quote_id('llp_parts')}"
+        conn = self._conn()
+        try:
+            conn.cursor(DictCursor).execute(
+                f"""
+                MERGE INTO {q} t
+                USING (SELECT %(id)s AS id, %(case_id)s AS case_id, %(registration)s AS registration,
+                    %(aircraft_type)s AS aircraft_type, %(part_number)s AS part_number, %(part_name)s AS part_name,
+                    %(serial_number)s AS serial_number, %(position)s AS position, %(life_unit)s AS life_unit,
+                    %(current_used)s AS current_used, %(life_limit)s AS life_limit, %(btb_status)s AS btb_status,
+                    %(next_inspection_date)s AS next_inspection_date, %(last_btb_verified_at)s AS last_btb_verified_at,
+                    %(notes)s AS notes) s
+                ON t.id = s.id
+                WHEN MATCHED THEN UPDATE SET
+                    t.case_id = s.case_id, t.registration = s.registration, t.aircraft_type = s.aircraft_type,
+                    t.part_number = s.part_number, t.part_name = s.part_name, t.serial_number = s.serial_number,
+                    t.position = s.position, t.life_unit = s.life_unit, t.current_used = s.current_used,
+                    t.life_limit = s.life_limit, t.btb_status = s.btb_status,
+                    t.next_inspection_date = s.next_inspection_date, t.last_btb_verified_at = s.last_btb_verified_at,
+                    t.notes = s.notes
+                WHEN NOT MATCHED THEN INSERT (id, case_id, registration, aircraft_type, part_number, part_name,
+                    serial_number, position, life_unit, current_used, life_limit, btb_status,
+                    next_inspection_date, last_btb_verified_at, notes)
+                VALUES (s.id, s.case_id, s.registration, s.aircraft_type, s.part_number, s.part_name,
+                    s.serial_number, s.position, s.life_unit, s.current_used, s.life_limit, s.btb_status,
+                    s.next_inspection_date, s.last_btb_verified_at, s.notes)
+                """,
+                {
+                    "id": id,
+                    "case_id": case_id,
+                    "registration": registration,
+                    "aircraft_type": aircraft_type,
+                    "part_number": part_number,
+                    "part_name": part_name or "",
+                    "serial_number": serial_number,
+                    "position": position or "",
+                    "life_unit": life_unit,
+                    "current_used": current_used,
+                    "life_limit": life_limit,
+                    "btb_status": btb_status,
+                    "next_inspection_date": next_inspection_date,
+                    "last_btb_verified_at": last_btb_verified_at,
+                    "notes": notes,
+                },
             )
             conn.commit()
         finally:

@@ -10,17 +10,26 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { finding_id, case_id, feedback, comment } = body;
 
-        if (!finding_id || !case_id || !feedback) {
+        if (!finding_id || !case_id) {
             return NextResponse.json(
-                { error: "finding_id, case_id, and feedback are required" },
+                { error: "finding_id and case_id are required" },
                 { status: 400 }
             );
         }
+        const hasComment = comment != null && String(comment).trim() !== "";
+        const validFeedback = feedback && ["approve", "flag", "reject", "comment"].includes(feedback);
+        if (!validFeedback && !hasComment) {
+            return NextResponse.json(
+                { error: "feedback (approve/flag/reject/comment) or comment is required" },
+                { status: 400 }
+            );
+        }
+        const feedbackValue = validFeedback ? feedback : "comment";
 
         const feedbackId =
             Date.now().toString(36) + Math.random().toString(36).substring(2, 10);
 
-        // First check if the finding_feedback table exists, create it if not
+        // Create table if not exists. Use "COMMENT" quoted (Snowflake reserved word); matches Python schema.
         try {
             await query(
                 `CREATE TABLE IF NOT EXISTS ${qual("finding_feedback")} (
@@ -29,18 +38,19 @@ export async function POST(request: Request) {
                     case_id VARCHAR(255) NOT NULL,
                     actor VARCHAR(128) DEFAULT 'dashboard-ui',
                     feedback VARCHAR(32) NOT NULL,
-                    comment TEXT,
+                    "COMMENT" VARCHAR(1000),
                     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
                 )`
             );
         } catch {
-            // Table might already exist, continue
+            // Table might already exist (e.g. created by Python backend), continue
         }
 
+        // Insert feedback. "COMMENT" quoted for Snowflake reserved word.
         await query(
-            `INSERT INTO ${qual("finding_feedback")} (id, finding_id, case_id, actor, feedback, comment)
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            [feedbackId, finding_id, case_id, "dashboard-ui", feedback, comment || null]
+            `INSERT INTO ${qual("finding_feedback")} (id, finding_id, case_id, actor, feedback, "COMMENT")
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [feedbackId, finding_id, case_id, "dashboard-ui", feedbackValue, comment != null && comment !== "" ? String(comment) : null]
         );
 
         return NextResponse.json({ success: true, feedback_id: feedbackId });

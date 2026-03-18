@@ -29,24 +29,23 @@ const Airplane = ({ status, onPartClick, activePart }: AirplaneModelProps) => {
                 status={status}
                 onPartClick={onPartClick}
                 activePart={activePart}
-                position={[0, 0, 0]}
             />
         </Float>
     );
 };
 
 export default function AirplaneCanvas({ status, onPartClick, activePart }: AirplaneModelProps) {
-    const cameraSettings = React.useMemo(() => ({ position: [20, 10, 20] as [number, number, number], fov: 35 }), []);
+    const cameraSettings = React.useMemo(() => ({ position: [30, 15, 30] as [number, number, number], fov: 35 }), []);
 
     return (
-        <div className="w-full h-full bg-[#0c1524] relative overflow-hidden">
+        <div className="w-full h-full bg-white relative overflow-hidden">
             <Canvas camera={cameraSettings} shadows>
-                <color attach="background" args={['#0c1524']} />
+                <color attach="background" args={['#ffffff']} />
 
-                <ambientLight intensity={0.4} />
-                <pointLight position={[10, 10, 10]} intensity={2} color="#3b82f6" />
-                <pointLight position={[-10, 5, -10]} intensity={1.5} color="#8b5cf6" />
-                <pointLight position={[0, -5, 5]} intensity={1} color="#0ea5e9" />
+                <ambientLight intensity={0.8} />
+                <pointLight position={[10, 10, 10]} intensity={1.5} color="#ffffff" />
+                <pointLight position={[-10, 5, -10]} intensity={1} color="#ffffff" />
+                <pointLight position={[0, -5, 5]} intensity={0.5} color="#ffffff" />
 
                 <spotLight
                     position={[15, 20, 5]}
@@ -69,8 +68,6 @@ export default function AirplaneCanvas({ status, onPartClick, activePart }: Airp
                         far={10}
                         color="#000000"
                     />
-
-                    <gridHelper args={[100, 50, "#1e293b", "#0f172a"]} position={[0, -4.1, 0]} />
                 </Suspense>
 
                 <OrbitControls
