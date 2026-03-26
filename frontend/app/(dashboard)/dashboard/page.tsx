@@ -86,7 +86,7 @@ export default function DashboardPage() {
   const totalFindings = data.total_findings || 1;
   const severities = ["STOP", "FLAG", "ADVISORY", "CLEAR"] as const;
   const sevColors: Record<string, { bar: string; label: string; bg: string; ring: string }> = {
-    STOP: { bar: "#be123c", label: "Critical", bg: "rgba(190,18,60,0.08)", ring: "rgba(190,18,60,0.2)" },
+    STOP: { bar: "#be123c", label: "Significant Risk", bg: "rgba(190,18,60,0.08)", ring: "rgba(190,18,60,0.2)" },
     FLAG: { bar: "#d97706", label: "Flagged", bg: "rgba(217,119,6,0.08)", ring: "rgba(217,119,6,0.2)" },
     ADVISORY: { bar: "#0284c7", label: "Advisory", bg: "rgba(2,132,199,0.08)", ring: "rgba(2,132,199,0.2)" },
     CLEAR: { bar: "#059669", label: "Clear", bg: "rgba(5,150,105,0.08)", ring: "rgba(5,150,105,0.2)" },
@@ -291,11 +291,11 @@ export default function DashboardPage() {
                      <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center"><Zap size={16} className="text-white" /></div>
                      <span className="text-[12px] font-bold uppercase tracking-widest text-blue-100/80">Fleet Health</span>
                    </div>
-                   <p className="text-[13px] text-blue-100/90 leading-relaxed font-semibold mb-4">
-                     Your fleet is currently operating at <span className="text-white font-bold underline decoration-blue-400/50">84% technical efficiency</span>. Review critical findings to improve score.
+                   <p className="text-[15px] text-blue-50 leading-relaxed font-bold mb-6">
+                     Your fleet is currently operating at <span className="text-white font-black underline decoration-blue-400/50">84% technical efficiency</span>. Review critical findings to improve score.
                    </p>
-                   <Link href="/fleet" className="flex items-center gap-2 text-[11px] font-bold text-white hover:underline transition-all uppercase tracking-wider">
-                     View detailed report <ArrowRight size={14} />
+                   <Link href="/fleet" className="inline-flex items-center justify-center px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg text-[12px] font-bold transition-all uppercase tracking-wider shadow-lg shadow-emerald-500/20">
+                     View detailed report
                    </Link>
                 </div>
               </motion.div>
@@ -325,15 +325,21 @@ export default function DashboardPage() {
                     </div>
                   ) : (
                     <div className="divide-y divide-slate-50 overflow-y-auto">
-                      {data.recent_findings.map((f, i) => (
+                      {[...data.recent_findings]
+                        .sort((a, b) => {
+                          if (a.severity === "STOP" && b.severity !== "STOP") return -1;
+                          if (a.severity !== "STOP" && b.severity === "STOP") return 1;
+                          return 0;
+                        })
+                        .map((f, i) => (
                         <Link key={f.id} href={`/cases/${f.case_id}`} className="block group p-8 hover:bg-blue-50/30 transition-all">
                           <div className="flex items-start justify-between gap-4 mb-2">
                             <div className="space-y-1">
                               <p className="text-[15px] font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">{f.title}</p>
-                              <div className="flex items-center gap-3 text-[11px] font-bold text-slate-300 uppercase tracking-wider">
-                                 <span className="text-slate-600 font-bold">{f.registration}</span>
-                                 <span className="w-1 h-1 rounded-full bg-slate-200" />
-                                 <span className="font-semibold">{f.category}</span>
+                              <div className="flex items-center gap-3 text-[11.5px] font-bold text-slate-500 uppercase tracking-wider mt-1.5">
+                                 <span className="text-slate-700 font-extrabold">{f.registration}</span>
+                                 <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                                 <span className="text-slate-600 font-bold">{f.category}</span>
                               </div>
                             </div>
                             <div className="shrink-0 flex flex-col items-end gap-2">

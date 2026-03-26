@@ -22,7 +22,7 @@ export default function SeverityBadge({
             className={`inline-flex items-center gap-[5px] rounded-full font-semibold tracking-[0.03em] border border-solid ${colors.bg} ${colors.text} ${colors.border} ${sizeClasses[size]}`}
         >
             <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${colors.dot}`} />
-            {severity}
+            {severity === "STOP" ? "Significant Risk" : severity}
         </span>
     );
 }

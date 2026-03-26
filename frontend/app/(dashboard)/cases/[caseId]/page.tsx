@@ -157,7 +157,7 @@ export default function CaseDetailPage() {
                                             <div key={severity} className="space-y-6">
                                                 <div className="flex items-center gap-3 border-b border-slate-200 pb-3">
                                                      <span className={`px-3 py-1 rounded text-[10px] font-black uppercase tracking-tighter ${bgColor} ${textColor} ring-1 ring-inset ${titleColor}/20`}>
-                                                         {severity}
+                                                         {severity === "STOP" ? "Significant Risk" : severity}
                                                      </span>
                                                      <h3 className="text-[14px] font-black text-slate-900 uppercase tracking-wider">
                                                          {findings.length} {findings.length === 1 ? 'Technical Finding' : 'Technical Findings'}

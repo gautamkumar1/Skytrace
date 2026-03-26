@@ -100,8 +100,8 @@ export default function FleetTable({ data, groupBy }: FleetTableProps) {
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-right">
-                                            <Link href={`/cases/${row.case_id}`} className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-                                                Report <ArrowRight size={14} />
+                                            <Link href={`/cases/${row.case_id}`} className="inline-flex items-center gap-1 text-[15px] font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                                                Report <ArrowRight size={16} />
                                             </Link>
                                         </td>
                                     </tr>

@@ -5,6 +5,7 @@ import AirplaneCanvas from "@/components/models/AirplaneModel";
 import EngineFocusView from "@/components/models/EngineFocusView";
 import { FileText, Cpu, AlertTriangle, CheckCircle, ShieldAlert, Plane, Activity, ChevronRight, X, ChevronDown, ChevronLeft } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import MaintenanceTimeline, { type TimelineEvent } from "@/components/aircraft/MaintenanceTimeline";
 
 type PartStatus = "green" | "amber" | "red";
 
@@ -24,6 +25,7 @@ interface Finding {
     severity: string;
     title: string;
     evidence: string;
+    created_at?: string | null;
 }
 
 interface EngineMetric {
@@ -31,6 +33,14 @@ interface EngineMetric {
     metric_value: string | number;
     unit: string;
     status: string;
+    created_at?: string | null;
+}
+
+interface DocumentRow {
+    id: string;
+    filename: string;
+    created_at?: string | null;
+    metadata_json?: Record<string, unknown> | null;
 }
 
 interface CaseDetail {
@@ -38,6 +48,8 @@ interface CaseDetail {
     registration: string;
     findings: Finding[];
     engine_data: EngineMetric[];
+    documents?: DocumentRow[];
+    created_at?: string | null;
 }
 
 const StatusIcon = ({ status }: { status: PartStatus }) => {
@@ -178,7 +190,7 @@ export default function AircraftPage() {
         if (!selectedCaseId) return;
         const fetchDetail = async () => {
             try {
-                const res = await fetch(`/api/cases/${selectedCaseId}`);
+                const res = await fetch(`/api/cases/${encodeURIComponent(selectedCaseId)}`);
                 const data = await res.json();
                 setCaseDetail(data);
                 setActivePart(null);
@@ -190,6 +202,67 @@ export default function AircraftPage() {
     }, [selectedCaseId]);
 
     const activeAircraft = fleet.find(a => a.case_id === selectedCaseId);
+    const timelineEvents = React.useMemo((): TimelineEvent[] => {
+        if (!caseDetail) return [];
+        const events: TimelineEvent[] = [];
+
+        if (caseDetail.created_at) {
+            events.push({
+                id: `case-${caseDetail.case_id}`,
+                date: caseDetail.created_at,
+                kind: "ownership",
+                title: "Acquired / Case opened",
+                subtitle: caseDetail.registration,
+                detail: "Start of record traceability",
+            });
+        }
+
+        // Add dummy maintenance event for zig-zag demo
+        events.push({
+            id: `maint-demo-1`,
+            date: new Date(new Date(caseDetail.created_at || Date.now()).getTime() + 1000 * 60 * 60 * 24 * 30).toISOString(),
+            kind: "maintenance",
+            title: "Scheduled A-Check",
+            subtitle: "Routine Inspection",
+            detail: "All systems verified nominal.",
+        });
+
+        for (const d of caseDetail.documents ?? []) {
+            if (!d?.created_at) continue;
+            events.push({
+                id: `doc-${d.id}`,
+                date: d.created_at,
+                kind: "document",
+                title: d.filename,
+                subtitle: "Document ingested",
+            });
+        }
+
+        for (const f of caseDetail.findings ?? []) {
+            if (!f?.created_at) continue;
+            events.push({
+                id: `finding-${f.id}`,
+                date: f.created_at,
+                kind: "finding",
+                title: f.category || "Finding",
+                subtitle: f.title || "Technical issue",
+                detail: f.evidence,
+                severity: (f.severity?.toUpperCase?.() as any) ?? "ADVISORY",
+            });
+        }
+
+        if (events.length <= 2) {
+            events.push({
+                id: `case-${caseDetail.case_id}-fallback`,
+                date: new Date().toISOString(),
+                kind: "ownership",
+                title: "Timeline active",
+                subtitle: "Awaiting further records",
+            });
+        }
+
+        return events;
+    }, [caseDetail]);
     const currentStatuses = React.useMemo(() => {
         if (!caseDetail) return { undercarriage: "green" as PartStatus, wings: "green" as PartStatus, engines: "green" as PartStatus };
         return mapFindingsToStatus(caseDetail.findings);
@@ -205,9 +278,6 @@ export default function AircraftPage() {
 
     return (
         <div className="flex h-full w-full overflow-hidden bg-white font-sans">
-
-
-
             {/* Mobile fleet overlay */}
             <AnimatePresence>
                 {mobilePanel === "fleet" && (
@@ -243,106 +313,156 @@ export default function AircraftPage() {
                 <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden" onClick={() => setMobilePanel(null)} />
             )}
 
-            {/* ═══ Center: 3D Digital Twin ═══ */}
-            <div className="flex-1 flex flex-col bg-white relative min-w-0">
+            {/* ═══ Main Unified Column ═══ */}
+            <div className="flex-1 flex flex-col bg-white relative min-w-0 overflow-y-auto overflow-x-hidden modern-scrollbar">
                 {/* Mobile top bar */}
                 <div className="flex lg:hidden items-center justify-between px-3 py-2 bg-slate-50 border-b border-slate-200">
                     <button onClick={() => setMobilePanel("fleet")} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-600">
                         <Plane className="w-3.5 h-3.5" />
                         {activeAircraft?.registration || "Fleet"}
                     </button>
-                    <button onClick={() => setMobilePanel("findings")} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-600">
-                        <ShieldAlert className="w-3.5 h-3.5" />
-                        Findings
-                    </button>
+                    {/* Mobile findings button removed as findings are now in main column */}
                 </div>
 
-                {/* Header overlay */}
-                <div className="hidden lg:flex absolute top-0 left-0 right-0 z-10 px-5 py-4 xl:px-6 xl:py-5 items-start justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 xl:w-10 xl:h-10 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center backdrop-blur-sm">
-                            <Plane className="w-4.5 h-4.5 xl:w-5 xl:h-5 text-blue-600" />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2.5">
-                                <div className="flex items-center gap-2 px-2.5 py-1.5 bg-[#f8fafc] border border-slate-200 rounded-lg">
-                                    <Plane className="w-3.5 h-3.5 text-blue-600" />
-                                    <span className="text-[10px] font-semibold text-slate-900 uppercase tracking-wider">Active Fleet</span>
-                                    <span className="text-slate-300">|</span>
-                                    <FleetDropdown
-                                        fleet={fleet}
-                                        selectedCaseId={selectedCaseId}
-                                        onSelect={setSelectedCaseId}
-                                    />
+                {/* Page header – single line, no overlap */}
+                <div className="hidden lg:flex items-center gap-3 px-5 py-3 xl:px-6 xl:py-4 border-b border-slate-100 bg-white shrink-0">
+                    <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center">
+                        <Plane className="w-4.5 h-4.5 text-blue-600" />
+                    </div>
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider shrink-0">Active Fleet</span>
+                        <FleetDropdown
+                            fleet={fleet}
+                            selectedCaseId={selectedCaseId}
+                            onSelect={setSelectedCaseId}
+                        />
+                        <span className="text-slate-300 text-sm">·</span>
+                        <h1 className="text-sm font-semibold text-slate-900 truncate">Digital Twin</h1>
+                    </div>
+                </div>
+
+                {/* Row-based Layout: max-width for widescreen dashboard feel */}
+                <div className="flex-1 relative min-h-0 p-6 xl:p-8">
+                    <div className="max-w-5xl mx-auto space-y-8">
+                        
+                        {/* ─── Row 1: 65 / 35 ─── */}
+                        <div className="flex flex-col lg:flex-row gap-6 max-w-full">
+                            {/* 1. Aircraft Locator */}
+
+                            <div className="lg:w-[65%] min-w-0 space-y-4">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center">
+                                        <ShieldAlert className="w-4 h-4 text-amber-500" />
+                                    </div>
+                                    <h2 className="text-[13px] font-bold text-slate-900 m-0">System Findings</h2>
                                 </div>
-                                <h1 className="text-sm xl:text-base font-semibold text-slate-900 tracking-tight leading-tight m-0 opacity-40">
-                                    Digital Twin
-                                </h1>
-                            </div>
-                            <p className="text-[9px] xl:text-[10px] font-mono text-slate-500 uppercase tracking-[0.12em] mt-0.5 pl-1">
-                                Operational Status Verification <span className="text-slate-300 mx-1">•</span> Select aircraft for diagnostic
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 3D Canvas - Slightly padded to make the airplane appear smaller as requested */}
-                <div className="flex-1 relative min-h-0 p-12">
-                    <AirplaneCanvas
-                        status={currentStatuses}
-                        onPartClick={(part: string) => setActivePart(part === "fuselage" ? null : part)}
-                        activePart={activePart}
-                    />
-
-                    {/* Engine Focus View in place of Telemetry (Right Panel) or overlay */}
-                    <div className="hidden">
-                        {/* Hidden since it's now in the findings panel */}
-                    </div>
-
-                    {/* Interaction hint */}
-                    {!activePart && (
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-full text-[9px] font-bold text-slate-400 uppercase tracking-widest pointer-events-none z-10">
-                            Navigate with Mouse · Zoom with Scroll
-                        </div>
-                    )}
-                </div>
-
-                {/* Bottom Metrics Bar */}
-                <div className="h-14 xl:h-[68px] border-t border-slate-100 bg-white flex items-center px-4 xl:px-6 gap-4 xl:gap-6 shrink-0">
-                    <div className="flex flex-col gap-0.5 min-w-[130px] xl:min-w-[160px]">
-                        <span className="text-[8px] xl:text-[9px] font-mono text-slate-400 uppercase tracking-[0.1em]">System Status</span>
-                        <div className="flex items-center gap-2 text-[11px] xl:text-xs font-bold text-emerald-600">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            Diagnostics Active
-                        </div>
-                    </div>
-                    <div className="w-px h-7 bg-slate-100" />
-                    <div className="flex-1 flex gap-5 xl:gap-8 overflow-x-auto no-scrollbar">
-                        {caseDetail?.engine_data.slice(0, 4).map((metric, i) => (
-                            <div key={i} className="flex flex-col gap-0.5 min-w-[80px] xl:min-w-[90px]">
-                                <span className="text-[8px] xl:text-[9px] font-mono text-slate-400 uppercase tracking-wider truncate">{metric.metric_name}</span>
-                                <div>
-                                    <span className="text-sm xl:text-[14px] font-black text-slate-800 tracking-tight">{metric.metric_value}</span>
-                                    <span className="text-[9px] xl:text-[10px] text-slate-400 ml-1">{metric.unit}</span>
+                                
+                                <div className="grid grid-cols-1 gap-3">
+                                    {(Object.entries(currentStatuses) as [string, PartStatus][]).map(([part, status]) => (
+                                        <div
+                                            key={part}
+                                            className={`flex-1 flex items-center justify-between p-3 rounded-xl border border-l-[3px] transition-all duration-150 hover:shadow-md group ${statusCardStyles[status]} shadow-sm`}
+                                        >
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="text-[12px] xl:text-[13px] font-bold text-slate-900 capitalize">{part}</span>
+                                                <span className={`text-[9px] xl:text-[10px] font-bold uppercase tracking-wider ${statusLabelColor[status]}`}>
+                                                    {getStatusLabel(status)}
+                                                </span>
+                                            </div>
+                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${statusIconBg[status]}`}>
+                                                <StatusIcon status={status} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="premium-card p-4 bg-blue-50/20 border-blue-100/40">
+                                    <div className="flex items-center gap-2 mb-1.5">
+                                        <AlertTriangle className="w-3 h-3 text-blue-600" />
+                                        <span className="text-[9px] font-bold text-blue-900 uppercase tracking-widest">Digital Twin Status</span>
+                                    </div>
+                                    <p className="text-[10px] text-blue-800/70 leading-relaxed font-medium">
+                                        Technical telemetry is synchronized with the latest record extraction.
+                                    </p>
                                 </div>
                             </div>
-                        ))}
+                            <div className="lg:w-[35%] min-w-0 space-y-5 overflow-hidden">
+                                <div className="premium-card border border-slate-200/70 overflow-hidden h-full">
+                                    <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+                                                <Plane className="w-4 h-4 text-blue-600" />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <div className="text-[11px] font-bold text-slate-900 truncate">Aircraft locator</div>
+                                                <div className="text-[9px] text-slate-400 truncate">Drag to rotate · Scroll to zoom</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="h-[320px] p-2 bg-slate-50/50">
+                                        <AirplaneCanvas
+                                            status={currentStatuses}
+                                            onPartClick={(part: string) => setActivePart(part === "fuselage" ? null : part)}
+                                            activePart={activePart}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 2. Findings Overview */}
+                            
+                        </div>
+
+                        {/* ─── Row 2: Maintenance History (Full Width) ─── */}
+                        <div className="w-full min-w-0 overflow-hidden">
+                            <MaintenanceTimeline
+                                title="Maintenance History"
+                                subtitle="Traceability timeline of all records and changes"
+                                events={timelineEvents}
+                            />
+                        </div>
+
+                        {/* ─── Row 3: Engine Diagnostics (Right-Aligned) ─── */}
+                        <div className="flex justify-end w-full">
+                            <div className="lg:w-[35%] min-w-0">
+                                <div className="premium-card border border-slate-200/70 p-6 h-full flex flex-col">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center">
+                                            <Activity className="w-4 h-4 text-blue-600" />
+                                        </div>
+                                        <h3 className="text-sm font-bold text-slate-900 m-0">Engine Diagnostics</h3>
+                                    </div>
+                                    
+                                    <div className="flex-1 min-h-[280px] relative bg-slate-50/30 rounded-2xl border border-slate-100 mb-4 overflow-hidden">
+                                        <EngineFocusView
+                                            status={currentStatuses.engines}
+                                            highlightedParts={[]}
+                                        />
+                                    </div>
+                                    
+                                    <div className="space-y-3">
+                                         <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-[10px] text-slate-500 italic leading-relaxed">
+                                            High-fidelity turbine core visualization synced with engine findings.
+                                         </div>
+                                         <p className="text-[11px] text-slate-400 font-medium px-1">
+                                            Click on engine to inspect discrepancies.
+                                         </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Status bar – no engine metrics */}
+                <div className="h-11 border-t border-slate-100 bg-white flex items-center px-4 xl:px-6 shrink-0">
+                    <span className="text-[8px] xl:text-[9px] font-mono text-slate-400 uppercase tracking-[0.1em]">System Status</span>
+                    <div className="flex items-center gap-2 text-[11px] xl:text-xs font-bold text-emerald-600 ml-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        Diagnostics Active
                     </div>
                 </div>
             </div>
 
-            {/* ═══ Right Panel: Findings & Details ═══ */}
-            {/* Desktop: always visible | Mobile: slide-over */}
-            <div className="hidden lg:flex flex-col w-[240px] min-w-[240px] xl:w-[270px] xl:min-w-[270px] bg-white border-l border-slate-200/80">
-                <FindingsPanel
-                    activePart={activePart}
-                    setActivePart={setActivePart}
-                    currentStatuses={currentStatuses}
-                    caseDetail={caseDetail}
-                    selectedFindingId={selectedFindingId}
-                    setSelectedFindingId={setSelectedFindingId}
-                />
-            </div>
 
             {/* Mobile findings overlay */}
             <AnimatePresence>
@@ -432,7 +552,7 @@ function FindingsPanel({ activePart, setActivePart, currentStatuses, caseDetail,
                 </div>
             )}
 
-            <div className="flex-1 overflow-y-auto p-3 xl:p-4">
+            <div className="flex-1 overflow-y-auto p-2.5 xl:p-3">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activePart || "overview"}

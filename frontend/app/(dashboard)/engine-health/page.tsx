@@ -6,24 +6,43 @@ import Header from "@/components/layout/Header";
 import MetricCard from "@/components/engine/MetricCard";
 import EngineFocusView from "@/components/models/EngineFocusView";
 import TopPartsReference from "@/components/engine/TopPartsReference";
+import FleetHealthCards from "@/components/engine/FleetHealthCards";
+import EngineForensicSvgTimeline from "@/components/engine/EngineForensicSvgTimeline";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import EmptyState from "@/components/ui/EmptyState";
 import { apiFetch } from "@/lib/utils";
 import type { FleetSummaryRow, EngineMetric } from "@/lib/types";
+import type { FleetHealthCase } from "@/components/engine/FleetHealthCards";
 import { Gauge, Filter, AlertTriangle, CheckCircle2 } from "lucide-react";
+
+interface CaseDetail {
+    case_id: string;
+    registration: string;
+    aircraft_type?: string;
+    engine_type?: string;
+    findings: { id: string; category: string; title: string; evidence?: string; severity?: string; created_at?: string | null; source_doc_id?: string | null }[];
+    documents: { id: string; filename: string; created_at?: string | null }[];
+    engine_data: EngineMetric[];
+}
 
 export default function EngineHealthPage() {
     const [fleet, setFleet] = useState<FleetSummaryRow[]>([]);
+    const [fleetHealth, setFleetHealth] = useState<FleetHealthCase[]>([]);
     const [selectedCase, setSelectedCase] = useState<string>("");
+    const [caseDetail, setCaseDetail] = useState<CaseDetail | null>(null);
     const [metrics, setMetrics] = useState<EngineMetric[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingMetrics, setLoadingMetrics] = useState(false);
 
     useEffect(() => {
-        apiFetch<FleetSummaryRow[]>("/api/fleet")
-            .then((data) => {
-                setFleet(data);
-                if (data.length > 0) setSelectedCase(data[0].case_id);
+        Promise.all([
+            apiFetch<FleetSummaryRow[]>("/api/fleet"),
+            apiFetch<FleetHealthCase[]>("/api/engine/fleet-health"),
+        ])
+            .then(([fleetData, healthData]) => {
+                setFleet(fleetData);
+                setFleetHealth(healthData);
+                if (fleetData.length > 0 && !selectedCase) setSelectedCase(fleetData[0].case_id);
             })
             .catch(console.error)
             .finally(() => setLoading(false));
@@ -32,8 +51,69 @@ export default function EngineHealthPage() {
     useEffect(() => {
         if (!selectedCase) return;
         setLoadingMetrics(true);
-        apiFetch<{ engine_data: EngineMetric[] }>(`/api/cases/${encodeURIComponent(selectedCase)}`)
-            .then((data) => setMetrics(data.engine_data || []))
+        apiFetch<CaseDetail>(`/api/cases/${encodeURIComponent(selectedCase)}`)
+            .then((data) => {
+                // Seed 5 past demo dates for timeline impact
+                const demoFindings = [
+                    {
+                        id: "demo-h1",
+                        title: "Initial Certification - Installed on G-XWB",
+                        category: "Compliance",
+                        severity: "CLEAR",
+                        created_at: "2024-01-15T09:00:00Z",
+                        evidence: "Engine certified and installed on G-XWB at delivery."
+                    },
+                    {
+                        id: "demo-h2",
+                        title: "Asset Transfer - Transferred to G-VWEB",
+                        category: "Aircraft",
+                        severity: "CLEAR",
+                        created_at: "2024-06-10T14:30:00Z",
+                        evidence: "Engine transferred to sister aircraft G-VWEB for fleet balancing."
+                    },
+                    {
+                        id: "demo-h3",
+                        title: "Induction for Scheduled Shop Visit (MRO)",
+                        category: "Maintenance",
+                        severity: "CLEAR",
+                        created_at: "2024-11-20T10:00:00Z",
+                        evidence: "Engine inducted into MRO facility for scheduled mid-life overhaul."
+                    },
+                    {
+                        id: "demo-h4",
+                        title: "Post-Overhaul - Installed on N123AB",
+                        category: "Aircraft",
+                        severity: "CLEAR",
+                        created_at: "2025-04-05T11:00:00Z",
+                        evidence: "Engine released from shop and installed on new lease asset N123AB."
+                    },
+                    {
+                        id: "demo-h5",
+                        title: "Borescope Inspection - Turbine Section Clear",
+                        category: "Event",
+                        severity: "CLEAR",
+                        created_at: "2025-09-15T09:15:00Z",
+                        evidence: "On-wing borescope performed. No findings."
+                    }
+                ];
+
+                const demoDocs = [
+                    {
+                        id: "demo-d1",
+                        filename: "8130-3_RELEASE_CERT_CORE_MODULE_2025.PDF",
+                        created_at: "2025-08-15T16:45:00Z"
+                    }
+                ];
+
+                const enrichedData = {
+                    ...data,
+                    findings: [...demoFindings, ...(data.findings || [])],
+                    documents: [...demoDocs, ...(data.documents || [])]
+                };
+
+                setCaseDetail(enrichedData);
+                setMetrics(data.engine_data || []);
+            })
             .catch(console.error)
             .finally(() => setLoadingMetrics(false));
     }, [selectedCase]);
@@ -72,33 +152,48 @@ export default function EngineHealthPage() {
 
     if (loading) return <LoadingSpinner text="Loading engine data..." />;
 
+    const selectedRegistration = caseDetail?.registration || fleet.find((c) => c.case_id === selectedCase)?.registration || "";
+    const engineLabel = caseDetail?.engine_type ? `Engine ${caseDetail.engine_type}` : undefined;
+
     return (
         <>
-            <Header title="Engine Health" subtitle="Monitor engine performance metrics by case" />
+            <Header title="Engine Health" subtitle="Monitor engine performance and record timeline by case" />
 
-            <motion.div
-                className="flex items-center gap-3 mb-6 mt-10 px-2"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-            >
-                <Filter size={15} className="text-slate-400" />
-                <select
-                    value={selectedCase}
-                    onChange={(e) => setSelectedCase(e.target.value)}
-                    id="engine-case-select"
-                    className="bg-white border border-slate-200 rounded-lg text-slate-700 px-3 py-2 text-sm outline-none cursor-pointer min-w-[260px] focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all"
+            <div className="mt-6 px-2 space-y-6">
+                <motion.div
+                    className="flex items-center gap-3"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
                 >
-                    {fleet.map((c) => (
-                        <option key={c.case_id} value={c.case_id}>
-                            {c.registration} — {c.aircraft_type} ({c.case_id})
-                        </option>
-                    ))}
-                </select>
-                <span className="text-sm text-slate-400">
-                    {metrics.length} metric{metrics.length !== 1 ? "s" : ""}
-                </span>
-            </motion.div>
+                    <Filter size={15} className="text-slate-400" />
+                    <select
+                        value={selectedCase}
+                        onChange={(e) => setSelectedCase(e.target.value)}
+                        id="engine-case-select"
+                        className="bg-white border border-slate-200 rounded-lg text-slate-700 px-3 py-2 text-sm outline-none cursor-pointer min-w-[260px] focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all"
+                    >
+                        {fleet.map((c) => (
+                            <option key={c.case_id} value={c.case_id}>
+                                {c.registration} — {c.aircraft_type} ({c.case_id})
+                            </option>
+                        ))}
+                    </select>
+                    <span className="text-sm text-slate-400">
+                        {metrics.length} metric{metrics.length !== 1 ? "s" : ""}
+                    </span>
+                </motion.div>
+
+                {/* Forensic timeline — engine records over time */}
+                {caseDetail && (
+                    <EngineForensicSvgTimeline
+                        registration={selectedRegistration}
+                        engineLabel={engineLabel}
+                        documents={caseDetail.documents}
+                        findings={caseDetail.findings}
+                    />
+                )}
+            </div>
 
             {loadingMetrics ? (
                 <LoadingSpinner text="Loading metrics..." />
@@ -109,7 +204,7 @@ export default function EngineHealthPage() {
                     description="No engine performance data has been extracted for this case."
                 />
             ) : (
-                <div className="flex flex-col lg:flex-row gap-6 px-2 mb-8">
+                <div className="flex flex-col lg:flex-row gap-6 px-2 mb-8 mt-8">
                     {/* 3D Model Column */}
                     <motion.div
                         className="w-full lg:w-[50%] xl:w-[50%] flex-shrink-0 border border-slate-200/60 rounded-2xl bg-white shadow-sm overflow-hidden flex flex-col h-[400px] lg:h-[calc(100vh-220px)] lg:sticky lg:top-24"

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import {
     Shield, Plane, FileText, Gauge, Cpu, BarChart3,
@@ -19,8 +20,8 @@ const NAV_LINKS = [
 const FEATURES = [
     {
         icon: Brain,
-        title: "AI-Powered Findings",
-        desc: "Automated analysis of technical records surfaces critical issues, flags, and advisories — reducing manual review time by over 80%.",
+        title: "Proprietary AI-Powered Findings",
+        desc: "AI analysis of technical records surfaces critical issues, flags, and advisories — reducing manual review time by up to 80%.",
         color: "#be123c",
     },
     {
@@ -32,7 +33,7 @@ const FEATURES = [
     {
         icon: Gauge,
         title: "Engine Health Monitoring",
-        desc: "Track EGT margins, oil consumption, vibration levels, and cycle counts across engine types with trend analysis.",
+        desc: "Track EGT margins, oil consumption, vibration levels, and cycle counts across engine types with trend analysis(v2).",
         color: "#059669",
     },
     {
@@ -50,7 +51,7 @@ const FEATURES = [
     {
         icon: BarChart3,
         title: "Risk Dashboards",
-        desc: "Severity distributions, confidence scoring, and portfolio-level risk views designed for lessors, MROs, and technical teams.",
+        desc: "Severity distributions, confidence scoring, and portfolio-level risk views for technical and compliance teams.",
         color: "#d97706",
     },
 ];
@@ -100,7 +101,7 @@ export default function LandingPage() {
                             <path d="M8 19.5L18 10l10 3-6 4.5 4 5.5H14l-3-2.5-3 2z" fill="#2980b9" />
                         </svg>
                         <div className="flex flex-col">
-                            <span className="text-[15px] font-bold text-[#1a2a3a] tracking-tight leading-none">OriginTace.AI</span>
+                            <span className="text-[18px] md:text-[20px] font-extrabold text-[#1a2a3a] tracking-tight leading-none">OriginTrace.AI</span>
                             <span className="text-[9px] font-semibold text-[#2980b9] uppercase tracking-[0.15em] leading-none mt-0.5">Know what you own</span>
                         </div>
                     </Link>
@@ -152,90 +153,84 @@ export default function LandingPage() {
                 <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-[#2980b9]/[0.03] rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#1a5276]/[0.02] rounded-full blur-3xl pointer-events-none" />
 
-                <div className="max-w-[1200px] mx-auto px-6 relative">
-                    <div className="max-w-[680px]">
-                        {/* Differentiator badges: Highly regulated • Human in the loop */}
+                <div className="max-w-[1200px] mx-auto px-6 relative flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+                    <div className="flex-1 max-w-[640px]">
+                        {/* Differentiator badges */}
                         <div className="flex flex-wrap gap-2 mb-6">
                             <div className="inline-flex items-center gap-2 bg-white border border-[#e0e8f0] rounded-full px-4 py-1.5 shadow-sm">
-                                <Scale className="w-3.5 h-3.5 text-[#1a5276]" />
-                                <span className="text-[11px] font-semibold text-[#1a2a3a] tracking-wide">Highly regulated</span>
+                                <Users className="w-3.5 h-3.5 text-[#1a5276]" />
+                                <span className="text-[13px] font-semibold text-[#1a2a3a] tracking-wide">Human in the loop</span>
                             </div>
                             <div className="inline-flex items-center gap-2 bg-white border border-[#e0e8f0] rounded-full px-4 py-1.5 shadow-sm">
-                                <Users className="w-3.5 h-3.5 text-[#1a5276]" />
-                                <span className="text-[11px] font-semibold text-[#1a2a3a] tracking-wide">Human in the loop</span>
-                            </div>
-                            <div className="inline-flex items-center gap-2 bg-[#2980b9]/08 border border-[#2980b9]/20 rounded-full px-4 py-1.5">
-                                <span className="w-2 h-2 bg-[#059669] rounded-full animate-pulse" />
-                                <span className="text-[11px] font-semibold text-[#4a5568] tracking-wide uppercase">50K+ Records Processed</span>
+                                <Scale className="w-3.5 h-3.5 text-[#1a5276]" />
+                                <span className="text-[13px] font-semibold text-[#1a2a3a] tracking-wide">Designed for Regulation</span>
                             </div>
                         </div>
 
-                        <h1 className="text-[40px] md:text-[52px] leading-[1.1] font-extrabold text-[#1a2a3a] tracking-tight mb-5">
-                            Aircraft due diligence,<br />
-                            <span className="text-[#2980b9]">powered by AI.</span>
+                        <h1 className="text-[48px] md:text-[64px] lg:text-[72px] leading-[1.05] font-extrabold text-[#1a2a3a] tracking-tight mb-4">
+                            OriginTrace<span className="text-[#2980b9]">.AI</span>
                         </h1>
-
-                        <p className="text-[17px] md:text-lg text-[#5a6b7d] leading-relaxed mb-4 max-w-[600px]">
-                            AI is the engine. Our proprietary advantage is <strong className="text-[#1a2a3a]">how we serve this highly regulated industry</strong> in a novel, cost-effective way — with <strong className="text-[#1a2a3a]">humans always in the loop</strong>.
+                        <p className="text-[20px] md:text-[24px] text-[#2980b9] font-bold tracking-tight mb-6 max-w-[640px]">
+                            Aircraft Records Risk Intelligence — Human in the Loop at AI speed and Volume.
                         </p>
-                        <p className="text-[15px] text-[#6b7c8d] leading-relaxed mb-8 max-w-[560px]">
-                            <strong className="text-[#1a2a3a]">OriginTrace.ai</strong> captures high-value physical asset history in permanent digital form. An immutable record layer captures every event from manufacture to today; an AI decision layer surfaces what matters. When an aircraft changes hands, the buyer gets instant, human-in-the-loop, verifiable provenance — not weeks of document archaeology.
+                        <p className="text-[15px] text-gray-800 leading-relaxed mb-8 max-w-[560px] font-semibold">
+                            Capture high-value asset history in permanent digital form. An immutable record layer plus an proprietary AI decision layer — with experts always in the loop for verification and control.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-3">
+                            <Link href="/login" className="inline-flex items-center justify-center gap-2 bg-white hover:bg-[#f0f5fa] text-[#1a5276] font-semibold text-[15px] px-7 py-3.5 rounded-xl border border-[#d0dae5] transition-all no-underline">
+                                Sign In
+                            </Link>
                             <Link href="/signup" className="inline-flex items-center justify-center gap-2 bg-[#1a5276] hover:bg-[#1e6091] text-white font-semibold text-[15px] px-7 py-3.5 rounded-xl transition-all no-underline shadow-md hover:shadow-lg">
                                 Start Free Trial
                                 <ArrowRight className="w-4 h-4" />
                             </Link>
-                            <Link href="/login" className="inline-flex items-center justify-center gap-2 bg-white hover:bg-[#f0f5fa] text-[#1a5276] font-semibold text-[15px] px-7 py-3.5 rounded-xl border border-[#d0dae5] transition-all no-underline">
-                                Sign In
-                            </Link>
                         </div>
+                    </div>
 
-                        {/* Social proof */}
-                        <div className="mt-10 flex items-center gap-4">
-                            <div className="flex -space-x-2">
-                                {["AJ", "KR", "MS", "TE"].map((initials, i) => (
-                                    <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1a5276] to-[#2980b9] flex items-center justify-center text-[10px] font-bold text-white border-2 border-white shadow-sm">
-                                        {initials}
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="text-[12px] text-[#5a6b7d]">
-                                <span className="font-bold text-[#1a2a3a]">Trusted by 40+</span> leasing companies and MROs worldwide
-                            </div>
+                    {/* Hero Visual on Right Side */}
+                    <div className="flex-[1.2] w-full max-w-[600px] lg:max-w-none relative lg:mr-[-120px] lg:scale-110">
+                        {/* Soft ambient glow to blend the globe */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-[#2980b9]/10 rounded-full blur-[100px] pointer-events-none" />
+
+                        <div className="relative animate-float" style={{ 
+                            maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent), linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)',
+                            WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent), linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)',
+                            maskComposite: 'intersect',
+                            WebkitMaskComposite: 'source-in'
+                        }}>
+                            <Image
+                                src="/images/hero-globe.png"
+                                alt="OriginTrace Global Intelligence"
+                                width={1200}
+                                height={800}
+                                priority
+                                className="w-full h-auto"
+                                style={{ 
+                                    mixBlendMode: 'multiply',
+                                    filter: 'brightness(1.02) contrast(1.05)'
+                                }}
+                            />
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* ═══════════════ TRUST BAR ═══════════════ */}
-            <section className="py-10 bg-white border-y border-[#eef2f6]">
-                <div className="max-w-[1200px] mx-auto px-6">
-                    <p className="text-center text-[11px] font-semibold text-[#9ca3af] uppercase tracking-[0.15em] mb-6">Trusted by industry leaders</p>
-                    <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 opacity-40">
-                        {["GECAS", "AerCap", "Avolon", "SMBC", "BOC Aviation", "Air Lease Corp"].map((name) => (
-                            <span key={name} className="text-[14px] md:text-[16px] font-bold text-[#2c3e50] tracking-wide">{name}</span>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* ═══════════════ HIGHLY REGULATED + HUMAN IN THE LOOP ═══════════════ */}
+            {/* ═══════════════ DESIGNED FOR REGULATION + HUMAN IN THE LOOP ═══════════════ */}
             <section id="approach" className="py-14 md:py-16 bg-[#f0f5fa] border-b border-[#e5eaf0]">
                 <div className="max-w-[1200px] mx-auto px-6">
                     <p className="text-center text-[11px] font-bold text-[#2980b9] uppercase tracking-[0.2em] mb-6">What makes us different</p>
                     <h2 className="text-[22px] md:text-[26px] font-extrabold text-[#1a2a3a] tracking-tight text-center mb-10 max-w-[640px] mx-auto">
-                        Built for a highly regulated industry — with human-in-the-loop at the core
+                        Designed for Regulation — with human-in-the-loop at the core
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-[800px] mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-[850px] mx-auto">
                         <div className="bg-white rounded-2xl border border-[#e0e8f0] p-6 md:p-7 shadow-sm flex flex-col">
                             <div className="w-12 h-12 rounded-xl bg-[#1a5276]/10 flex items-center justify-center mb-4">
                                 <Scale className="w-6 h-6 text-[#1a5276]" />
                             </div>
-                            <h3 className="text-[17px] font-bold text-[#1a2a3a] mb-2 tracking-tight">Highly regulated by design</h3>
-                            <p className="text-[13px] text-[#5a6b7d] leading-[1.7]">
-                                Aviation demands traceability, compliance, and auditability. We don’t hide behind a black box — our workflows, evidence chains, and approvals are built for EASA, FAA, and lessor requirements from day one.
+                            <h3 className="text-[17px] font-bold text-[#1a2a3a] mb-2 tracking-tight">Designed for Regulation</h3>
+                            <p className="text-[14px] text-[#5a6b7d] leading-[1.7] font-semibold">
+                                Traceability, compliance, and auditability built in. Our workflows, evidence chains, and approvals are designed for regulated environments from day one.
                             </p>
                         </div>
                         <div className="bg-white rounded-2xl border border-[#e0e8f0] p-6 md:p-7 shadow-sm flex flex-col">
@@ -243,13 +238,13 @@ export default function LandingPage() {
                                 <Users className="w-6 h-6 text-[#1a5276]" />
                             </div>
                             <h3 className="text-[17px] font-bold text-[#1a2a3a] mb-2 tracking-tight">Human in the loop</h3>
-                            <p className="text-[13px] text-[#5a6b7d] leading-[1.7]">
+                            <p className="text-[14px] text-[#5a6b7d] leading-[1.7] font-semibold">
                                 AI accelerates analysis; experts own the decisions. Approve, flag, or reject findings with full audit trails. Our platform augments your team — it never replaces judgement where it matters most.
                             </p>
                         </div>
                     </div>
-                    <p className="text-center text-[13px] text-[#5a6b7d] mt-8 max-w-[560px] mx-auto leading-relaxed">
-                        <strong className="text-[#1a2a3a]">AI is the engine.</strong> Our proprietary edge is how we deliver this in a novel, cost-effective way that fits the way aviation actually works.
+                    <p className="text-center text-[14px] font-semibold text-[#5a6b7d] mt-8 max-w-[560px] mx-auto leading-relaxed">
+                        <strong className="text-[#1a2a3a]">Proprietary AI is the engine.</strong> We deliver speed and volume with human-in-the-loop control — so you get results without sacrificing oversight.
                     </p>
                 </div>
             </section>
@@ -263,7 +258,7 @@ export default function LandingPage() {
                             Everything you need for<br className="hidden md:block" /> technical due diligence
                         </h2>
                         <p className="text-[15px] text-[#5a6b7d] max-w-[520px] mx-auto leading-relaxed">
-                            From document ingestion to board-ready reports — a complete toolkit built for aviation professionals.
+                            From document ingestion to board-ready reports — a complete toolkit for document intelligence.
                         </p>
                     </div>
 
@@ -280,7 +275,7 @@ export default function LandingPage() {
                                     <f.icon className="w-[22px] h-[22px]" />
                                 </div>
                                 <h3 className="text-[16px] font-bold text-[#1a2a3a] mb-2 tracking-tight">{f.title}</h3>
-                                <p className="text-[13px] text-[#5a6b7d] leading-[1.7]">{f.desc}</p>
+                                <p className="text-[14px] font-semibold text-[#5a6b7d] leading-[1.7]">{f.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -288,31 +283,52 @@ export default function LandingPage() {
             </section>
 
             {/* ═══════════════ HOW IT WORKS ═══════════════ */}
-            <section id="how-it-works" className="py-20 md:py-28 bg-white">
-                <div className="max-w-[1200px] mx-auto px-6">
-                    <div className="text-center mb-14 md:mb-16">
-                        <p className="text-[11px] font-bold text-[#2980b9] uppercase tracking-[0.2em] mb-3">How It Works</p>
-                        <h2 className="text-[28px] md:text-[36px] font-extrabold text-[#1a2a3a] tracking-tight mb-4">
+            <section id="how-it-works" className="py-24 md:py-32 bg-[#f8fafb] border-y border-[#e5eaf0]/60 relative overflow-hidden">
+                {/* Subtle background decorative element */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#2980b9]/[0.02] rounded-full blur-[120px] pointer-events-none" />
+
+                <div className="max-w-[1200px] mx-auto px-6 relative">
+                    <div className="text-center mb-16 md:mb-20">
+                        <p className="text-[11px] font-bold text-[#2980b9] uppercase tracking-[0.2em] mb-4">The Process</p>
+                        <h2 className="text-[32px] md:text-[42px] font-extrabold text-[#1a2a3a] tracking-tight mb-5">
                             From records to insights in minutes
                         </h2>
-                        <p className="text-[15px] text-[#5a6b7d] max-w-[480px] mx-auto leading-relaxed">
-                            Three steps to transform how your team handles technical due diligence.
+                        <p className="text-[15px] text-[#5a6b7d] max-w-[600px] mx-auto leading-relaxed font-medium">
+                            Three streamlined steps to transform how your team handles technical due diligence.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
                         {STEPS.map((s, i) => (
-                            <div key={s.step} className="relative text-center md:text-left">
-                                {/* Connector line */}
+                            <div key={s.step} className="group relative">
+                                {/* Connector line with custom dots */}
                                 {i < STEPS.length - 1 && (
-                                    <div className="hidden md:block absolute top-12 left-[calc(50%+40px)] right-[-40px] h-px bg-[#d0dae5]" />
+                                    <div className="hidden md:block absolute top-[40px] left-[80px] right-[-48px] lg:right-[-64px] h-[2px] z-0">
+                                        <div className="w-full h-full border-b-[2px] border-dashed border-[#d0dae5]" />
+                                    </div>
                                 )}
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#f0f5fa] border border-[#d0dae5]/60 mb-5 mx-auto md:mx-0">
-                                    <s.icon className="w-7 h-7 text-[#2980b9]" />
+                                
+                                <div className="relative z-10 flex flex-col items-center md:items-start">
+                                    {/* Icon container with shadow and hover lift */}
+                                    <div className="w-20 h-20 rounded-[22px] bg-white border border-[#d0dae5] shadow-[0_4px_12px_rgba(26,82,118,0.06)] flex items-center justify-center mb-8 transition-all duration-300 group-hover:shadow-[0_12px_24px_rgba(26,82,118,0.12)] group-hover:-translate-y-1 group-hover:border-[#1a5276]/30">
+                                        <div className="w-full h-full rounded-[21px] flex items-center justify-center bg-gradient-to-br from-white to-[#f0f5fa]">
+                                            <s.icon className="w-8 h-8 text-[#1a5276] transition-transform duration-500 group-hover:scale-110" />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col items-center md:items-start">
+                                        <div className="inline-flex items-center gap-2 mb-3">
+                                            <span className="text-[13px] font-semibold text-[#2980b9]/40 tracking-widest">{s.step}</span>
+                                            <div className="w-8 h-[1px] bg-[#d0dae5]" />
+                                        </div>
+                                        <h3 className="text-[20px] font-extrabold text-[#1a2a3a] mb-3 tracking-tight group-hover:text-[#1a5276] transition-colors">
+                                            {s.title}
+                                        </h3>
+                                        <p className="text-[14px] font-semibold text-[#5a6b7d] leading-[1.7] max-w-[320px] text-center md:text-left font-medium opacity-90">
+                                            {s.desc}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="text-[11px] font-bold text-[#2980b9] uppercase tracking-[0.15em] mb-2">{s.step}</div>
-                                <h3 className="text-[18px] font-bold text-[#1a2a3a] mb-2 tracking-tight">{s.title}</h3>
-                                <p className="text-[13px] text-[#5a6b7d] leading-[1.7] max-w-[320px] mx-auto md:mx-0">{s.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -340,15 +356,15 @@ export default function LandingPage() {
                         <div>
                             <p className="text-[11px] font-bold text-[#2980b9] uppercase tracking-[0.2em] mb-3">Why OriginTrace</p>
                             <h2 className="text-[28px] md:text-[36px] font-extrabold text-[#1a2a3a] tracking-tight mb-5">
-                                Built for a highly regulated industry,<br className="hidden md:block" /> with humans in the loop
+                                Designed for Regulation,<br className="hidden md:block" /> with humans in the loop
                             </h2>
                             <p className="text-[15px] text-[#5a6b7d] leading-relaxed mb-8">
-                                AI powers the analysis. What we do differently is <strong className="text-[#1a2a3a]">how we serve this highly regulated space</strong> in a novel, cost-effective way: traceable workflows, expert-in-the-loop approvals, and compliance built in from the start — so you get speed without sacrificing control.
+                                Proprietary AI powers the analysis. We deliver in a novel, cost-effective way: traceable workflows, expert-in-the-loop approvals, and <strong className="text-[#1a2a3a]">compliance designed in from the start</strong> — so you get speed without sacrificing control.
                             </p>
                             <div className="space-y-4">
                                 {[
                                     { icon: Lock, text: "SOC 2 compliant data handling with on-prem deployment options" },
-                                    { icon: Globe, text: "Support for EASA, FAA, CAAC and other regulatory frameworks" },
+                                    { icon: Scale, text: "Designed for Regulation — traceability and auditability built in" },
                                     { icon: Zap, text: "Results in minutes, not weeks — with full evidence traceability" },
                                 ].map((item) => (
                                     <div key={item.text} className="flex items-start gap-3">
@@ -363,35 +379,31 @@ export default function LandingPage() {
 
                         {/* Right side visual */}
                         <div className="bg-white rounded-2xl border border-[#e8edf2] p-8 shadow-sm">
-                            <div className="space-y-5">
+                            <div className="text-[11px] font-bold text-[#2980b9] uppercase tracking-[0.2em] mb-6">Trial Engagement Types</div>
+                            <div className="space-y-4">
                                 {[
-                                    { label: "Document Processing Accuracy", pct: 98.7, color: "#059669" },
-                                    { label: "Finding Detection Rate", pct: 94.2, color: "#2980b9" },
-                                    { label: "Time Reduction vs Manual", pct: 82, color: "#1a5276" },
-                                ].map((bar) => (
-                                    <div key={bar.label}>
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-[12px] font-semibold text-[#2c3e50]">{bar.label}</span>
-                                            <span className="text-[12px] font-bold" style={{ color: bar.color }}>{bar.pct}%</span>
+                                    { title: "Single MSN Proof-of-Value", desc: "Full feature deep-dive on one aircraft asset's technical history.", color: "#059669" },
+                                    { title: "Portfolio Risk Screening", desc: "Rapid bulk-analysis of 10+ assets for high-level technical risk.", color: "#2980b9" },
+                                    { title: "Governance Engine Audit", desc: "Testing the immutable traceability and audit-readiness of AI findings.", color: "#1a5276" },
+                                ].map((trial) => (
+                                    <div key={trial.title} className="p-4 rounded-xl border border-[#f0f3f7] bg-[#f8fafc] hover:border-[#1a5276]/20 transition-colors group text-left">
+                                        <div className="flex items-center gap-3 mb-1">
+                                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: trial.color }} />
+                                            <h4 className="text-[14px] font-bold text-[#1a2a3a] group-hover:text-[#1a5276] transition-colors">{trial.title}</h4>
                                         </div>
-                                        <div className="h-2 bg-[#f0f3f7] rounded-full overflow-hidden">
-                                            <div
-                                                className="h-full rounded-full transition-all duration-700"
-                                                style={{ width: `${bar.pct}%`, backgroundColor: bar.color }}
-                                            />
-                                        </div>
+                                        <p className="text-[12px] text-[#5a6b7d] leading-relaxed font-medium pl-5">{trial.desc}</p>
                                     </div>
                                 ))}
                             </div>
                             <div className="mt-8 pt-6 border-t border-[#eef2f6] grid grid-cols-3 gap-4 text-center">
                                 {[
-                                    { val: "250+", label: "Aircraft reviewed" },
-                                    { val: "15+", label: "Engine types" },
-                                    { val: "24/7", label: "Processing" },
+                                    { val: "Traceable", label: "Source-linked" },
+                                    { val: "Verifiable", label: "Human-in-loop" },
+                                    { val: "Audit-Ready", label: "Compliance-first" },
                                 ].map((s) => (
-                                    <div key={s.label}>
-                                        <div className="text-[20px] font-extrabold text-[#1a2a3a]">{s.val}</div>
-                                        <div className="text-[10px] font-medium text-[#8b99a8] uppercase tracking-wider mt-1">{s.label}</div>
+                                    <div key={s.val}>
+                                        <div className="text-[17px] font-extrabold text-[#1a2a3a] leading-tight">{s.val}</div>
+                                        <div className="text-[10px] font-medium text-[#8b99a8] uppercase tracking-wider mt-1.5">{s.label}</div>
                                     </div>
                                 ))}
                             </div>
@@ -408,7 +420,7 @@ export default function LandingPage() {
                         Ready to transform your<br className="hidden md:block" /> due diligence process?
                     </h2>
                     <p className="text-[15px] text-[#8fb3d0] max-w-[480px] mx-auto mb-8 leading-relaxed">
-                        Join 40+ leasing companies and MROs who trust OriginTrace for faster, more accurate aircraft evaluations.
+                        Get AI speed and volume with human-in-the-loop control. Designed for Regulation.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-3">
                         <Link href="/signup" className="inline-flex items-center justify-center gap-2 bg-white hover:bg-[#f0f5fa] text-[#1a5276] font-semibold text-[15px] px-8 py-3.5 rounded-xl transition-all no-underline shadow-md hover:shadow-lg">
@@ -432,7 +444,7 @@ export default function LandingPage() {
                                 <path d="M18 2L4 8v10c0 9.1 6 17 14 18 8-1 14-8.9 14-18V8L18 2z" stroke="#2980b9" strokeWidth="1.5" fill="none" />
                                 <path d="M8 19.5L18 10l10 3-6 4.5 4 5.5H14l-3-2.5-3 2z" fill="#2980b9" />
                             </svg>
-                            <span className="text-[14px] font-bold text-white/70">OriginTace.AI</span>
+                            <span className="text-[14px] font-bold text-white/70">OriginTrace.AI</span>
                         </div>
 
                         <div className="flex flex-wrap gap-6 text-[12px] text-white/40 font-medium">

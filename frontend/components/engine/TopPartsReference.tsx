@@ -72,7 +72,7 @@ export default function TopPartsReference() {
           </div>
           <div>
             <h3 className="text-[13px] font-bold text-slate-900 uppercase tracking-wider m-0">
-              Top 50 most changed parts
+              Most changed parts
             </h3>
             <p className="text-[11px] text-slate-500 m-0 mt-0.5 font-medium">
               737 & A320 engines · ranked by frequency & cost (AI/industry reference)
@@ -134,31 +134,31 @@ export default function TopPartsReference() {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse min-w-[720px]">
-          <thead>
-            <tr className="bg-slate-50/80 border-b border-slate-100">
-              <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+      <div className="overflow-x-auto max-h-[280px] overflow-y-auto modern-scrollbar border-b border-slate-100">
+        <table className="w-full border-separate border-spacing-0 min-w-[720px]">
+          <thead className="sticky top-0 z-20 bg-slate-50/95 backdrop-blur-sm shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
+            <tr>
+              <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
                 {sortBy === "frequency" ? "Freq. rank" : "Cost rank"}
               </th>
-              <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
                 Part name
               </th>
-              <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
                 Category
               </th>
-              <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
                 Aircraft
               </th>
-              <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
                 Engine
               </th>
-              <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
                 Est. cost (USD)
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white">
             {sorted.map((part) => (
               <tr
                 key={part.id}
@@ -192,8 +192,8 @@ export default function TopPartsReference() {
         </table>
       </div>
 
-      <div className="px-6 py-3 bg-slate-50/50 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
-        Cost estimates are AI/industry order-of-magnitude reference only. Replace with actual MRO/supplier data when available.
+      <div className="px-6 py-2.5 bg-slate-50/50 border-t border-slate-100 text-[10px] text-slate-400 font-medium">
+        Cost estimates are AI/industry reference only. Scroll to view all parts.
       </div>
     </motion.div>
   );

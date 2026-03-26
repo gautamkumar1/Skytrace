@@ -86,7 +86,7 @@ export default function FindingsPage() {
                                 : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"
                                 }`}
                         >
-                            {sev}
+                            {sev === "STOP" ? "Significant Risk" : sev}
                         </motion.button>
                     ))}
                 </div>

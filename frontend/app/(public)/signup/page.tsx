@@ -125,7 +125,7 @@ export default function SignupPage() {
                                 type="email"
                                 value={form.email}
                                 onChange={update("email")}
-                                placeholder="john@aercap.com"
+                                placeholder="john@company.com"
                                 required
                                 className="w-full h-12 px-4 bg-white border border-[#d0dae5] rounded-xl text-[14px] text-[#1a2a3a] placeholder:text-[#b0bac5] outline-none transition-all focus:border-[#2980b9] focus:shadow-[0_0_0_3px_rgba(41,128,185,0.08)]"
                             />
@@ -137,7 +137,7 @@ export default function SignupPage() {
                                 type="text"
                                 value={form.company}
                                 onChange={update("company")}
-                                placeholder="AerCap Holdings"
+                                placeholder="Your Company"
                                 required
                                 className="w-full h-12 px-4 bg-white border border-[#d0dae5] rounded-xl text-[14px] text-[#1a2a3a] placeholder:text-[#b0bac5] outline-none transition-all focus:border-[#2980b9] focus:shadow-[0_0_0_3px_rgba(41,128,185,0.08)]"
                             />

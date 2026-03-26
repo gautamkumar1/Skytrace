@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   title: "OriginTrace.ai — AI-Powered Aircraft Due Diligence",
   description:
     "AI-powered aircraft technical due diligence platform. Monitor fleet health, review AI findings, and manage engine performance data.",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
@@ -26,8 +29,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${manrope.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        suppressHydrationWarning
+        className={`${manrope.variable} ${jetbrainsMono.variable}`}
+      >
         {children}
       </body>
     </html>

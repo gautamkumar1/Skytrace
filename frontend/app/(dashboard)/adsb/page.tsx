@@ -62,7 +62,7 @@ export default function AdsbPage() {
   const [data, setData] = useState<AdsbResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"table" | "map">("table");
+  const [viewMode, setViewMode] = useState<"table" | "map">("map");
   const [searchQuery, setSearchQuery] = useState("");
   const [findIcao, setFindIcao] = useState("");
   const [finding, setFinding] = useState(false);
@@ -230,17 +230,7 @@ export default function AdsbPage() {
             </div>
           </div>
           <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200 shrink-0 w-full sm:w-auto">
-            <button
-              onClick={() => setViewMode("table")}
-              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-bold uppercase tracking-wider transition-all ${
-                viewMode === "table"
-                  ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                  : "text-slate-500 hover:text-slate-700"
-              }`}
-            >
-              <List size={16} />
-              Table
-            </button>
+            
             <button
               onClick={() => setViewMode("map")}
               className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-bold uppercase tracking-wider transition-all ${
@@ -252,6 +242,18 @@ export default function AdsbPage() {
               <Map size={16} />
               Map
             </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-bold uppercase tracking-wider transition-all ${
+                viewMode === "table"
+                  ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                  : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              <List size={16} />
+              Table
+            </button>
+            
           </div>
         </div>
 

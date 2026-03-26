@@ -11,15 +11,20 @@ import {
     ChevronRight,
     ShieldCheck,
     Radio,
+    Plug,
 } from "lucide-react";
 
-const navItems = [
+const mainNavItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/fleet", icon: Plane, label: "Fleet" },
-    { href: "/adsb", icon: Radio, label: "Live Traffic" },
-    { href: "/llp", icon: ShieldCheck, label: "Life Limited Parts" },
     { href: "/engine-health", icon: Gauge, label: "Engines" },
+    { href: "/llp", icon: ShieldCheck, label: "Life Limited Parts" },
     { href: "/aircraft", icon: Plane, label: "Aircraft" },
+];
+
+const secondaryNavItems = [
+    { href: "/integrations", icon: Plug, label: "Integrations" },
+    { href: "/adsb", icon: Radio, label: "Live Traffic" },
 ];
 
 interface SidebarProps {
@@ -81,7 +86,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
                         <span className="block px-4 mb-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em]">Main Menu</span>
                     )}
                     <ul className="list-none m-0 p-0 space-y-1">
-                        {navItems.map((item) => {
+                        {mainNavItems.map((item) => {
                             const active = isActive(item.href);
                             return (
                                 <li key={item.label}>
@@ -113,6 +118,39 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
                                 </li>
                             );
                         })}
+                        {/* Secondary items – just below Aircraft, grey / de-emphasized */}
+                        {secondaryNavItems.map((item) => (
+                            <li key={item.label}>
+                                <Link
+                                    href={item.href}
+                                    className={`group relative flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-200 ${
+                                        isActive(item.href)
+                                            ? "bg-slate-500/90 text-white"
+                                            : "bg-slate-400/60 text-white hover:bg-slate-600/80"
+                                    }`}
+                                >
+                                    <item.icon
+                                        size={19}
+                                        className={`shrink-0 ${isActive(item.href) ? "text-white" : "text-white/85 group-hover:text-white"}`}
+                                    />
+                                    {!collapsed && (
+                                        <motion.span
+                                            className="text-[13px] font-medium whitespace-nowrap text-white"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                        >
+                                            {item.label}
+                                        </motion.span>
+                                    )}
+                                    {isActive(item.href) && !collapsed && (
+                                        <motion.div
+                                            layoutId={`active-indicator-${item.label}`}
+                                            className="absolute right-3 w-1.5 h-1.5 rounded-full bg-slate-400"
+                                        />
+                                    )}
+                                </Link>
+                            </li>
+                        ))}
                     </ul>
                 </div>
             </nav>

@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { FileText, CheckCircle2, ChevronRight, Hash, Database, Plane, Activity, Clock, Shield, ArrowRight } from "lucide-react";
+import { formatConfidence } from "@/lib/utils";
 
 interface AnalysisReportProps {
     data: {
@@ -152,7 +153,7 @@ export default function AnalysisReport({ data, onFinish }: AnalysisReportProps) 
                                     <div className="flex items-center gap-4">
                                         <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-md">
                                             <Shield size={12} className="text-blue-500" />
-                                            Confidence Score: {(f.confidence * 100).toFixed(0)}%
+                                            Confidence Score: {formatConfidence(f.confidence)}
                                         </div>
                                     </div>
                                 </div>
