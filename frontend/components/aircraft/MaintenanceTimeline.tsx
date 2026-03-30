@@ -97,7 +97,7 @@ export default function MaintenanceTimeline({
 
     if (!sorted.length) {
         return (
-            <div className="premium-card p-6 mt-2">
+            <div className="p-6 mt-2 bg-white border border-slate-200/60 rounded-2xl shadow-sm overflow-hidden">
                 <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center">
                         <CheckCircle2 size={20} />
@@ -117,7 +117,7 @@ export default function MaintenanceTimeline({
     const colW = isXl ? 240 : 200;
 
     return (
-        <div className="premium-card p-6 mt-2">
+        <div className="p-6 mt-2 bg-slate-100 border border-slate-400/60 rounded-2xl shadow-sm overflow-hidden">
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <h3 className="text-[13px] font-bold text-slate-900 uppercase tracking-wider m-0">{title}</h3>

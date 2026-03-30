@@ -35,8 +35,8 @@ export default function LoginPage() {
                             <path d="M8 19.5L18 10l10 3-6 4.5 4 5.5H14l-3-2.5-3 2z" fill="white" opacity="0.7" />
                         </svg>
                         <div className="flex flex-col">
-                            <span className="text-[16px] font-bold text-white tracking-tight leading-none">OriginTace.AI</span>
-                            <span className="text-[9px] font-semibold text-white/40 uppercase tracking-[0.15em] leading-none mt-0.5">Know what you own</span>
+                            <span className="text-[16px] font-bold text-white tracking-tight leading-none">OriginTace.ai</span>
+                            <span className="text-[9px] font-semibold text-white/40 uppercase tracking-[0.15em] leading-none mt-0.5">Records risk intelligence</span>
                         </div>
                     </Link>
 

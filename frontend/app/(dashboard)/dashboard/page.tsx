@@ -95,6 +95,19 @@ export default function DashboardPage() {
   const stopCount = data.severity_counts["STOP"] || 0;
   const flagCount = data.severity_counts["FLAG"] || 0;
 
+  const calculateEfficiency = (severityCounts: Record<string, number>, totalFindings: number) => {
+    if (totalFindings === 0) return 100;
+    const deductions: Record<string, number> = { STOP: 12, FLAG: 5, ADVISORY: 2, CLEAR: 0 };
+    let score = 100;
+    Object.entries(severityCounts).forEach(([sev, count]) => {
+      score -= (deductions[sev] || 0) * count;
+    });
+    return Math.max(0, Math.min(100, Math.round(score)));
+  };
+
+  const efficiency = calculateEfficiency(data.severity_counts, data.total_findings);
+  const efficiencyColor = efficiency > 90 ? "decoration-emerald-400/50" : (efficiency > 75 ? "decoration-blue-400/50" : (efficiency > 60 ? "decoration-amber-400/50" : "decoration-rose-400/50"));
+
   return (
     <>
       <Header
@@ -154,7 +167,7 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="premium-card p-6 relative overflow-hidden group">
+              <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden group">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><Plane size={22} /></div>
                   <div>
@@ -164,7 +177,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="premium-card p-6 relative overflow-hidden group">
+              <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden group">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><AlertTriangle size={22} /></div>
                   <div>
@@ -179,7 +192,7 @@ export default function DashboardPage() {
                 )}
               </div>
 
-              <div className="premium-card p-6 relative overflow-hidden group">
+              <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden group">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><FileText size={22} /></div>
                   <div>
@@ -189,7 +202,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="premium-card p-6 relative overflow-hidden group">
+              <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden group">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><Gauge size={22} /></div>
                   <div>
@@ -203,7 +216,7 @@ export default function DashboardPage() {
             {/* ── Alert Banner ── */}
             {stopCount > 0 && (
               <motion.div
-                className="flex items-center gap-3 px-4.5 py-3 mb-5 bg-gradient-to-br from-rose-50 to-rose-100/50 border border-rose-200/50 rounded-xl border-l-[3px] border-l-rose-500 px-4 mt-2"
+                className="mx-2 flex items-center gap-3 px-4.5 py-3 mb-5 bg-gradient-to-br from-rose-50 to-rose-100/50 border border-rose-200/50 rounded-xl border-l-[3px] border-l-rose-500 px-4 mt-2"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.4 }}
@@ -229,16 +242,23 @@ export default function DashboardPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.25, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               >
-                <div className="premium-card p-8">
-                  <div className="flex items-center justify-between mb-8">
+                <div className="p-8 bg-slate-200/40 rounded-3xl border border-slate-400/40 relative overflow-hidden backdrop-blur-sm shadow-xl shadow-blue-900/5">
+                  {/* Subtle radial glow background */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-400/5 blur-[80px] pointer-events-none rounded-full" />
+                  
+                  <div className="flex items-center justify-between mb-8 relative z-10">
                     <div className="flex items-center gap-2.5">
-                      <div className="p-2 rounded-lg bg-blue-50 text-blue-500"><BarChart3 size={16} /></div>
-                      <h3 className="text-[13px] font-bold text-slate-900 uppercase tracking-wider">Risk Profile</h3>
+                      <div className="p-2 rounded-lg bg-blue-600/10 text-blue-600 border border-blue-600/20 shadow-sm"><BarChart3 size={16} /></div>
+                      <h3 className="text-[14px] font-bold text-slate-900 uppercase tracking-widest">Risk Profile</h3>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider border border-emerald-100/50 shadow-sm">
+                      <Activity size={10} />
+                      Live Feed
                     </div>
                   </div>
 
-                  <div className="relative mb-8 flex justify-center">
-                    <ResponsiveContainer width="100%" height={220}>
+                  <div className="relative mb-10 flex justify-center z-10">
+                    <ResponsiveContainer width="100%" height={230}>
                       <PieChart>
                         <Pie
                           data={severities.map((sev) => ({
@@ -248,51 +268,79 @@ export default function DashboardPage() {
                           }))}
                           cx="50%"
                           cy="50%"
-                          innerRadius={65}
-                          outerRadius={95}
-                          paddingAngle={4}
+                          innerRadius={72}
+                          outerRadius={105}
+                          paddingAngle={6}
                           dataKey="value"
                           stroke="none"
+                          cornerRadius={8}
                         >
                           {severities.map((sev) => (
-                            <Cell key={sev} fill={sevColors[sev].bar} />
+                            <Cell 
+                              key={sev} 
+                              fill={sevColors[sev].bar} 
+                              className="hover:opacity-80 transition-opacity cursor-pointer focus:outline-none"
+                            />
                           ))}
                         </Pie>
                       </PieChart>
                     </ResponsiveContainer>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-                      <span className="block text-3xl font-bold text-slate-900 leading-none mb-1">{data.total_findings}</span>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total</span>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none group">
+                      <div className="relative">
+                         <span className="block text-4xl font-black text-slate-900 leading-none tracking-tighter mb-1 drop-shadow-sm">{data.total_findings}</span>
+                         <div className="absolute -inset-2 bg-blue-400/10 blur-xl opacity-0 transition-opacity" />
+                      </div>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Findings</span>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3 relative z-10">
                     {severities.map((sev) => {
                       const count = data.severity_counts[sev] || 0;
                       const pct = data.total_findings > 0 ? Math.round((count / data.total_findings) * 100) : 0;
                       return (
-                        <div key={sev} className="flex items-center justify-between p-3 rounded-xl border border-blue-50 bg-blue-50/20 group hover:bg-white hover:border-blue-100 transition-all">
-                          <div className="flex items-center gap-3">
-                            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: sevColors[sev].bar }} />
-                            <span className="text-[13px] font-semibold text-slate-600">{sevColors[sev].label}</span>
+                        <motion.div 
+                          key={sev}
+                          whileHover={{ y: -2, scale: 1.02 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                          className="flex flex-col p-3.5 rounded-2xl border border-slate-200/60 bg-white/70 backdrop-blur-md shadow-sm hover:shadow-md hover:border-blue-200 transition-all cursor-pointer group overflow-hidden relative"
+                        >
+                          {/* Severity colored accent indicator */}
+                          <div className="absolute left-0 top-0 bottom-0 w-1 opacity-60 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: sevColors[sev].bar }} />
+                          
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{sevColors[sev].label}</span>
+                            <span className="text-[12px] font-black text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded-md">{count}</span>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-[13px] font-bold text-slate-900">{count}</span>
-                            <span className="text-[11px] font-semibold text-slate-300 w-8">{pct}%</span>
+                          
+                          <div className="mt-auto">
+                             <div className="flex items-baseline gap-1">
+                                <span className="text-[22px] font-black text-slate-900 leading-none">{pct}</span>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">%</span>
+                             </div>
+                             <div className="mt-2 w-full h-1.5 rounded-full bg-slate-100/80 overflow-hidden">
+                                <motion.div 
+                                   initial={{ width: 0 }}
+                                   animate={{ width: `${pct}%` }}
+                                   transition={{ duration: 1.2, ease: [0.34, 1.56, 0.64, 1] }}
+                                   className="h-full rounded-full"
+                                   style={{ backgroundColor: sevColors[sev].bar }}
+                                />
+                             </div>
                           </div>
-                        </div>
+                        </motion.div>
                       );
                     })}
                   </div>
                 </div>
 
-                <div className="premium-card p-6 bg-gradient-to-br from-blue-600 to-blue-700 text-white border-0 shadow-2xl shadow-blue-600/20">
+                <div className="p-6 bg-slate-200/40 border border-slate-200/60 rounded-2xl shadow-sm">
                    <div className="flex items-center gap-3 mb-4">
-                     <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center"><Zap size={16} className="text-white" /></div>
-                     <span className="text-[12px] font-bold uppercase tracking-widest text-blue-100/80">Fleet Health</span>
+                     <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center"><Zap size={16} className="text-blue-400" /></div>
+                     <span className="text-[16px] font-bold uppercase tracking-widest text-blue-600">Fleet Health</span>
                    </div>
-                   <p className="text-[15px] text-blue-50 leading-relaxed font-bold mb-6">
-                     Your fleet is currently operating at <span className="text-white font-black underline decoration-blue-400/50">84% technical efficiency</span>. Review critical findings to improve score.
+                   <p className="text-[15px] text-blue-600 leading-relaxed font-bold mb-6">
+                     Your fleet is currently operating at <span className={`text-blue-600 font-black underline ${efficiencyColor}`}>{efficiency}% technical efficiency</span>. Review critical findings to improve score.
                    </p>
                    <Link href="/fleet" className="inline-flex items-center justify-center px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg text-[12px] font-bold transition-all uppercase tracking-wider shadow-lg shadow-emerald-500/20">
                      View detailed report
@@ -306,7 +354,7 @@ export default function DashboardPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               >
-                <div className="premium-card h-full flex flex-col overflow-hidden">
+                <div className="bg-slate-200/40 border border-slate-400/40 rounded-3xl shadow-sm h-full flex flex-col overflow-hidden">
                   <div className="flex items-center justify-between p-8 border-b border-slate-50">
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-lg bg-blue-50 text-blue-500"><Clock size={16} /></div>

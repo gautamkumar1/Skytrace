@@ -56,11 +56,16 @@ function docBadgeFromFilename(filename: string): string | undefined {
     return undefined;
 }
 
+function compareSeverities(a: Severity, b: Severity): Severity {
+    const order: Record<Severity, number> = { "STOP": 3, "FLAG": 2, "ADVISORY": 1, "CLEAR": 0 };
+    return order[a] >= order[b] ? a : b;
+}
+
 function severityColor(sev?: Severity) {
-    const s = (sev || "ADVISORY").toUpperCase() as Severity;
-    if (s === "STOP" || s === "FLAG") return { dot: "#e11d48", text: "#9f1239", path: "#e11d48" };
-    if (s === "ADVISORY") return { dot: "#f59e0b", text: "#92400e", path: "#f59e0b" };
-    return { dot: "#16a34a", text: "#065f46", path: "#16a34a" };
+    const s = (sev || "CLEAR").toUpperCase() as Severity;
+    if (s === "STOP" || s === "FLAG") return { dot: "#e11d48", text: "#9f1239", path: "#fb7185" }; // Rose 600 / Rose 400 path
+    if (s === "ADVISORY") return { dot: "#f59e0b", text: "#92400e", path: "#fbbf24" }; // Amber 500 / Amber 400 path
+    return { dot: "#10b981", text: "#065f46", path: "#34d399" }; // Emerald 500 / Emerald 400 path
 }
 
 function typeColor(t: EventType) {
@@ -412,17 +417,27 @@ export default function EngineForensicSvgTimeline({
                         </text>
                     </g>
 
-                    {/* Main event path (solid cyan like screenshot) */}
-                    {mainPath && (
-                        <path
-                            d={mainPath}
-                            stroke="rgba(8,145,178,0.85)"
-                            strokeWidth={4}
-                            fill="none"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    )}
+                    {/* Dynamic event path segments */}
+                    {monthNodes.map((p, i) => {
+                        if (i === 0) return null;
+                        const prev = monthNodes[i - 1];
+                        const worstInSegment = compareSeverities(prev.worst, p.worst);
+                        const color = severityColor(worstInSegment).path;
+
+                        return (
+                            <line
+                                key={`path-seg-${i}`}
+                                x1={prev.x}
+                                y1={prev.y}
+                                x2={p.x}
+                                y2={p.y}
+                                stroke={color}
+                                strokeWidth={4}
+                                strokeLinecap="round"
+                                className="transition-all duration-500"
+                            />
+                        );
+                    })}
 
                     {/* Month overview nodes */}
                     {monthNodes.map((m) => {

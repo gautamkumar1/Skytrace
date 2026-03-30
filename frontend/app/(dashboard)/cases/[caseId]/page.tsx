@@ -121,7 +121,7 @@ export default function CaseDetailPage() {
                 {activeTab === "findings" && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
                         {data.findings.length === 0 ? (
-                            <div className="premium-card p-12">
+                            <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm p-12">
                                 <EmptyState
                                     icon={<AlertTriangle size={28} />}
                                     title="No Findings"

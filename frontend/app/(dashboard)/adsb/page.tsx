@@ -259,7 +259,7 @@ export default function AdsbPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="premium-card p-6 relative overflow-hidden group">
+          <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden group">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <Radio size={22} />
@@ -274,7 +274,7 @@ export default function AdsbPage() {
               </div>
             </div>
           </div>
-          <div className="premium-card p-6 relative overflow-hidden group">
+          <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden group">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <Plane size={22} />
@@ -289,7 +289,7 @@ export default function AdsbPage() {
               </div>
             </div>
           </div>
-          <div className="premium-card p-6 relative overflow-hidden group">
+          <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden group">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <MapPin size={22} />
@@ -304,7 +304,7 @@ export default function AdsbPage() {
               </div>
             </div>
           </div>
-          <div className="premium-card p-6 relative overflow-hidden group">
+          <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden group">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <Clock size={22} />
@@ -322,7 +322,7 @@ export default function AdsbPage() {
         </div>
 
         {/* Content: Table or Map */}
-        <div className="premium-card overflow-hidden">
+        <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-wrap gap-3">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-blue-50 text-blue-500">

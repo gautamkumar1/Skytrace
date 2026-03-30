@@ -375,7 +375,7 @@ export default function AircraftPage() {
                                         </div>
                                     ))}
                                 </div>
-                                <div className="premium-card p-4 bg-blue-50/20 border-blue-100/40">
+                                <div className="bg-white border border-blue-100/40 rounded-2xl shadow-sm p-4 bg-blue-50/20">
                                     <div className="flex items-center gap-2 mb-1.5">
                                         <AlertTriangle className="w-3 h-3 text-blue-600" />
                                         <span className="text-[9px] font-bold text-blue-900 uppercase tracking-widest">Digital Twin Status</span>
@@ -386,7 +386,7 @@ export default function AircraftPage() {
                                 </div>
                             </div>
                             <div className="lg:w-[35%] min-w-0 space-y-5 overflow-hidden">
-                                <div className="premium-card border border-slate-200/70 overflow-hidden h-full">
+                                <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm overflow-hidden h-full">
                                     <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
                                         <div className="flex items-center gap-2 min-w-0">
                                             <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
@@ -424,7 +424,7 @@ export default function AircraftPage() {
                         {/* ─── Row 3: Engine Diagnostics (Right-Aligned) ─── */}
                         <div className="flex justify-end w-full">
                             <div className="lg:w-[35%] min-w-0">
-                                <div className="premium-card border border-slate-200/70 p-6 h-full flex flex-col">
+                                <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-6 h-full flex flex-col">
                                     <div className="flex items-center gap-3 mb-6">
                                         <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center">
                                             <Activity className="w-4 h-4 text-blue-600" />

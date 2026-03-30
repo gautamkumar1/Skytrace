@@ -12,6 +12,8 @@ import {
     ShieldCheck,
     Radio,
     Plug,
+    Box,
+    Globe,
 } from "lucide-react";
 
 const mainNavItems = [
@@ -20,6 +22,7 @@ const mainNavItems = [
     { href: "/engine-health", icon: Gauge, label: "Engines" },
     { href: "/llp", icon: ShieldCheck, label: "Life Limited Parts" },
     { href: "/aircraft", icon: Plane, label: "Aircraft" },
+    { href: "/drone-compliance", icon: Box, label: "Drone Trace" },
 ];
 
 const secondaryNavItems = [
@@ -64,8 +67,8 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.2 }}
                         >
-                            <span className="text-[15px] font-semibold text-slate-900 tracking-tight leading-none mb-0.5">OriginTace.AI</span>
-                            <span className="text-[9px] text-slate-400 font-medium tracking-widest uppercase">Know what you own</span>
+                            <span className="text-[15px] font-semibold text-slate-900 tracking-tight leading-none mb-0.5">OriginTace.ai</span>
+                            <span className="text-[9px] text-slate-400 font-medium tracking-widest uppercase">Records risk intelligence</span>
                         </motion.div>
                     )}
                 </div>

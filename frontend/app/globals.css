@@ -64,21 +64,6 @@
     min-height: 100vh;
   }
 
-  /* Premium SaaS Utilities */
-  .premium-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.03);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .premium-card:hover {
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
-    border-color: rgba(15, 23, 42, 0.12);
-    transform: translateY(-2px);
-  }
-
   .glass-effect {
     background: var(--glass-bg);
     backdrop-filter: blur(12px) saturate(180%);

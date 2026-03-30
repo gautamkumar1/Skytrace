@@ -53,65 +53,7 @@ export default function EngineHealthPage() {
         setLoadingMetrics(true);
         apiFetch<CaseDetail>(`/api/cases/${encodeURIComponent(selectedCase)}`)
             .then((data) => {
-                // Seed 5 past demo dates for timeline impact
-                const demoFindings = [
-                    {
-                        id: "demo-h1",
-                        title: "Initial Certification - Installed on G-XWB",
-                        category: "Compliance",
-                        severity: "CLEAR",
-                        created_at: "2024-01-15T09:00:00Z",
-                        evidence: "Engine certified and installed on G-XWB at delivery."
-                    },
-                    {
-                        id: "demo-h2",
-                        title: "Asset Transfer - Transferred to G-VWEB",
-                        category: "Aircraft",
-                        severity: "CLEAR",
-                        created_at: "2024-06-10T14:30:00Z",
-                        evidence: "Engine transferred to sister aircraft G-VWEB for fleet balancing."
-                    },
-                    {
-                        id: "demo-h3",
-                        title: "Induction for Scheduled Shop Visit (MRO)",
-                        category: "Maintenance",
-                        severity: "CLEAR",
-                        created_at: "2024-11-20T10:00:00Z",
-                        evidence: "Engine inducted into MRO facility for scheduled mid-life overhaul."
-                    },
-                    {
-                        id: "demo-h4",
-                        title: "Post-Overhaul - Installed on N123AB",
-                        category: "Aircraft",
-                        severity: "CLEAR",
-                        created_at: "2025-04-05T11:00:00Z",
-                        evidence: "Engine released from shop and installed on new lease asset N123AB."
-                    },
-                    {
-                        id: "demo-h5",
-                        title: "Borescope Inspection - Turbine Section Clear",
-                        category: "Event",
-                        severity: "CLEAR",
-                        created_at: "2025-09-15T09:15:00Z",
-                        evidence: "On-wing borescope performed. No findings."
-                    }
-                ];
-
-                const demoDocs = [
-                    {
-                        id: "demo-d1",
-                        filename: "8130-3_RELEASE_CERT_CORE_MODULE_2025.PDF",
-                        created_at: "2025-08-15T16:45:00Z"
-                    }
-                ];
-
-                const enrichedData = {
-                    ...data,
-                    findings: [...demoFindings, ...(data.findings || [])],
-                    documents: [...demoDocs, ...(data.documents || [])]
-                };
-
-                setCaseDetail(enrichedData);
+                setCaseDetail(data);
                 setMetrics(data.engine_data || []);
             })
             .catch(console.error)

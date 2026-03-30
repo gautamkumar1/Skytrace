@@ -26,7 +26,7 @@ export default function FleetPage() {
         <>
             <Header
                 title="Fleet Overview"
-                subtitle="All aircraft cases and their due diligence status"
+                subtitle="All aircraft cases and status"
             />
 
             {loading ? (
@@ -74,7 +74,7 @@ export default function FleetPage() {
                             </button>
                         </div>
                     </div>
-                    <div className="premium-card overflow-hidden">
+                    <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm overflow-hidden">
                         <FleetTable data={data} groupBy={groupBy} />
                     </div>
                 </motion.div>

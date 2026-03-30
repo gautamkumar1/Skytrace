@@ -110,7 +110,7 @@ export default function LLPPage() {
         <div className="flex flex-col h-full bg-slate-50">
             <Header
                 title="Life Limited Parts (LLP)"
-                subtitle="EASA Compliance & Back-to-Birth (BTB) Traceability Tracking"
+                subtitle=""
             >
                 <button
                     onClick={runBtbAudit}
@@ -122,7 +122,7 @@ export default function LLPPage() {
                     ) : (
                         <FileCheck size={16} />
                     )}
-                    Initialize BTB Audit
+                    Initialise BTB Audit
                 </button>
             </Header>
 
@@ -167,7 +167,7 @@ export default function LLPPage() {
                     {/* Stats from API */}
                     {stats && (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div className="premium-card p-6 relative overflow-hidden group">
+                            <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden group">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                                         <Clock size={22} />
@@ -182,7 +182,7 @@ export default function LLPPage() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="premium-card p-6 relative overflow-hidden group">
+                            <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden group">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                                         <History size={22} />
@@ -197,7 +197,7 @@ export default function LLPPage() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="premium-card p-6 relative overflow-hidden group">
+                            <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden group">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                                         <ShieldCheck size={22} />
@@ -212,7 +212,7 @@ export default function LLPPage() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="premium-card p-6 relative overflow-hidden group">
+                            <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden group">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                                         <AlertCircle size={22} />
@@ -231,7 +231,7 @@ export default function LLPPage() {
                     )}
 
                     {/* Filters + Table */}
-                    <div className="premium-card overflow-hidden">
+                    <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm overflow-hidden">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-4 border-b border-slate-100">
                             <h3 className="text-[13px] font-bold text-slate-900 uppercase tracking-wider">
                                 LLP register
