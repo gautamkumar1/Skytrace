@@ -28,16 +28,12 @@ export default function LoginPage() {
                 <div className="absolute bottom-0 left-0 w-[250px] h-[250px] bg-[#2980b9]/8 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="relative">
-                    <Link href="/" className="flex items-center gap-2.5 no-underline mb-16">
-                        <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
-                            <path d="M18 2L4 8v10c0 9.1 6 17 14 18 8-1 14-8.9 14-18V8L18 2z" fill="white" opacity="0.1" />
-                            <path d="M18 2L4 8v10c0 9.1 6 17 14 18 8-1 14-8.9 14-18V8L18 2z" stroke="white" strokeWidth="1.5" fill="none" opacity="0.5" />
-                            <path d="M8 19.5L18 10l10 3-6 4.5 4 5.5H14l-3-2.5-3 2z" fill="white" opacity="0.7" />
-                        </svg>
-                        <div className="flex flex-col">
-                            <span className="text-[16px] font-bold text-white tracking-tight leading-none">OriginTace.ai</span>
-                            <span className="text-[9px] font-semibold text-white/40 uppercase tracking-[0.15em] leading-none mt-0.5">Records risk intelligence</span>
-                        </div>
+                    <Link href="/" className="flex items-center gap-3 no-underline">
+                        <img 
+                            src="/images/logodark.png" 
+                            alt="OriginTrace Logo" 
+                            className="h-16 w-auto object-contain"
+                        />
                     </Link>
 
                     <h2 className="text-[28px] font-extrabold text-white leading-tight tracking-tight mb-4">
@@ -61,13 +57,12 @@ export default function LoginPage() {
                 <div className="w-full max-w-[400px]">
                     {/* Mobile logo */}
                     <div className="lg:hidden mb-8">
-                        <Link href="/" className="flex items-center gap-2 no-underline">
-                            <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
-                                <path d="M18 2L4 8v10c0 9.1 6 17 14 18 8-1 14-8.9 14-18V8L18 2z" fill="#1a5276" opacity="0.12" />
-                                <path d="M18 2L4 8v10c0 9.1 6 17 14 18 8-1 14-8.9 14-18V8L18 2z" stroke="#1a5276" strokeWidth="1.5" fill="none" />
-                                <path d="M8 19.5L18 10l10 3-6 4.5 4 5.5H14l-3-2.5-3 2z" fill="#2980b9" />
-                            </svg>
-                            <span className="text-[14px] font-bold text-[#1a2a3a]">OriginTace.AI</span>
+                        <Link href="/" className="flex items-center gap-3 no-underline">
+                            <img 
+                                src="/images/origintraceLogo.png" 
+                                alt="OriginTrace Logo" 
+                                className="h-8 w-auto object-contain"
+                            />
                         </Link>
                     </div>
 

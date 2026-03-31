@@ -49,41 +49,18 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
             animate={{ width: collapsed ? 72 : 240 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
         >
-            {/* Brand Section */}
-            <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between"} min-h-[72px] px-4 border-b border-[#0f172a]/[0.04]`}>
-                <div className="flex items-center gap-3 overflow-hidden">
-                    <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 shadow-lg shadow-slate-900/10">
-                        <svg width="24" height="24" viewBox="0 0 36 36" fill="none">
-                            <path d="M18 2L4 8v10c0 9.1 6 17 14 18 8-1 14-8.9 14-18V8L18 2z" fill="white" opacity="0.12" />
-                            <path d="M18 2L4 8v10c0 9.1 6 17 14 18 8-1 14-8.9 14-18V8L18 2z" stroke="white" strokeWidth="1.5" fill="none" />
-                            <path d="M8 19.5L18 10l10 3-6 4.5 4 5.5H14l-3-2.5-3 2z" fill="white" />
-                        </svg>
-                    </div>
-                    
-                    {!collapsed && (
-                        <motion.div
-                            className="flex flex-col whitespace-nowrap"
-                            initial={{ opacity: 0, x: -8 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            <span className="text-[15px] font-semibold text-slate-900 tracking-tight leading-none mb-0.5">OriginTace.ai</span>
-                            <span className="text-[9px] text-slate-400 font-medium tracking-widest uppercase">Records risk intelligence</span>
-                        </motion.div>
-                    )}
-                </div>
-                {!collapsed && (
-                    <button
-                        className="w-7 h-7 rounded-lg border border-slate-100 flex items-center justify-center text-slate-300 hover:bg-slate-50 hover:text-slate-600 transition-all"
-                        onClick={onToggle}
-                    >
-                        <ChevronLeft size={14} />
-                    </button>
-                )}
+            <div className={`flex items-center justify-center ${collapsed ? "min-h-[72px]" : "min-h-[110px]"} px-2 overflow-hidden`}>
+                <Link href="/" className="flex items-center justify-center no-underline w-full h-full">
+                    <img 
+                        src="/images/origintraceLogo.png" 
+                        alt="OriginTrace Logo" 
+                        className={`${collapsed ? "w-16 h-16" : "w-full h-auto max-h-[80px]"} object-contain scale-[2.2] transition-transform duration-300 hover:scale-[1.5]`}
+                    />
+                </Link>
             </div>
 
             {/* Navigation Section */}
-            <nav className="flex-1 py-6 px-3 overflow-y-auto modern-scrollbar">
+            <nav className="flex-1 px-3 overflow-y-auto modern-scrollbar">
                 <div className="space-y-1">
                     {!collapsed && (
                         <span className="block px-4 mb-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em]">Main Menu</span>
@@ -158,17 +135,21 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 </div>
             </nav>
 
-            {/* Toggle footer when collapsed */}
-            {collapsed && (
-                <div className="mt-auto p-4 border-t border-slate-50 flex justify-center">
-                    <button
-                        className="w-9 h-9 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-all"
-                        onClick={onToggle}
-                    >
-                        <ChevronRight size={18} />
-                    </button>
-                </div>
-            )}
+            {/* Toggle footer */}
+            <div className={`mt-auto p-4 border-t border-[#0f172a]/[0.04] flex items-center ${collapsed ? "justify-center" : "justify-between"}`}>
+                {!collapsed && (
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-2">Collapse Sidebar</span>
+                )}
+                <button
+                    className={`flex items-center justify-center rounded-xl border border-slate-100 hover:bg-blue-50 transition-all ${
+                        collapsed ? "w-10 h-10 text-slate-400 hover:text-blue-600" : "w-8 h-8 text-slate-400 hover:text-blue-600"
+                    }`}
+                    onClick={onToggle}
+                    title={collapsed ? "Expand" : "Collapse"}
+                >
+                    {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={16} />}
+                </button>
+            </div>
         </motion.aside>
     );
 }
