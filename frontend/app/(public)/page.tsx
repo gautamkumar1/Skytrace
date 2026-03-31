@@ -98,7 +98,7 @@ export default function LandingPage() {
                         <img 
                             src="/images/origintraceLogo.png" 
                             alt="OriginTrace Logo" 
-                            className="h-10 w-auto object-contain"
+                            className="h-40 w-auto object-contain"
                         />
                     </Link>
 

@@ -32,7 +32,7 @@ export default function LoginPage() {
                         <img 
                             src="/images/logodark.png" 
                             alt="OriginTrace Logo" 
-                            className="h-16 w-auto object-contain"
+                            className="h-44 w-auto object-contain"
                         />
                     </Link>
 
