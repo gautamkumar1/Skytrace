@@ -16,10 +16,9 @@ downloads/
 eggs/
 .eggs/
 lib64/
-parts/
 sdist/
 var/
-wheels/
+
 *.egg-info/
 .installed.cfg
 *.egg
@@ -42,7 +41,7 @@ env/
 Thumbs.db
 
 # Project data and local storage
-data/
+/data/
 *.jsonl
 *.log
 
