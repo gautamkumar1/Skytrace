@@ -3,7 +3,7 @@
  * Mirrors dashboard/callbacks.py capture_finding_feedback().
  */
 import { NextResponse } from "next/server";
-import { qual, query } from "@/lib/db";
+import { feedbackCommentColumn, getDbBackend, qual, query } from "@/lib/db";
 
 export async function POST(request: Request) {
     try {
@@ -29,26 +29,28 @@ export async function POST(request: Request) {
         const feedbackId =
             Date.now().toString(36) + Math.random().toString(36).substring(2, 10);
 
-        // Create table if not exists. Use "COMMENT" quoted (Snowflake reserved word); matches Python schema.
-        try {
-            await query(
-                `CREATE TABLE IF NOT EXISTS ${qual("finding_feedback")} (
+        const commentCol = feedbackCommentColumn();
+        // Optional Snowflake DDL (Postgres table comes from Python ensure_schema).
+        if (getDbBackend() === "snowflake") {
+            try {
+                await query(
+                    `CREATE TABLE IF NOT EXISTS ${qual("finding_feedback")} (
                     id VARCHAR(64) PRIMARY KEY,
                     finding_id VARCHAR(64) NOT NULL,
                     case_id VARCHAR(255) NOT NULL,
                     actor VARCHAR(128) DEFAULT 'dashboard-ui',
                     feedback VARCHAR(32) NOT NULL,
-                    "COMMENT" VARCHAR(1000),
+                    ${commentCol} VARCHAR(1000),
                     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
                 )`
-            );
-        } catch {
-            // Table might already exist (e.g. created by Python backend), continue
+                );
+            } catch {
+                // Table might already exist
+            }
         }
 
-        // Insert feedback. "COMMENT" quoted for Snowflake reserved word.
         await query(
-            `INSERT INTO ${qual("finding_feedback")} (id, finding_id, case_id, actor, feedback, "COMMENT")
+            `INSERT INTO ${qual("finding_feedback")} (id, finding_id, case_id, actor, feedback, ${commentCol})
              VALUES ($1, $2, $3, $4, $5, $6)`,
             [feedbackId, finding_id, case_id, "dashboard-ui", feedbackValue, comment != null && comment !== "" ? String(comment) : null]
         );

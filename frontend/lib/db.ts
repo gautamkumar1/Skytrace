@@ -1,12 +1,93 @@
 /**
- * Snowflake connection wrapper for Next.js API routes.
- * Reads config from process.env or from .env files (fs) so it works with Next.js 16 / Turbopack.
+ * Database access for Next.js API routes: Snowflake (default) or PostgreSQL when DATABASE_BACKEND=postgres.
+ * Reads config from process.env and .env files (fs) so it works with Next.js 16 / Turbopack.
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { config as loadDotenv } from "dotenv";
+import { Pool } from "pg";
 import { Snowflake } from "snowflake-promise";
+
+export type DbBackend = "snowflake" | "postgres";
+
+let pgPool: Pool | null = null;
+
+function getTryEnvPaths(): string[] {
+    const cwd = process.cwd();
+    const pwd = process.env.PWD || cwd;
+    const root = findProjectRoot();
+    return [
+        path.join(root, ".env"),
+        path.join(root, ".env.local"),
+        path.join(root, "frontend", ".env"),
+        path.join(root, "frontend", ".env.local"),
+        path.join(cwd, ".env"),
+        path.join(cwd, ".env.local"),
+        path.join(cwd, "frontend", ".env"),
+        path.join(cwd, "frontend", ".env.local"),
+        path.join(pwd, ".env"),
+        path.join(pwd, ".env.local"),
+        path.join(pwd, "frontend", ".env"),
+        path.join(pwd, "frontend", ".env.local"),
+        path.resolve(cwd, "..", ".env"),
+        path.resolve(cwd, "..", "frontend", ".env"),
+        path.resolve(cwd, "..", "frontend", ".env.local"),
+    ];
+}
+
+/** Load DATABASE_BACKEND / DATABASE_URL from process.env and .env files. */
+export function getDbBackend(): DbBackend {
+    loadDotenv({ path: path.join(process.cwd(), ".env"), override: true });
+    loadDotenv({ path: path.join(process.cwd(), ".env.local"), override: true });
+    let b = (process.env.DATABASE_BACKEND || "snowflake").trim().toLowerCase();
+    if (b === "postgres" || b === "postgresql") return "postgres";
+    for (const p of getTryEnvPaths()) {
+        try {
+            if (!fs.existsSync(p)) continue;
+            const parsed = parseEnvFile(fs.readFileSync(p, "utf8"));
+            const raw = (parsed.DATABASE_BACKEND || "").trim().toLowerCase();
+            if (raw === "postgres" || raw === "postgresql") {
+                if (parsed.DATABASE_URL) process.env.DATABASE_URL = parsed.DATABASE_URL;
+                return "postgres";
+            }
+        } catch {
+            // ignore
+        }
+    }
+    if (b === "postgres" || b === "postgresql") return "postgres";
+    return "snowflake";
+}
+
+function getPostgresUrl(): string {
+    const url = (process.env.DATABASE_URL || "").trim();
+    if (url) return url;
+    for (const p of getTryEnvPaths()) {
+        try {
+            if (!fs.existsSync(p)) continue;
+            const parsed = parseEnvFile(fs.readFileSync(p, "utf8"));
+            if (parsed.DATABASE_URL) return parsed.DATABASE_URL;
+        } catch {
+            // ignore
+        }
+    }
+    return "";
+}
+
+function getPgPool(): Pool {
+    if (pgPool) return pgPool;
+    const url = getPostgresUrl();
+    if (!url) {
+        throw new Error("DATABASE_URL is required when DATABASE_BACKEND=postgres. Set it in frontend/.env or frontend/.env.local.");
+    }
+    pgPool = new Pool({ connectionString: url, max: 10 });
+    return pgPool;
+}
+
+/** Column name for finding_feedback.note text (reserved in Snowflake as COMMENT). */
+export function feedbackCommentColumn(): string {
+    return getDbBackend() === "snowflake" ? '"comment"' : "comment";
+}
 
 let connectionPromise: Promise<any> | null = null;
 
@@ -232,10 +313,14 @@ function quoteId(name: string): string {
 
 /** Fully qualified table name (database.schema.table) for session-independent queries. */
 export function qual(table: string): string {
+    if (getDbBackend() === "postgres") {
+        return table;
+    }
     const cfg = getSnowflakeConfig();
     const db = (cfg.SNOWFLAKE_DATABASE || "AVIATION_AI").trim();
     const schema = (cfg.SNOWFLAKE_SCHEMA || "POC").trim();
-    return `${quoteId(db)}.${quoteId(schema)}.${table}`;
+    const tbl = table === "llp_parts" ? quoteId("llp_parts") : table;
+    return `${quoteId(db)}.${quoteId(schema)}.${tbl}`;
 }
 
 /**
@@ -245,6 +330,24 @@ export async function query<T = Record<string, unknown>>(
     sql: string,
     params?: unknown[]
 ): Promise<T[]> {
+    const binds = params ?? [];
+
+    if (getDbBackend() === "postgres") {
+        let text = sql;
+        if (binds.length && sql.includes("?") && !/\$[0-9]+/.test(sql)) {
+            let n = 0;
+            text = sql.replace(/\?/g, () => `$${++n}`);
+        }
+        try {
+            const pool = getPgPool();
+            const res = await pool.query(text, binds);
+            return res.rows as T[];
+        } catch (err) {
+            console.error("Query Error (postgres):", err, "SQL:", text, "Params:", binds);
+            throw err;
+        }
+    }
+
     const conn = await getConnection();
 
     try {

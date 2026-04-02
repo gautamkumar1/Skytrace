@@ -62,8 +62,8 @@ export async function POST(req: NextRequest) {
         }
 
         // 2. Spawn Python analysis
-        // We use the absolute path to the venv python and main.py
-        const projectRoot = process.env.PROJECT_ROOT || "/home/nbuck/aircraft-leasing-poc";
+        // Resolve project root relative to frontend dir (one level up)
+        const projectRoot = process.env.PROJECT_ROOT || path.resolve(process.cwd(), "..");
         const pythonPath = path.join(projectRoot, ".venv", "bin", "python3");
         const scriptPath = path.join(projectRoot, "main.py");
 

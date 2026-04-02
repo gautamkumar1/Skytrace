@@ -178,7 +178,7 @@ class PostgresDatabaseBackend(DatabaseBackend):
             s.execute(
                 text("""
                 INSERT INTO documents (id, case_id, filename, content_hash, storage_key, page_count, metadata_json)
-                VALUES (:id, :case_id, :filename, :content_hash, :storage_key, :page_count, :metadata_json::jsonb)
+                VALUES (:id, :case_id, :filename, :content_hash, :storage_key, :page_count, CAST(:metadata_json AS jsonb))
                 ON CONFLICT (id) DO UPDATE SET
                     filename = EXCLUDED.filename,
                     content_hash = EXCLUDED.content_hash,
@@ -218,7 +218,7 @@ class PostgresDatabaseBackend(DatabaseBackend):
                 INSERT INTO findings (id, case_id, agent_name, severity, category, title, evidence, confidence,
                     source_doc_id, source_page, iteration, metadata_json)
                 VALUES (:id, :case_id, :agent_name, :severity, :category, :title, :evidence, :confidence,
-                    :source_doc_id, :source_page, :iteration, :metadata_json::jsonb)
+                    :source_doc_id, :source_page, :iteration, CAST(:metadata_json AS jsonb))
                 ON CONFLICT (id) DO UPDATE SET
                     agent_name = EXCLUDED.agent_name,
                     severity = EXCLUDED.severity,
@@ -267,7 +267,7 @@ class PostgresDatabaseBackend(DatabaseBackend):
                 INSERT INTO engine_data (case_id, registration, aircraft_type, engine_type, metric_name,
                     metric_value, metric_value_numeric, unit, status, metadata_json)
                 VALUES (:case_id, :registration, :aircraft_type, :engine_type, :metric_name,
-                    :metric_value, :metric_value_numeric, :unit, :status, :metadata_json::jsonb)
+                    :metric_value, :metric_value_numeric, :unit, :status, CAST(:metadata_json AS jsonb))
                 """),
                 {
                     "case_id": case_id,

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { queryOne } from "@/lib/db";
+import { qual, queryOne } from "@/lib/db";
 import type { Document } from "@/lib/types";
 
 export async function GET(
@@ -15,8 +15,8 @@ export async function GET(
     try {
         // 1. Fetch document metadata from DB
         const doc = await queryOne<Document>(
-            `SELECT id, case_id, filename, storage_key 
-             FROM "Aircraft Leasing POC"."PUBLIC".documents 
+            `SELECT id, case_id, filename, storage_key
+             FROM ${qual("documents")}
              WHERE id = $1`,
             [docId]
         );

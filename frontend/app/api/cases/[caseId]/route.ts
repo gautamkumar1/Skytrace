@@ -2,7 +2,7 @@
  * GET /api/cases/[caseId] — Get case detail with findings, documents, engine data.
  */
 import { NextResponse } from "next/server";
-import { qual, query, queryOne } from "@/lib/db";
+import { feedbackCommentColumn, qual, query, queryOne } from "@/lib/db";
 import type { Case, Finding, Document, EngineMetric } from "@/lib/types";
 
 export async function GET(
@@ -31,7 +31,7 @@ export async function GET(
                 `SELECT f.*, ff.feedback as user_feedback, ff.fb_comment as feedback_comment
                  FROM ${qual("findings")} f
                  LEFT JOIN (
-                    SELECT finding_id, feedback, "COMMENT" as fb_comment,
+                    SELECT finding_id, feedback, ${feedbackCommentColumn()} as fb_comment,
                            ROW_NUMBER() OVER (PARTITION BY finding_id ORDER BY created_at DESC) as rn
                     FROM ${qual("finding_feedback")}
                  ) ff ON f.id = ff.finding_id AND ff.rn = 1

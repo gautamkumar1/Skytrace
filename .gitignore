@@ -2,6 +2,8 @@
 .env
 .env.local
 *.pem
+rsa_key.p8
+rsa_key.pub
 
 # Python
 __pycache__/
