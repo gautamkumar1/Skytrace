@@ -3,6 +3,8 @@ import {
   View, Text, FlatList, StyleSheet, RefreshControl, ActivityIndicator, TouchableOpacity,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { fetchCases, fetchCaseDetail } from '../api/endpoints';
 import FindingCard from '../components/FindingCard';
 import AnimatedCard from '../components/AnimatedCard';
@@ -14,10 +16,14 @@ import { C } from '../theme/colors';
 import { T } from '../theme/typography';
 import { Spacing, Radius } from '../theme/spacing';
 import type { Finding } from '../types';
+import type { RootStackParamList } from '../navigation/RootNavigator';
 
 type Filter = 'ALL' | 'STOP' | 'FLAG';
 
+type Nav = NativeStackNavigationProp<RootStackParamList>;
+
 export default function IssuesScreen() {
+  const nav = useNavigation<Nav>();
   const [findings, setFindings] = useState<Finding[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>('ALL');
@@ -98,7 +104,7 @@ export default function IssuesScreen() {
           windowSize={7}
           renderItem={({ item, index }) => (
             <View style={styles.cardWrap}>
-              <FindingCard finding={item} showCase onFeedbackSent={load} delay={index * 50} />
+              <FindingCard finding={item} showCase onFeedbackSent={load} onViewCase={(caseId) => nav.navigate('CaseDetail', { caseId })} delay={index * 50} />
             </View>
           )}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={C.blue} />}

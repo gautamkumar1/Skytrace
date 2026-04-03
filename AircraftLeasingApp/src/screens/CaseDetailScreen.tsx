@@ -50,14 +50,10 @@ export default function CaseDetailScreen() {
       }
       showsVerticalScrollIndicator={false}
     >
-      {/* Branding + Hero */}
+      {/* Hero */}
       {data && (
         <AnimatedCard delay={0}>
           <View style={styles.hero}>
-            <View style={styles.brandRow}>
-              <Image source={Images.appIcon} style={styles.brandIcon} resizeMode="contain" />
-              <Text style={styles.brandName}>OriginTrace<Text style={{ color: C.blue, fontWeight: '800' }}>.AI</Text></Text>
-            </View>
             <Text style={[T.hero, { color: C.blue }]}>{data.registration}</Text>
             <Text style={[T.bold, { color: C.t1, marginTop: 4 }]}>
               {data.aircraft_type}  {'\u00B7'}  {data.engine_type}

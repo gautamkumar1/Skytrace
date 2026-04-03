@@ -14,9 +14,9 @@ import { T } from '../theme/typography';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) UIManager.setLayoutAnimationEnabledExperimental(true);
 
-interface Props { finding: Finding; showCase?: boolean; onFeedbackSent?: () => void; delay?: number; swipeable?: boolean }
+interface Props { finding: Finding; showCase?: boolean; onFeedbackSent?: () => void; onViewCase?: (caseId: string) => void; delay?: number; swipeable?: boolean }
 
-export default memo(function FindingCard({ finding, showCase, onFeedbackSent, delay = 0, swipeable = false }: Props) {
+export default memo(function FindingCard({ finding, showCase, onFeedbackSent, onViewCase, delay = 0, swipeable = false }: Props) {
   const sc = sevColor(finding.severity);
   const [expanded, setExpanded] = useState(false);
   const [comment, setComment] = useState('');
@@ -60,6 +60,11 @@ export default memo(function FindingCard({ finding, showCase, onFeedbackSent, de
           )}
           {meta?.aviation_reference && <Text style={styles.ref}>Ref: {meta.aviation_reference}</Text>}
           <Text style={styles.date}>{formatDateTime(finding.created_at)}</Text>
+          {onViewCase && (
+            <AnimatedButton onPress={() => onViewCase(finding.case_id)} style={styles.viewCaseBtn}>
+              <Text style={styles.viewCaseText}>View Case  {'\u203A'}</Text>
+            </AnimatedButton>
+          )}
           {hasFeedback ? (
             <View style={styles.fbDone}><Text style={[T.capBold, { color: C.blue }]}>Feedback: {finding.user_feedback}</Text></View>
           ) : !swipeable ? (
@@ -118,5 +123,7 @@ const styles = StyleSheet.create({
   btnRow: { flexDirection: 'row', gap: 8 },
   btn: { flex: 1, paddingVertical: 12, borderRadius: 10, alignItems: 'center' },
   btnText: { fontSize: 13, fontWeight: '700' },
+  viewCaseBtn: { backgroundColor: C.blueGlow, borderRadius: 10, padding: 12, alignItems: 'center', marginBottom: 12 },
+  viewCaseText: { ...T.capBold, color: C.blue, fontSize: 14 },
   fbDone: { padding: 12, borderRadius: 10, backgroundColor: C.blueGlow },
 });

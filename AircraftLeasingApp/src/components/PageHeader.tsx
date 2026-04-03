@@ -13,19 +13,18 @@ interface Props {
 export default function PageHeader({ title, subtitle, rightElement }: Props) {
   return (
     <View style={styles.container}>
-      {/* OriginTrace.AI branding — always visible */}
-      <View style={styles.brandRow}>
-        <Image source={Images.appIcon} style={styles.brandIcon} resizeMode="contain" />
-        <Text style={styles.brandName}>OriginTrace<Text style={styles.brandDot}>.AI</Text></Text>
-      </View>
-
-      {/* Page title */}
+      {/* Page title row with logo on right */}
       <View style={styles.titleRow}>
         <View style={{ flex: 1 }}>
           <Text style={styles.title}>{title}</Text>
           {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
         </View>
         {rightElement}
+      </View>
+
+      {/* OriginTrace.ai logo bar — the website logo, lowered below title */}
+      <View style={styles.logoRow}>
+        <Image source={Images.logo} style={styles.logo} resizeMode="contain" />
       </View>
     </View>
   );
@@ -35,20 +34,11 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: C.bgCard,
     paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 16,
+    paddingTop: 14,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: C.border,
   },
-  brandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
-  },
-  brandIcon: { width: 28, height: 28, borderRadius: 6 },
-  brandName: { fontSize: 15, fontWeight: '700', color: C.t1 },
-  brandDot: { color: C.blue, fontWeight: '800' },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -56,4 +46,9 @@ const styles = StyleSheet.create({
   },
   title: { ...T.hero },
   subtitle: { ...T.body, color: C.t3, marginTop: 2 },
+  logoRow: {
+    marginTop: 8,
+    alignItems: 'flex-start',
+  },
+  logo: { height: 36, width: 230 },
 });
