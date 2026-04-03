@@ -11,6 +11,7 @@ import MetricCard from '../components/MetricCard';
 import AnimatedCard from '../components/AnimatedCard';
 import AnimatedButton from '../components/AnimatedButton';
 import EmptyState from '../components/EmptyState';
+import PageHeader from '../components/PageHeader';
 import { C } from '../theme/colors';
 import { T } from '../theme/typography';
 import { Spacing, Radius } from '../theme/spacing';
@@ -60,10 +61,7 @@ export default function EnginesScreen() {
       refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={C.blue} />}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.titleSection}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><Image source={Images.appIcon} style={{ width: 32, height: 32, borderRadius: 8 }} /><Text style={T.hero}>Engines</Text></View>
-        <Text style={styles.sub}>Performance by aircraft</Text>
-      </View>
+      <PageHeader title="Engines" subtitle="Performance by aircraft" />
 
       {/* Horizontal gauge carousel */}
       <ScrollView

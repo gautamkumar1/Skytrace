@@ -7,6 +7,7 @@ import { submitAnalysis } from '../api/endpoints';
 import { detectAircraftInfo } from '../utils/aircraftLookup';
 import AnimatedCard from '../components/AnimatedCard';
 import AnimatedButton from '../components/AnimatedButton';
+import PageHeader from '../components/PageHeader';
 import { C } from '../theme/colors';
 import { T } from '../theme/typography';
 import { Spacing, Radius } from '../theme/spacing';
@@ -78,10 +79,7 @@ export default function UploadScreen() {
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.titleSection}>
-        <Text style={T.hero}>Upload</Text>
-        <Text style={styles.sub}>Ingest documents for AI analysis</Text>
-      </View>
+      <PageHeader title="Upload" subtitle="Ingest documents for AI analysis" />
 
       <View style={styles.form}>
         {/* Case ID */}

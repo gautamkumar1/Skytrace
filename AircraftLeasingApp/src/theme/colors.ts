@@ -1,69 +1,69 @@
 /**
- * Dark aviation cockpit theme.
- * Deep navy base, electric accents, glass surfaces.
+ * Light theme — clean, professional, easy to read.
  */
 export const C = {
-  // Base
-  bg: '#070B14',
-  bgCard: 'rgba(255,255,255,0.05)',
-  bgGlass: 'rgba(255,255,255,0.07)',
-  bgElevated: 'rgba(255,255,255,0.10)',
-  bgInput: 'rgba(255,255,255,0.06)',
+  // Base surfaces
+  bg: '#F8FAFC',
+  bgCard: '#FFFFFF',
+  bgGlass: '#FFFFFF',
+  bgElevated: '#FFFFFF',
+  bgInput: '#F1F5F9',
 
   // Accent
-  blue: '#3B82F6',
-  blueGlow: 'rgba(59,130,246,0.25)',
-  blueMuted: '#1E3A5F',
-  cyan: '#06B6D4',
-  cyanGlow: 'rgba(6,182,212,0.2)',
+  blue: '#1D4ED8',
+  blueGlow: 'rgba(29,78,216,0.08)',
+  blueMuted: '#93C5FD',
+  cyan: '#0891B2',
+  cyanGlow: 'rgba(8,145,178,0.08)',
 
   // Severity
-  red: '#EF4444',
-  redGlow: 'rgba(239,68,68,0.2)',
-  redBg: 'rgba(239,68,68,0.12)',
-  amber: '#F59E0B',
-  amberGlow: 'rgba(245,158,11,0.2)',
-  amberBg: 'rgba(245,158,11,0.12)',
-  green: '#22C55E',
-  greenGlow: 'rgba(34,197,94,0.2)',
-  greenBg: 'rgba(34,197,94,0.12)',
-  sky: '#3B82F6',
-  skyBg: 'rgba(59,130,246,0.12)',
+  red: '#DC2626',
+  redGlow: 'rgba(220,38,38,0.06)',
+  redBg: '#FEF2F2',
+  amber: '#D97706',
+  amberGlow: 'rgba(217,119,6,0.06)',
+  amberBg: '#FFFBEB',
+  green: '#16A34A',
+  greenGlow: 'rgba(22,163,74,0.06)',
+  greenBg: '#F0FDF4',
+  sky: '#2563EB',
+  skyBg: '#EFF6FF',
 
-  // Text
+  // Text — high contrast, easy to read
   white: '#FFFFFF',
-  t1: '#F1F5F9',
-  t2: '#94A3B8',
-  t3: '#64748B',
-  t4: '#334155',
+  t1: '#0F172A',       // primary text — near black
+  t2: '#334155',       // secondary — dark slate
+  t3: '#475569',       // tertiary — readable gray
+  t4: '#94A3B8',       // placeholder only
 
   // Borders
-  border: 'rgba(255,255,255,0.08)',
-  borderLight: 'rgba(255,255,255,0.04)',
-  divider: 'rgba(255,255,255,0.06)',
+  border: '#E2E8F0',
+  borderLight: '#F1F5F9',
+  divider: '#E2E8F0',
+
+  overlay: 'rgba(0,0,0,0.4)',
 
   // Gradients
-  gradBlue: ['#1D4ED8', '#3B82F6'] as readonly string[],
+  gradBlue: ['#1D4ED8', '#2563EB'] as readonly string[],
   gradDark: ['#0F172A', '#1E293B'] as readonly string[],
   gradRed: ['#DC2626', '#EF4444'] as readonly string[],
   gradAmber: ['#D97706', '#F59E0B'] as readonly string[],
-  gradGreen: ['#059669', '#22C55E'] as readonly string[],
+  gradGreen: ['#059669', '#10B981'] as readonly string[],
   gradCyan: ['#0891B2', '#06B6D4'] as readonly string[],
 
   // Severity configs
   sev: {
-    STOP:     { color: '#EF4444', bg: 'rgba(239,68,68,0.12)', glow: 'rgba(239,68,68,0.3)' },
-    FLAG:     { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', glow: 'rgba(245,158,11,0.3)' },
-    ADVISORY: { color: '#3B82F6', bg: 'rgba(59,130,246,0.12)', glow: 'rgba(59,130,246,0.3)' },
-    CLEAR:    { color: '#22C55E', bg: 'rgba(34,197,94,0.12)', glow: 'rgba(34,197,94,0.3)' },
+    STOP:     { color: '#DC2626', bg: '#FEF2F2', glow: 'rgba(220,38,38,0.15)' },
+    FLAG:     { color: '#D97706', bg: '#FFFBEB', glow: 'rgba(217,119,6,0.15)' },
+    ADVISORY: { color: '#2563EB', bg: '#EFF6FF', glow: 'rgba(37,99,235,0.15)' },
+    CLEAR:    { color: '#16A34A', bg: '#F0FDF4', glow: 'rgba(22,163,74,0.15)' },
   } as Record<string, { color: string; bg: string; glow: string }>,
 
   shadow: {
-    card: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 4 },
-    glow: (color: string) => ({ shadowColor: color, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.4, shadowRadius: 16, elevation: 6 }),
+    card: { shadowColor: '#0F172A', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
+    glow: (color: string) => ({ shadowColor: color, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.2, shadowRadius: 12, elevation: 4 }),
   },
 } as const;
 
-// Compat alias
 export const Colors = C;
 export type SeverityKey = 'stop' | 'flag' | 'advisory' | 'clear';

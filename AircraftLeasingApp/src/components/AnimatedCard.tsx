@@ -10,12 +10,13 @@ interface Props {
   distance?: number;
 }
 
-export default function AnimatedCard({ children, delay = 0, style, slideFrom = 'bottom', distance = 20 }: Props) {
+// No bounce — smooth ease-out only
+export default function AnimatedCard({ children, delay = 0, style, slideFrom = 'bottom' }: Props) {
   const entering = slideFrom === 'left'
-    ? FadeInLeft.delay(delay).duration(450).springify().damping(15)
+    ? FadeInLeft.delay(delay).duration(350)
     : slideFrom === 'right'
-    ? FadeInRight.delay(delay).duration(450).springify().damping(15)
-    : FadeInDown.delay(delay).duration(450).springify().damping(15);
+    ? FadeInRight.delay(delay).duration(350)
+    : FadeInDown.delay(delay).duration(350);
 
   return (
     <Animated.View entering={entering} style={style}>

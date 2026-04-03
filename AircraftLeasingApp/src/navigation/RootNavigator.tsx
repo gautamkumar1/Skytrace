@@ -17,17 +17,14 @@ export default function RootNavigator() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: C.bg },
+        headerStyle: { backgroundColor: C.bgCard },
         headerTintColor: C.blue,
         headerTitleStyle: { ...T.h3, color: C.t1 },
         headerShadowVisible: false,
+        animation: 'fade',  // No bounce on navigation
       }}
     >
-      <Stack.Screen
-        name="Tabs"
-        component={TabNavigator}
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }} />
       <Stack.Screen
         name="CaseDetail"
         component={CaseDetailScreen}

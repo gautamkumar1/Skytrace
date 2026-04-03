@@ -9,6 +9,7 @@ import MetricCard from '../components/MetricCard';
 import AnimatedCard from '../components/AnimatedCard';
 import AnimatedButton from '../components/AnimatedButton';
 import SeverityBadge from '../components/SeverityBadge';
+import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
 import { C } from '../theme/colors';
 import { T } from '../theme/typography';

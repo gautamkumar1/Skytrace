@@ -7,6 +7,7 @@ import { fetchFleet } from '../api/endpoints';
 import AnimatedCard from '../components/AnimatedCard';
 import AnimatedButton from '../components/AnimatedButton';
 import AnimatedBar from '../components/AnimatedBar';
+import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
 import { C } from '../theme/colors';
 import { T } from '../theme/typography';
@@ -37,14 +38,7 @@ export default function FleetScreen() {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.header}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Image source={Images.appIcon} style={{ width: 32, height: 32, borderRadius: 8 }} />
-          <View>
-            <Text style={T.hero}>Fleet</Text>
-            <Text style={styles.sub}>{data?.length ?? 0} aircraft in portfolio</Text>
-          </View>
-        </View>
+      <PageHeader title="Fleet" subtitle={`${data?.length ?? 0} aircraft in portfolio`} rightElement={
         <View style={styles.toggle}>
           {(['aircraft', 'engine'] as const).map(g => (
             <AnimatedButton
@@ -58,7 +52,7 @@ export default function FleetScreen() {
             </AnimatedButton>
           ))}
         </View>
-      </View>
+      } />
 
       <SectionList
         sections={sections}

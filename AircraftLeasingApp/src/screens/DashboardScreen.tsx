@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, RefreshControl, StatusBar, Image } from 'react-native';
-import Animated, { useSharedValue, useAnimatedScrollHandler } from 'react-native-reanimated';
+import { View, Text, ScrollView, StyleSheet, RefreshControl, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useApi } from '../hooks/useApi';
@@ -12,7 +11,7 @@ import AnimatedBar from '../components/AnimatedBar';
 import AnimatedNumber from '../components/AnimatedNumber';
 import AnimatedButton from '../components/AnimatedButton';
 import PulsingDot from '../components/PulsingDot';
-import CollapsibleHeader from '../components/CollapsibleHeader';
+import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
 import { C } from '../theme/colors';
 import { T } from '../theme/typography';
@@ -24,17 +23,9 @@ import type { RootStackParamList } from '../navigation/RootNavigator';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
-
 export default function DashboardScreen() {
   const nav = useNavigation<Nav>();
   const { data, loading, refresh } = useApi(fetchStats);
-  const scrollY = useSharedValue(0);
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (e) => { scrollY.value = e.contentOffset.y; },
-  });
-
   if (!data && !loading) return <EmptyState title="Unable to load" />;
 
   const s = data;
@@ -49,27 +40,25 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="light-content" backgroundColor={C.bg} />
-      <CollapsibleHeader title="OriginTrace" subtitle="Fleet operations overview" scrollY={scrollY} logo={Images.appIcon} />
+      <StatusBar barStyle="dark-content" backgroundColor={C.bgCard} />
+      <PageHeader title="Dashboard" subtitle="Fleet operations overview" />
 
-      <AnimatedScrollView
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={C.blue} progressBackgroundColor={C.bg} />}
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={C.blue} />}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: 8 }}
+        contentContainerStyle={{ paddingTop: 12, paddingBottom: 32 }}
       >
         {/* Stats row */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.statsRow}>
-          <StatCard label="Active Assets" value={s?.total_cases ?? 0} gradient={C.gradBlue} delay={100} />
-          <StatCard label="Risk Points" value={total} gradient={C.gradRed} delay={180} />
-          <StatCard label="Data Sources" value={s?.total_documents ?? 0} gradient={C.gradCyan} delay={260} />
-          <StatCard label="Engine Metrics" value={s?.total_engine_metrics ?? 0} gradient={C.gradGreen} delay={340} />
+          <StatCard label="Active Assets" value={s?.total_cases ?? 0} gradient={C.gradBlue} delay={80} />
+          <StatCard label="Risk Points" value={total} gradient={C.gradRed} delay={140} />
+          <StatCard label="Data Sources" value={s?.total_documents ?? 0} gradient={C.gradCyan} delay={200} />
+          <StatCard label="Engine Metrics" value={s?.total_engine_metrics ?? 0} gradient={C.gradGreen} delay={260} />
         </ScrollView>
 
         {/* Alert */}
         {stops > 0 && (
-          <AnimatedCard delay={400}>
+          <AnimatedCard delay={300}>
             <AnimatedButton onPress={() => nav.navigate('Tabs', { screen: 'Issues' })}>
               <View style={styles.alert}>
                 <PulsingDot color={C.red} size={8} />
@@ -81,18 +70,18 @@ export default function DashboardScreen() {
         )}
 
         {/* Severity */}
-        <AnimatedCard delay={450}><Text style={styles.section}>SEVERITY BREAKDOWN</Text></AnimatedCard>
+        <AnimatedCard delay={350}><Text style={styles.section}>SEVERITY BREAKDOWN</Text></AnimatedCard>
         <View style={styles.sevGrid}>
           {SEVERITY_ORDER.map((sv, i) => {
             const count = sev[sv] ?? 0;
             const pct = total > 0 ? (count / total) * 100 : 0;
             const c = sevColor(sv);
             return (
-              <AnimatedCard key={sv} delay={500 + i * 80} style={{ width: '48%' }}>
+              <AnimatedCard key={sv} delay={400 + i * 60} style={{ width: '48%' }}>
                 <View style={[styles.sevCard, { borderLeftColor: c.color }]}>
-                  <AnimatedNumber value={count} style={[styles.sevNum, { color: c.color }]} delay={550 + i * 80} />
+                  <AnimatedNumber value={count} style={[styles.sevNum, { color: c.color }]} delay={420 + i * 60} />
                   <Text style={[styles.sevLabel, { color: c.color }]}>{sv}</Text>
-                  <AnimatedBar percent={pct} color={c.color} height={3} delay={600 + i * 80} bgColor={C.border} />
+                  <AnimatedBar percent={pct} color={c.color} height={3} delay={440 + i * 60} bgColor={C.border} />
                 </View>
               </AnimatedCard>
             );
@@ -100,26 +89,26 @@ export default function DashboardScreen() {
         </View>
 
         {/* Efficiency */}
-        <AnimatedCard delay={850}>
+        <AnimatedCard delay={650}>
           <View style={styles.effCard}>
             <View>
-              <Text style={styles.effLabel}>FLEET EFFICIENCY</Text>
+              <Text style={styles.effLabel}>Fleet Efficiency</Text>
               <Text style={styles.effSub}>Weighted by active findings</Text>
             </View>
-            <AnimatedNumber value={eff} suffix="%" delay={900}
+            <AnimatedNumber value={eff} suffix="%" delay={700}
               style={[styles.effNum, { color: eff >= 80 ? C.green : eff >= 50 ? C.amber : C.red }]} />
           </View>
         </AnimatedCard>
 
         {/* Findings */}
-        <AnimatedCard delay={950}>
+        <AnimatedCard delay={750}>
           <View style={styles.sectionRow}>
             <Text style={styles.section}>RECENT FINDINGS</Text>
             <View style={styles.badge}><Text style={styles.badgeText}>{findings.length}</Text></View>
           </View>
         </AnimatedCard>
         {findings.map((f: RecentFinding, i: number) => (
-          <AnimatedCard key={f.id} delay={1000 + i * 70}>
+          <AnimatedCard key={f.id} delay={800 + i * 50}>
             <AnimatedButton onPress={() => nav.navigate('CaseDetail', { caseId: f.case_id })} scaleDown={0.985}>
               <View style={styles.fCard}>
                 <View style={styles.fTop}>
@@ -132,8 +121,7 @@ export default function DashboardScreen() {
             </AnimatedButton>
           </AnimatedCard>
         ))}
-        <View style={{ height: 32 }} />
-      </AnimatedScrollView>
+      </ScrollView>
     </View>
   );
 }
@@ -141,37 +129,37 @@ export default function DashboardScreen() {
 const P = 20;
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.bg },
-  statsRow: { gap: 10, paddingHorizontal: P, paddingBottom: 16 },
+  statsRow: { gap: 10, paddingHorizontal: P, paddingBottom: 12 },
   alert: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     marginHorizontal: P, backgroundColor: C.redBg, borderRadius: 12, padding: 16,
-    borderWidth: 1, borderColor: 'rgba(239,68,68,0.2)', marginBottom: 8,
+    borderWidth: 1, borderColor: '#FECACA',
   },
   alertText: { ...T.bold, color: C.red, flex: 1, fontSize: 14 },
   alertArrow: { fontSize: 20, color: C.red },
-  section: { ...T.label, paddingHorizontal: P, marginTop: 24, marginBottom: 12 },
-  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: P, marginTop: 24, marginBottom: 12 },
-  badge: { backgroundColor: C.bgGlass, borderRadius: 20, paddingHorizontal: 8, paddingVertical: 2 },
+  section: { ...T.label, color: C.t3, paddingHorizontal: P, marginTop: 20, marginBottom: 10 },
+  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: P, marginTop: 20, marginBottom: 10 },
+  badge: { backgroundColor: C.bgInput, borderRadius: 20, paddingHorizontal: 8, paddingVertical: 2 },
   badgeText: { ...T.tiny, color: C.t3 },
   sevGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingHorizontal: P },
-  sevCard: { backgroundColor: C.bgGlass, borderRadius: 14, padding: 16, borderLeftWidth: 3, borderWidth: 1, borderColor: C.border },
+  sevCard: { backgroundColor: C.bgCard, borderRadius: 14, padding: 16, borderLeftWidth: 3, borderWidth: 1, borderColor: C.border, ...C.shadow.card },
   sevNum: { fontSize: 32, fontWeight: '800', letterSpacing: -0.5 },
-  sevLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 0.5, marginBottom: 8 },
+  sevLabel: { fontSize: 12, fontWeight: '700', letterSpacing: 0.5, marginBottom: 8 },
   effCard: {
-    backgroundColor: C.bgGlass, borderRadius: 14, padding: 20,
-    marginHorizontal: P, marginTop: 12,
+    backgroundColor: C.bgCard, borderRadius: 14, padding: 20,
+    marginHorizontal: P, marginTop: 8,
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    borderWidth: 1, borderColor: C.border,
+    borderWidth: 1, borderColor: C.border, ...C.shadow.card,
   },
-  effLabel: { ...T.label },
-  effSub: { ...T.cap, color: C.t4, marginTop: 2 },
+  effLabel: { ...T.bold, fontSize: 16, color: C.t1 },
+  effSub: { ...T.cap, color: C.t3, marginTop: 2 },
   effNum: { fontSize: 40, fontWeight: '800', letterSpacing: -1.5 },
   fCard: {
-    backgroundColor: C.bgGlass, borderRadius: 14, padding: 16,
-    marginHorizontal: P, marginBottom: 8, borderWidth: 1, borderColor: C.border,
+    backgroundColor: C.bgCard, borderRadius: 14, padding: 16,
+    marginHorizontal: P, marginBottom: 8, borderWidth: 1, borderColor: C.border, ...C.shadow.card,
   },
   fTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  fTitle: { ...T.bold },
-  fMeta: { ...T.cap, color: C.t4, marginTop: 4 },
-  fConf: { ...T.capBold },
+  fTitle: { ...T.bold, color: C.t1 },
+  fMeta: { ...T.cap, color: C.t3, marginTop: 4 },
+  fConf: { ...T.capBold, color: C.t2 },
 });

@@ -8,6 +8,7 @@ import FindingCard from '../components/FindingCard';
 import AnimatedCard from '../components/AnimatedCard';
 import AnimatedButton from '../components/AnimatedButton';
 import AnimatedNumber from '../components/AnimatedNumber';
+import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
 import { C } from '../theme/colors';
 import { T } from '../theme/typography';
@@ -58,10 +59,7 @@ export default function IssuesScreen() {
     <View style={styles.screen}>
       {/* Sticky header: title + summary + filters */}
       <View style={styles.stickyHeader}>
-        <View style={styles.titleRow}>
-          <Text style={T.hero}>Issues</Text>
-          <Text style={styles.sub}>Critical findings across fleet</Text>
-        </View>
+        <PageHeader title="Issues" subtitle="Critical findings across fleet" />
 
         <View style={styles.summaryRow}>
           <View style={styles.sumOuter}>

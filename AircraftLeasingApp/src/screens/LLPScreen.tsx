@@ -8,6 +8,7 @@ import { fetchLLP, runBTBAudit } from '../api/endpoints';
 import AnimatedCard from '../components/AnimatedCard';
 import AnimatedButton from '../components/AnimatedButton';
 import AnimatedBar from '../components/AnimatedBar';
+import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
 import { C } from '../theme/colors';
 import { T } from '../theme/typography';
@@ -57,16 +58,11 @@ export default function LLPScreen() {
 
   return (
     <View style={styles.screen}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={T.hero}>LLP Tracking</Text>
-          <Text style={styles.sub}>Life limited parts & BTB audit</Text>
-        </View>
+      <PageHeader title="LLP Tracking" subtitle="Life limited parts & BTB audit" rightElement={
         <AnimatedButton onPress={doAudit} disabled={auditing} style={styles.auditBtn}>
           <Text style={styles.auditText}>{auditing ? 'Running...' : 'Run Audit'}</Text>
         </AnimatedButton>
-      </View>
+      } />
 
       {/* Mini stat cards */}
       {st && (

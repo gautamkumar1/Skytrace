@@ -43,12 +43,13 @@ export default function TabNavigator() {
         tabBarInactiveTintColor: C.t4,
         tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: -2 },
         tabBarStyle: {
-          backgroundColor: C.bg,
+          backgroundColor: C.bgCard,
           borderTopColor: C.border,
           borderTopWidth: 1,
           paddingTop: 4,
           height: 54,
         },
+        animation: 'fade',  // No bounce on tab switch
       })}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
