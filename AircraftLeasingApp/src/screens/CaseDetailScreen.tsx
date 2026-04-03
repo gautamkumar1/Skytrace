@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, RefreshControl } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, RefreshControl } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import { useApi } from '../hooks/useApi';
@@ -11,6 +11,7 @@ import AnimatedButton from '../components/AnimatedButton';
 import SeverityBadge from '../components/SeverityBadge';
 import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
+import { Images } from '../assets';
 import { C } from '../theme/colors';
 import { T } from '../theme/typography';
 import { Spacing, Radius } from '../theme/spacing';
@@ -49,10 +50,14 @@ export default function CaseDetailScreen() {
       }
       showsVerticalScrollIndicator={false}
     >
-      {/* Hero section */}
+      {/* Branding + Hero */}
       {data && (
         <AnimatedCard delay={0}>
           <View style={styles.hero}>
+            <View style={styles.brandRow}>
+              <Image source={Images.appIcon} style={styles.brandIcon} resizeMode="contain" />
+              <Text style={styles.brandName}>OriginTrace<Text style={{ color: C.blue, fontWeight: '800' }}>.AI</Text></Text>
+            </View>
             <Text style={[T.hero, { color: C.blue }]}>{data.registration}</Text>
             <Text style={[T.bold, { color: C.t1, marginTop: 4 }]}>
               {data.aircraft_type}  {'\u00B7'}  {data.engine_type}
@@ -162,6 +167,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: C.bg,
   },
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  brandIcon: { width: 28, height: 28, borderRadius: 6 },
+  brandName: { fontSize: 15, fontWeight: '700', color: C.t1 },
   hero: {
     paddingHorizontal: 20,
     paddingTop: Spacing.lg,

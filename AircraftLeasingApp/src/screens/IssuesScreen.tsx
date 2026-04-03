@@ -121,10 +121,10 @@ const styles = StyleSheet.create({
   sumNum: { fontSize: 28, fontWeight: '800', color: C.white },
   sumLabel: { fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.7)', letterSpacing: 1, textTransform: 'uppercase', marginTop: 2 },
   filterRow: { flexDirection: 'row', paddingHorizontal: 20, gap: Spacing.sm, marginTop: Spacing.md, alignItems: 'center' },
-  fBtn: { paddingHorizontal: Spacing.xl, paddingVertical: 8, borderRadius: Radius.md, backgroundColor: C.bgGlass, borderWidth: 1, borderColor: C.border },
-  fActive: { backgroundColor: C.white, borderColor: C.white },
+  fBtn: { paddingHorizontal: Spacing.xl, paddingVertical: 8, borderRadius: Radius.md, backgroundColor: C.bgCard, borderWidth: 1.5, borderColor: C.border },
+  fActive: { backgroundColor: C.blue, borderColor: C.blue },
   fText: { ...T.capBold, color: C.t3 },
-  fTextActive: { color: C.bg },
+  fTextActive: { color: C.white },
   countLabel: { ...T.tiny, color: C.t4 },
   cardWrap: { paddingHorizontal: 20, paddingTop: Spacing.xs },
 });
