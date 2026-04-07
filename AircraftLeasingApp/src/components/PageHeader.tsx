@@ -13,20 +13,25 @@ interface Props {
 export default function PageHeader({ heading, label, rightElement, children }: Props) {
   return (
     <View style={styles.container}>
-      {/* Single row: logo left, heading right */}
-      <View style={styles.row}>
-        <Image source={Images.logo} style={styles.logo} resizeMode="contain" />
-        <View style={{ flex: 1 }} />
-        {rightElement}
+      {/* Logo row: icon + OriginTrace.ai text */}
+      <View style={styles.logoRow}>
+        <Image source={Images.appIcon} style={styles.icon} />
+        <Text style={styles.brandText}>
+          Origin<Text style={styles.brandBold}>Trace</Text>
+          <Text style={styles.brandDot}>.ai</Text>
+        </Text>
       </View>
 
       {/* Optional tagline */}
       {children}
 
       {/* Heading + label */}
-      <View style={styles.headingWrap}>
-        <Text style={styles.heading}>{heading}</Text>
-        {label ? <Text style={styles.label}>{label}</Text> : null}
+      <View style={styles.headingRow}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.heading}>{heading}</Text>
+          {label ? <Text style={styles.label}>{label}</Text> : null}
+        </View>
+        {rightElement}
       </View>
     </View>
   );
@@ -41,16 +46,35 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: C.border,
   },
-  row: {
+  logoRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
     marginBottom: 10,
   },
-  logo: {
-    height: 36,
-    width: 185,
+  icon: {
+    width: 30,
+    height: 30,
   },
-  headingWrap: {},
+  brandText: {
+    fontSize: 17,
+    fontWeight: '400',
+    color: C.t2,
+    letterSpacing: -0.2,
+  },
+  brandBold: {
+    fontWeight: '700',
+    color: C.t1,
+  },
+  brandDot: {
+    fontWeight: '700',
+    color: C.blue,
+  },
+  headingRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+  },
   heading: {
     fontSize: 24,
     fontWeight: '700',
