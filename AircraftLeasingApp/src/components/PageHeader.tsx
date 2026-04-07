@@ -13,13 +13,9 @@ interface Props {
 export default function PageHeader({ heading, label, rightElement, children }: Props) {
   return (
     <View style={styles.container}>
-      {/* Logo row: icon + OriginTrace.ai text */}
+      {/* Logo */}
       <View style={styles.logoRow}>
-        <Image source={Images.appIcon} style={styles.icon} />
-        <Text style={styles.brandText}>
-          Origin<Text style={styles.brandBold}>Trace</Text>
-          <Text style={styles.brandDot}>.ai</Text>
-        </Text>
+        <Image source={Images.logo} style={styles.logo} resizeMode="contain" />
       </View>
 
       {/* Optional tagline */}
@@ -47,28 +43,11 @@ const styles = StyleSheet.create({
     borderBottomColor: C.border,
   },
   logoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
     marginBottom: 10,
   },
-  icon: {
-    width: 30,
-    height: 30,
-  },
-  brandText: {
-    fontSize: 17,
-    fontWeight: '400',
-    color: C.t2,
-    letterSpacing: -0.2,
-  },
-  brandBold: {
-    fontWeight: '700',
-    color: C.t1,
-  },
-  brandDot: {
-    fontWeight: '700',
-    color: C.blue,
+  logo: {
+    height: 32,
+    width: 170,
   },
   headingRow: {
     flexDirection: 'row',
