@@ -15,8 +15,8 @@ interface Props {
 export default function PageHeader({ heading, label, rightElement, children }: Props) {
   return (
     <View style={styles.container}>
-      {/* Logo — below status bar, left aligned */}
-      <View style={[styles.logoRow, { marginTop: STATUS_BAR + 8 }]}>
+      {/* Logo — left aligned, tight to status bar like reference */}
+      <View style={[styles.logoRow, { marginTop: STATUS_BAR }]}>
         <Image source={Images.logo} style={styles.logo} resizeMode="contain" />
       </View>
 
