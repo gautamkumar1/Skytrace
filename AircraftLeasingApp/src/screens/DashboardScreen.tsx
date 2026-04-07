@@ -133,8 +133,8 @@ export default function DashboardScreen() {
 const P = 20;
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.bg },
-  tagline: { paddingHorizontal: 20, paddingBottom: 10, alignItems: 'flex-start' as const },
-  taglineText: { fontSize: 16, fontWeight: '600', color: C.blue, letterSpacing: 0.3, textAlign: 'left' as const },
+  tagline: { paddingBottom: 8 },
+  taglineText: { fontSize: 16, fontWeight: '600', color: C.blue, letterSpacing: 0.3 },
   statsRow: { gap: 10, paddingHorizontal: P, paddingBottom: 12 },
   alert: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
