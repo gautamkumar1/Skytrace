@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Platform, StatusBar } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import { Images } from '../assets';
 import { C } from '../theme/colors';
-
-const STATUS_BAR_H = Platform.OS === 'android' ? (StatusBar.currentHeight ?? 40) : 44;
 
 interface Props {
   heading: string;
@@ -15,27 +13,20 @@ interface Props {
 export default function PageHeader({ heading, label, rightElement, children }: Props) {
   return (
     <View style={styles.container}>
-      {/* Status bar spacer */}
-      <View style={{ height: STATUS_BAR_H }} />
-
-      {/* Logo — full width, centered, prominent */}
-      <View style={styles.logoBar}>
+      {/* Single row: logo left, heading right */}
+      <View style={styles.row}>
         <Image source={Images.logo} style={styles.logo} resizeMode="contain" />
+        <View style={{ flex: 1 }} />
+        {rightElement}
       </View>
 
-      {/* Divider */}
-      <View style={styles.divider} />
-
-      {/* Optional extra (tagline) */}
+      {/* Optional tagline */}
       {children}
 
       {/* Heading + label */}
-      <View style={styles.headingRow}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.heading}>{heading}</Text>
-          {label ? <Text style={styles.label}>{label}</Text> : null}
-        </View>
-        {rightElement}
+      <View style={styles.headingWrap}>
+        <Text style={styles.heading}>{heading}</Text>
+        {label ? <Text style={styles.label}>{label}</Text> : null}
       </View>
     </View>
   );
@@ -44,31 +35,22 @@ export default function PageHeader({ heading, label, rightElement, children }: P
 const styles = StyleSheet.create({
   container: {
     backgroundColor: C.bgCard,
+    paddingHorizontal: 20,
+    paddingTop: 6,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: C.border,
   },
-  logoBar: {
+  row: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    marginBottom: 10,
   },
   logo: {
-    height: 50,
-    width: 260,
+    height: 36,
+    width: 185,
   },
-  divider: {
-    height: 1,
-    backgroundColor: C.border,
-    marginHorizontal: 20,
-  },
-  headingRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 14,
-  },
+  headingWrap: {},
   heading: {
     fontSize: 24,
     fontWeight: '700',
@@ -76,9 +58,9 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   label: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
     color: C.t3,
-    marginTop: 2,
+    marginTop: 1,
   },
 });
