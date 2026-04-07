@@ -1,5 +1,5 @@
 export const Images = {
-  logo: require('./images/origintrace-logo-tight.png'),
+  logo: require('./images/logo-final.png'),
   logoDark: require('./images/logo-dark.png'),
   appIcon: require('./images/app-icon.png'),
   engineDemo: require('./images/engine-demo.jpg'),
