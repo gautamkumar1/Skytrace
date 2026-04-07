@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
     borderBottomColor: C.border,
   },
   logoRow: {
+    alignItems: 'flex-start',
     marginBottom: 10,
   },
   logo: {
