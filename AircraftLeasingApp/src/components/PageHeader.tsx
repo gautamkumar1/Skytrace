@@ -46,8 +46,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   logo: {
-    height: 32,
-    width: 170,
+    height: 40,
+    width: 210,
   },
   headingRow: {
     flexDirection: 'row',
