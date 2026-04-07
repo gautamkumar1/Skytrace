@@ -1,28 +1,32 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, Platform, StatusBar } from 'react-native';
 import { Images } from '../assets';
 import { C } from '../theme/colors';
-import { T } from '../theme/typography';
+
+const STATUS_BAR_H = Platform.OS === 'android' ? (StatusBar.currentHeight ?? 40) : 44;
 
 interface Props {
-  /** Big heading (e.g. "Fleet Overview") */
   heading: string;
-  /** Smaller label below heading (e.g. "Dashboard") */
   label?: string;
   rightElement?: React.ReactNode;
-  /** Extra content between logo and heading (e.g. tagline) */
   children?: React.ReactNode;
 }
 
 export default function PageHeader({ heading, label, rightElement, children }: Props) {
   return (
     <View style={styles.container}>
-      {/* Logo */}
+      {/* Status bar spacer */}
+      <View style={{ height: STATUS_BAR_H }} />
+
+      {/* Logo — full width, centered, prominent */}
       <View style={styles.logoBar}>
         <Image source={Images.logo} style={styles.logo} resizeMode="contain" />
       </View>
 
-      {/* Optional tagline / extra content */}
+      {/* Divider */}
+      <View style={styles.divider} />
+
+      {/* Optional extra (tagline) */}
       {children}
 
       {/* Heading + label */}
@@ -40,25 +44,30 @@ export default function PageHeader({ heading, label, rightElement, children }: P
 const styles = StyleSheet.create({
   container: {
     backgroundColor: C.bgCard,
-    paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: C.border,
   },
   logoBar: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    paddingVertical: 14,
     paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 6,
   },
   logo: {
-    height: 38,
-    width: 200,
+    height: 50,
+    width: 260,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: C.border,
+    marginHorizontal: 20,
   },
   headingRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 14,
   },
   heading: {
     fontSize: 24,
