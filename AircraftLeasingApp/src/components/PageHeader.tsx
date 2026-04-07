@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, Platform, StatusBar } from 'react-native';
 import { Images } from '../assets';
 import { C } from '../theme/colors';
+
+const STATUS_BAR = Platform.OS === 'android' ? (StatusBar.currentHeight ?? 40) : 0;
 
 interface Props {
   heading: string;
@@ -13,8 +15,8 @@ interface Props {
 export default function PageHeader({ heading, label, rightElement, children }: Props) {
   return (
     <View style={styles.container}>
-      {/* Logo */}
-      <View style={styles.logoRow}>
+      {/* Logo — below status bar, left aligned */}
+      <View style={[styles.logoRow, { marginTop: STATUS_BAR + 8 }]}>
         <Image source={Images.logo} style={styles.logo} resizeMode="contain" />
       </View>
 
@@ -37,7 +39,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: C.bgCard,
     paddingHorizontal: 20,
-    paddingTop: 6,
     paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: C.border,
