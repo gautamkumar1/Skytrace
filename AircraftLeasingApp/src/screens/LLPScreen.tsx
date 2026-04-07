@@ -58,7 +58,7 @@ export default function LLPScreen() {
 
   return (
     <View style={styles.screen}>
-      <PageHeader title="LLP Tracking" subtitle="Life limited parts & BTB audit" rightElement={
+      <PageHeader heading="LLP Tracking" label="Life limited parts & BTB audit" rightElement={
         <AnimatedButton onPress={doAudit} disabled={auditing} style={styles.auditBtn}>
           <Text style={styles.auditText}>{auditing ? 'Running...' : 'Run Audit'}</Text>
         </AnimatedButton>

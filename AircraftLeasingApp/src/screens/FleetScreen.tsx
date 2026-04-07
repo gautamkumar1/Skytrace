@@ -38,7 +38,7 @@ export default function FleetScreen() {
 
   return (
     <View style={styles.screen}>
-      <PageHeader title="Fleet" subtitle={`${data?.length ?? 0} aircraft in portfolio`} rightElement={
+      <PageHeader heading={`${data?.length ?? 0} Aircraft`} label="Fleet" rightElement={
         <View style={styles.toggle}>
           {(['aircraft', 'engine'] as const).map(g => (
             <AnimatedButton

@@ -1,5 +1,15 @@
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
+## OriginTrace.ai — run with the Next.js API
+
+The app calls the web API on **port 3591** (see `src/config/apiBaseUrl.ts`). From two terminals:
+
+1. **API + web:** from repo root, `cd frontend && npm install && npm run dev`
+2. **Mobile:** from this folder, `npm install && npm start`, then `npm run ios` or `npm run android`
+
+First-time iOS: `npm run pods` (or `cd ios && pod install`).  
+On a **physical phone**, set your Mac’s LAN IP in `src/config/apiBaseUrl.ts` (`PHYSICAL_DEVICE_LAN_HOST`).
+
 # Getting Started
 
 > **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.

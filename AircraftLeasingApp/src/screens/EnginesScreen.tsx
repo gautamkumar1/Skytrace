@@ -61,7 +61,7 @@ export default function EnginesScreen() {
       refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={C.blue} />}
       showsVerticalScrollIndicator={false}
     >
-      <PageHeader title="Engines" subtitle="Performance by aircraft" />
+      <PageHeader heading="Engine Health" label="Performance by aircraft" />
 
       {/* Horizontal gauge carousel */}
       <ScrollView

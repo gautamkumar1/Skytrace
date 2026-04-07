@@ -5,31 +5,31 @@ import { C } from '../theme/colors';
 import { T } from '../theme/typography';
 
 interface Props {
-  title: string;
-  subtitle?: string;
+  /** Big heading (e.g. "Fleet Overview") */
+  heading: string;
+  /** Smaller label below heading (e.g. "Dashboard") */
+  label?: string;
   rightElement?: React.ReactNode;
+  /** Extra content between logo and heading (e.g. tagline) */
+  children?: React.ReactNode;
 }
 
-export default function PageHeader({ title, subtitle, rightElement }: Props) {
+export default function PageHeader({ heading, label, rightElement, children }: Props) {
   return (
     <View style={styles.container}>
-      {/* Brand bar: icon + OriginTrace.ai */}
-      <View style={styles.brandBar}>
-        <Image source={Images.appIcon} style={styles.icon} />
-        <Text style={styles.brandText}>
-          Origin<Text style={styles.brandBold}>Trace</Text>
-          <Text style={styles.brandAi}>.ai</Text>
-        </Text>
+      {/* Logo */}
+      <View style={styles.logoBar}>
+        <Image source={Images.logo} style={styles.logo} resizeMode="contain" />
       </View>
 
-      {/* Divider line */}
-      <View style={styles.divider} />
+      {/* Optional tagline / extra content */}
+      {children}
 
-      {/* Page title */}
-      <View style={styles.titleRow}>
+      {/* Heading + label */}
+      <View style={styles.headingRow}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.title}>{title}</Text>
-          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+          <Text style={styles.heading}>{heading}</Text>
+          {label ? <Text style={styles.label}>{label}</Text> : null}
         </View>
         {rightElement}
       </View>
@@ -44,45 +44,32 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: C.border,
   },
-  brandBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  logoBar: {
+    alignItems: 'flex-start',
     paddingHorizontal: 20,
     paddingTop: 10,
-    paddingBottom: 10,
-    gap: 10,
+    paddingBottom: 6,
   },
-  icon: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+  logo: {
+    height: 38,
+    width: 200,
   },
-  brandText: {
-    fontSize: 18,
-    fontWeight: '400',
-    color: C.t2,
-    letterSpacing: -0.3,
-  },
-  brandBold: {
-    fontWeight: '700',
-    color: C.t1,
-  },
-  brandAi: {
-    fontWeight: '800',
-    color: C.blue,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: C.border,
-    marginHorizontal: 20,
-    marginBottom: 12,
-  },
-  titleRow: {
+  headingRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
   },
-  title: { ...T.hero },
-  subtitle: { ...T.body, color: C.t3, marginTop: 2 },
+  heading: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: C.t1,
+    letterSpacing: -0.3,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: C.t3,
+    marginTop: 2,
+  },
 });

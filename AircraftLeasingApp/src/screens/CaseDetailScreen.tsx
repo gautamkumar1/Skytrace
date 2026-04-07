@@ -163,9 +163,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: C.bg,
   },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
-  brandIcon: { width: 28, height: 28, borderRadius: 6 },
-  brandName: { fontSize: 15, fontWeight: '700', color: C.t1 },
   hero: {
     paddingHorizontal: 20,
     paddingTop: Spacing.lg,

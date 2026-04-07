@@ -41,7 +41,11 @@ export default function DashboardScreen() {
   return (
     <View style={styles.screen}>
       <StatusBar barStyle="dark-content" backgroundColor={C.bgCard} />
-      <PageHeader title="Dashboard" subtitle="Fleet operations overview" />
+      <PageHeader heading="Fleet Overview" label="Dashboard">
+        <View style={styles.tagline}>
+          <Text style={styles.taglineText}>Records Risk Intelligence</Text>
+        </View>
+      </PageHeader>
 
       <ScrollView
         refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={C.blue} />}
@@ -129,6 +133,8 @@ export default function DashboardScreen() {
 const P = 20;
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.bg },
+  tagline: { paddingHorizontal: 20, paddingBottom: 10 },
+  taglineText: { fontSize: 16, fontWeight: '600', color: C.blue, letterSpacing: 0.3 },
   statsRow: { gap: 10, paddingHorizontal: P, paddingBottom: 12 },
   alert: {
     flexDirection: 'row', alignItems: 'center', gap: 12,

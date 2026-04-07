@@ -65,7 +65,7 @@ export default function IssuesScreen() {
     <View style={styles.screen}>
       {/* Sticky header: title + summary + filters */}
       <View style={styles.stickyHeader}>
-        <PageHeader title="Issues" subtitle="Critical findings across fleet" />
+        <PageHeader heading="Outstanding Issues" label="Critical findings across fleet" />
 
         <View style={styles.summaryRow}>
           <View style={styles.sumOuter}>

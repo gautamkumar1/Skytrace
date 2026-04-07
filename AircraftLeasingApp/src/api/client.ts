@@ -1,4 +1,6 @@
-export const API_BASE_URL = 'http://116.202.210.102:3591';
+import { API_BASE_URL } from '../config/apiBaseUrl';
+
+export { API_BASE_URL };
 
 const MAX_RETRIES = 2;
 const RETRY_DELAY = 1000;

@@ -79,7 +79,7 @@ export default function UploadScreen() {
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <PageHeader title="Upload" subtitle="Ingest documents for AI analysis" />
+      <PageHeader heading="Upload Documents" label="Ingest documents for AI analysis" />
 
       <View style={styles.form}>
         {/* Case ID */}
