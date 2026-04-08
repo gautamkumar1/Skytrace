@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, RefreshControl } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -12,6 +12,7 @@ import SeverityBadge from '../components/SeverityBadge';
 import PageHeader from '../components/PageHeader';
 import EmptyState from '../components/EmptyState';
 import { Images } from '../assets';
+import { addRecentCase } from '../utils/recentlyViewed';
 import { C } from '../theme/colors';
 import { T } from '../theme/typography';
 import { Spacing, Radius } from '../theme/spacing';
@@ -26,6 +27,11 @@ export default function CaseDetailScreen() {
   const { caseId } = route.params;
   const { data, loading, refresh } = useApi(() => fetchCaseDetail(caseId), [caseId]);
   const [tab, setTab] = useState<Tab>('findings');
+
+  // Track recently viewed
+  useEffect(() => {
+    if (data) addRecentCase({ case_id: data.case_id, registration: data.registration, aircraft_type: data.aircraft_type, engine_type: data.engine_type, created_at: data.created_at });
+  }, [data]);
 
   if (!data && !loading) return <EmptyState title="Case not found" />;
 

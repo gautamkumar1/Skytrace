@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, RefreshControl, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useApi } from '../hooks/useApi';
 import { fetchStats } from '../api/endpoints';
@@ -18,7 +19,8 @@ import { T } from '../theme/typography';
 import { Images } from '../assets';
 import { formatConfidence } from '../utils/format';
 import { sevColor, SEVERITY_ORDER } from '../utils/severity';
-import type { RecentFinding } from '../types';
+import { getRecentCases, onRecentChange } from '../utils/recentlyViewed';
+import type { Case, RecentFinding } from '../types';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -26,6 +28,12 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function DashboardScreen() {
   const nav = useNavigation<Nav>();
   const { data, loading, refresh } = useApi(fetchStats);
+  const [recentCases, setRecentCases] = useState<Case[]>(getRecentCases());
+
+  // Refresh recently viewed when screen is focused or list changes
+  useFocusEffect(React.useCallback(() => { setRecentCases(getRecentCases()); }, []));
+  useEffect(() => onRecentChange(() => setRecentCases(getRecentCases())), []);
+
   if (!data && !loading) return <EmptyState title="Unable to load" />;
 
   const s = data;
@@ -73,8 +81,42 @@ export default function DashboardScreen() {
           </AnimatedCard>
         )}
 
+        {/* Records Upload */}
+        <AnimatedCard delay={320}>
+          <AnimatedButton onPress={() => nav.navigate('Tabs', { screen: 'Upload' })} scaleDown={0.985}>
+            <View style={styles.uploadBox}>
+              <View style={styles.uploadIcon}><Text style={styles.uploadIconText}>{'\u21E7'}</Text></View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.uploadTitle}>Records Upload</Text>
+                <Text style={styles.uploadSub}>Upload technical documents for AI analysis</Text>
+              </View>
+              <Text style={styles.uploadArrow}>{'\u203A'}</Text>
+            </View>
+          </AnimatedButton>
+        </AnimatedCard>
+
+        {/* Recently Viewed */}
+        {recentCases.length > 0 && (
+          <>
+            <AnimatedCard delay={350}><Text style={styles.section}>RECENTLY VIEWED</Text></AnimatedCard>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recentRow}>
+              {recentCases.map((rc, i) => (
+                <AnimatedCard key={rc.case_id} delay={380 + i * 50} slideFrom="right">
+                  <AnimatedButton onPress={() => nav.navigate('CaseDetail', { caseId: rc.case_id })} scaleDown={0.97}>
+                    <View style={styles.recentCard}>
+                      <Text style={styles.recentReg}>{rc.registration}</Text>
+                      <Text style={styles.recentType}>{rc.aircraft_type}</Text>
+                      <Text style={styles.recentCase}>{rc.case_id}</Text>
+                    </View>
+                  </AnimatedButton>
+                </AnimatedCard>
+              ))}
+            </ScrollView>
+          </>
+        )}
+
         {/* Severity */}
-        <AnimatedCard delay={350}><Text style={styles.section}>SEVERITY BREAKDOWN</Text></AnimatedCard>
+        <AnimatedCard delay={450}><Text style={styles.section}>SEVERITY BREAKDOWN</Text></AnimatedCard>
         <View style={styles.sevGrid}>
           {SEVERITY_ORDER.map((sv, i) => {
             const count = sev[sv] ?? 0;
@@ -135,6 +177,26 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.bg },
   tagline: { paddingBottom: 8 },
   taglineText: { fontSize: 16, fontWeight: '600', color: C.blue, letterSpacing: 0.3 },
+  uploadBox: {
+    flexDirection: 'row', alignItems: 'center', gap: 14,
+    marginHorizontal: P, backgroundColor: C.bgCard, borderRadius: 14,
+    padding: 16, borderWidth: 1, borderColor: C.border,
+    ...C.shadow.card, marginBottom: 4,
+  },
+  uploadIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#EFF6FF', justifyContent: 'center' as const, alignItems: 'center' as const },
+  uploadIconText: { fontSize: 20, color: C.blue },
+  uploadTitle: { fontSize: 16, fontWeight: '700', color: C.t1 },
+  uploadSub: { fontSize: 13, fontWeight: '400', color: C.t3, marginTop: 1 },
+  uploadArrow: { fontSize: 22, color: C.t4 },
+  recentRow: { gap: 10, paddingHorizontal: P, paddingBottom: 4 },
+  recentCard: {
+    backgroundColor: C.bgCard, borderRadius: 12, padding: 14,
+    borderWidth: 1, borderColor: C.border, width: 140,
+    ...C.shadow.card,
+  },
+  recentReg: { fontSize: 16, fontWeight: '700', color: C.blue },
+  recentType: { fontSize: 12, fontWeight: '500', color: C.t2, marginTop: 2 },
+  recentCase: { fontSize: 11, fontWeight: '500', color: C.t4, marginTop: 4, fontFamily: 'monospace' },
   statsRow: { gap: 10, paddingHorizontal: P, paddingBottom: 12 },
   alert: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
