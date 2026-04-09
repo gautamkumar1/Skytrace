@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import RootNavigator from './src/navigation/RootNavigator';
+import SplashScreen from './src/screens/SplashScreen';
 import { C } from './src/theme/colors';
 
 const LightTheme = {
@@ -20,6 +21,16 @@ const LightTheme = {
 };
 
 export default function App() {
+  const [splashDone, setSplashDone] = useState(false);
+
+  if (!splashDone) {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SplashScreen onDone={() => setSplashDone(true)} />
+      </GestureHandlerRootView>
+    );
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
